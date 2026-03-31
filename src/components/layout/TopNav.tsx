@@ -1,6 +1,8 @@
 'use client';
 
 import { ThemeToggle } from './ThemeToggle';
+import { UserDropdown } from './UserDropdown';
+import { NotificationDropdown } from './NotificationDropdown';
 import { useAuthStore } from '@/store/useAuthStore';
 import { motion } from 'framer-motion';
 
@@ -11,14 +13,30 @@ export function TopNav() {
     <motion.header 
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className="h-16 flex items-center justify-between px-8 glass border-b sticky top-0 z-40 ml-64"
+      className="h-20 flex items-center justify-between px-8 glass border-b sticky top-0 z-40 ml-64"
     >
-      <h2 className="text-xl font-semibold opacity-80">Welcome, {user?.email?.split('@')[0] || 'User'}!</h2>
-      <div className="flex items-center space-x-4">
+      <div className="flex flex-col">
+        {user?.userType === 'agency' && user?.agencyName && (
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-2 mb-0.5"
+          >
+            <span className="bg-primary/10 text-primary text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-md border border-primary/20 tracking-wider">Agency</span>
+            <span className="text-xs font-bold opacity-80 uppercase tracking-widest">{user.agencyName}</span>
+          </motion.div>
+        )}
+        <h2 className="text-xl font-bold tracking-tight">
+          Hello, {user?.name || user?.email?.split('@')[0] || 'User'}!
+        </h2>
+        <p className="text-xs opacity-50 font-medium">Welcome back to your workspace</p>
+      </div>
+      
+      <div className="flex items-center space-x-2">
+        <NotificationDropdown />
         <ThemeToggle />
-        <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary">
-          {user?.email?.[0].toUpperCase() || 'U'}
-        </div>
+        <div className="h-8 w-px bg-[var(--border)] mx-3 opacity-50" />
+        <UserDropdown />
       </div>
     </motion.header>
   );

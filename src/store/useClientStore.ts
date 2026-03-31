@@ -8,6 +8,7 @@ interface ClientState {
   updateClient: (client: any) => void;
   deleteClient: (id: string) => void;
   setLoading: (loading: boolean) => void;
+  markFollowUpDone: (id: string) => Promise<void>;
 }
 
 export const useClientStore = create<ClientState>((set) => ({
@@ -22,4 +23,20 @@ export const useClientStore = create<ClientState>((set) => ({
     clients: state.clients.filter(c => c._id !== id)
   })),
   setLoading: (isLoading) => set({ isLoading }),
+  markFollowUpDone: async (id: string) => {
+    try {
+      const res = await fetch(`/api/clients/${id}/followup`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!res.ok) throw new Error('Failed to update follow-up');
+      const { client } = await res.json();
+      set((state) => ({
+        clients: state.clients.map(c => c._id === id ? client : c)
+      }));
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  }
 }));

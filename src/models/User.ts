@@ -2,7 +2,14 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IUser extends Document {
   email: string;
+  name?: string;
+  userType?: 'freelancer' | 'agency';
+  agencyName?: string;
   password?: string;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
+  googleId?: string;
+  avatar?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -16,9 +23,40 @@ const UserSchema: Schema<IUser> = new Schema(
       trim: true,
       lowercase: true,
     },
+    name: {
+      type: String,
+      trim: true,
+    },
+    userType: {
+      type: String,
+      enum: ['freelancer', 'agency'],
+      default: 'freelancer',
+    },
+    agencyName: {
+      type: String,
+      trim: true,
+    },
     password: {
       type: String,
-      required: true,
+      required: false, // Optional for Google users
+    },
+    googleId: {
+      type: String,
+      required: false,
+      unique: true,
+      sparse: true, // Allow multiple nulls but unique when present
+    },
+    avatar: {
+      type: String,
+      required: false,
+    },
+    resetPasswordToken: {
+      type: String,
+      required: false,
+    },
+    resetPasswordExpires: {
+      type: Date,
+      required: false,
     },
   },
   {
@@ -26,5 +64,8 @@ const UserSchema: Schema<IUser> = new Schema(
   }
 );
 
-export const User: Model<IUser> =
-  mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
+if (mongoose.models.User) {
+  delete mongoose.models.User;
+}
+
+export const User: Model<IUser> = mongoose.model<IUser>('User', UserSchema);

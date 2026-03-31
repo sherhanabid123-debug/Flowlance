@@ -14,7 +14,7 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { logout } = useAuthStore();
+  const { logout, user } = useAuthStore();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -29,7 +29,18 @@ export function Sidebar() {
       animate={{ x: 0 }}
       className="w-64 h-screen fixed left-0 top-0 glass border-r z-50 flex flex-col items-start p-6"
     >
-      <div className="text-2xl font-bold mb-10 text-primary">Flowlance</div>
+      <div className="flex flex-col mb-10 w-full">
+        <div className="text-2xl font-bold text-primary tracking-tight">Flowlance</div>
+        {user?.userType === 'agency' && user?.agencyName && (
+          <motion.div 
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="text-[10px] uppercase font-bold tracking-[0.2em] opacity-40 mt-1 pl-1 truncate"
+          >
+            {user.agencyName}
+          </motion.div>
+        )}
+      </div>
       
       <nav className="w-full flex-1 space-y-2">
         {navItems.map((item) => {

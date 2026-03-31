@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
+import { usePathname, useRouter } from 'next/navigation';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const { setUser, setLoading } = useAuthStore();
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
@@ -17,6 +20,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
           setUser(data.user);
         } else {
           setUser(null);
+          if (pathname.startsWith('/dashboard')) {
+            router.push('/login');
+          }
         }
       } catch (error) {
         setUser(null);
@@ -26,7 +32,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     };
 
     fetchUser();
-  }, [setUser, setLoading]);
+  }, [setUser, setLoading, pathname, router]);
 
   if (!mounted) {
     return null;

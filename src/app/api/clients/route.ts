@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import { Client } from '@/models/Client';
 import { verifyToken } from '@/lib/auth';
+import { addDays } from 'date-fns';
 
 const getUserId = (req: Request) => {
   const token = req.headers.get('cookie')?.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
@@ -30,7 +31,22 @@ export async function POST(req: Request) {
 
     await dbConnect();
     const data = await req.json();
-    const newClient = await Client.create({ ...data, userId });
+    
+    // Initialize follow-up dates
+    const interval = data.followUpInterval || 3;
+    const lastDate = data.lastFollowUp ? new Date(data.lastFollowUp) : new Date();
+    const nextFollowUp = addDays(lastDate, interval);
+    
+    // Only set follow-up dates if not completed
+    const isCompleted = data.status === 'completed';
+    
+    const newClient = await Client.create({ 
+      ...data, 
+      userId,
+      lastFollowUp: isCompleted ? undefined : lastDate,
+      nextFollowUp: isCompleted ? undefined : nextFollowUp,
+      followUpInterval: interval
+    });
     return NextResponse.json({ client: newClient }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

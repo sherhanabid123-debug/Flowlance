@@ -23,6 +23,10 @@ export interface IClient extends Document {
   sampleProvided?: boolean;
   sampleLink?: string;
   
+  lastFollowUp?: Date;
+  nextFollowUp?: Date;
+  followUpInterval?: number;
+  
   createdAt: Date;
   updatedAt: Date;
 }
@@ -69,6 +73,11 @@ const ClientSchema: Schema<IClient> = new Schema(
     // Samples
     sampleProvided: { type: Boolean, default: false },
     sampleLink: { type: String, trim: true },
+    
+    // Follow-ups
+    lastFollowUp: { type: Date },
+    nextFollowUp: { type: Date },
+    followUpInterval: { type: Number, default: 3 },
   },
   {
     timestamps: true,

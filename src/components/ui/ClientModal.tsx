@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect, useRef, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Link as LinkIcon, Info } from 'lucide-react';
+import { Link as LinkIcon, Info } from 'lucide-react';
 import { useClientStore } from '@/store/useClientStore';
 import { useToastStore } from '@/store/useToastStore';
+import { CenteredModal } from './CenteredModal';
 
 interface ClientModalProps {
   isOpen: boolean;
@@ -64,6 +65,8 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
   const [completionDate, setCompletionDate] = useState('');
   // General
   const [notes, setNotes] = useState('');
+  const [followUpInterval, setFollowUpInterval] = useState('3');
+  const [lastFollowUp, setLastFollowUp] = useState(new Date().toISOString().split('T')[0]);
   
   // Sample
   const [sampleProvided, setSampleProvided] = useState(false);
@@ -84,6 +87,8 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
       setNotes(initialData.notes || '');
       setSampleProvided(initialData.sampleProvided || false);
       setSampleLink(initialData.sampleLink || '');
+      setFollowUpInterval(initialData.followUpInterval?.toString() || '3');
+      setLastFollowUp(initialData.lastFollowUp ? new Date(initialData.lastFollowUp).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
     } else {
       // Clear if no initial data
       setName('');
@@ -99,6 +104,8 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
       setNotes('');
       setSampleProvided(false);
       setSampleLink('');
+      setFollowUpInterval('3');
+      setLastFollowUp(new Date().toISOString().split('T')[0]);
     }
   }, [initialData, isOpen]);
 
@@ -120,22 +127,12 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
     type === 'confirmed' ? isConfirmedValid :
     isCompletedValid) && isSampleValid;
 
-  // Handle ESC and Autfocus
+  // Autfocuss
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
     if (isOpen) {
-      document.addEventListener('keydown', handleEsc);
       setTimeout(() => focusRef.current?.focus(), 100);
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
     }
-    return () => {
-      document.removeEventListener('keydown', handleEsc);
-    };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -151,6 +148,8 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
       name, contact, projectName, status: type, notes,
       sampleProvided,
       sampleLink: sampleProvided ? sampleLink : '',
+      followUpInterval: Number(followUpInterval),
+      lastFollowUp,
       ...(type === 'potential' && { expectedBudget: Number(expectedBudget) }),
       ...(type === 'confirmed' && { advanceAmount: Number(advanceAmount), totalAmount: Number(totalAmount), startDate }),
       ...(type === 'completed' && { finalAmount: Number(finalAmount), totalAmount: Number(totalAmount), completionDate }),
@@ -188,197 +187,185 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
   };
 
   const handleClose = () => {
-    // Reset Form
-    setName('');
-    setContact('');
-    setProjectName('');
-    setType('potential');
-    setExpectedBudget('');
-    setAdvanceAmount('');
-    setTotalAmount('');
-    setStartDate('');
-    setFinalAmount('');
-    setCompletionDate('');
-    setNotes('');
-    setSampleProvided(false);
-    setSampleLink('');
     onClose();
   };
 
-  const shakeVariants = {
-    shake: { x: [0, -10, 10, -10, 10, 0], transition: { duration: 0.4 } }
-  };
-
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-hidden">
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={handleClose}
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
-          />
-
-          {/* Modal Content */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={shake ? "shake" : { opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            variants={shakeVariants}
-            className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto glass bg-card text-card-foreground rounded-2xl shadow-2xl p-6 md:p-8 flex flex-col no-scrollbar"
-          >
-            <button 
-              onClick={handleClose}
-              className="absolute top-6 right-6 p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-            >
-              <X size={20} />
-            </button>
-
-            <h2 className="text-2xl font-bold mb-6 tracking-tight">
-              {initialData ? 'Edit Client' : 'Add New Client'}
-            </h2>
-
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InputField ref={focusRef} index={1} label="Client Name" value={name} onChange={(e:any) => setName(e.target.value)} required />
-                <InputField index={2} label="Contact Info (Email/Phone)" value={contact} onChange={(e:any) => setContact(e.target.value)} />
-                <div className="md:col-span-2">
-                  <InputField index={3} label="Project Name" value={projectName} onChange={(e:any) => setProjectName(e.target.value)} required />
-                </div>
-              </div>
-
-              {/* Client Type Toggle */}
-              <motion.div custom={4} variants={inputStagger} initial="hidden" animate="visible" className="flex flex-col mb-4">
-                <label className="text-sm font-medium opacity-70 mb-2">Client Type</label>
-                <div className="flex bg-black/5 dark:bg-white/5 p-1 rounded-xl">
-                  {['potential', 'confirmed', 'completed'].map((t) => (
-                    <button
-                      key={t}
-                      type="button"
-                      onClick={() => setType(t)}
-                      className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg capitalize transition-all ${
-                        type === t ? 'bg-background shadow-sm text-primary' : 'hover:opacity-80'
-                      }`}
-                    >
-                      {t}
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-
-              {/* Dynamic Fields */}
-              <AnimatePresence mode="popLayout">
-                {type === 'potential' && (
-                  <motion.div key="potential" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex gap-4 flex-col md:flex-row w-full">
-                    <InputField index={5} label="Expected Budget (₹)" type="number" value={expectedBudget} onChange={(e:any) => setExpectedBudget(e.target.value)} />
-                  </motion.div>
-                )}
-                {type === 'confirmed' && (
-                  <motion.div key="confirmed" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                    <InputField index={5} label="Total Amount (₹)" type="number" value={totalAmount} onChange={(e:any) => setTotalAmount(e.target.value)} required />
-                    <InputField index={6} label="Advance Amount (₹)" type="number" value={advanceAmount} onChange={(e:any) => setAdvanceAmount(e.target.value)} required />
-                    <InputField index={7} label="Start Date" type="date" value={startDate} onChange={(e:any) => setStartDate(e.target.value)} />
-                  </motion.div>
-                )}
-                {type === 'completed' && (
-                  <motion.div key="completed" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                    <InputField index={5} label="Final Amount Received (₹)" type="number" value={finalAmount} onChange={(e:any) => setFinalAmount(e.target.value)} required />
-                    <InputField index={6} label="Completion Date" type="date" value={completionDate} onChange={(e:any) => setCompletionDate(e.target.value)} />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Sample Provided Toggle */}
-              <motion.div custom={7} variants={inputStagger} initial="hidden" animate="visible" className="flex items-center justify-between bg-black/5 dark:bg-white/5 p-4 rounded-xl mt-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">Sample Provided</span>
-                  <div className="group relative flex items-center justify-center cursor-help opacity-50 hover:opacity-100 transition-opacity">
-                    <Info size={14} />
-                    <span className="absolute bottom-full mb-2 -left-3 hidden group-hover:block w-36 px-2 py-1.5 text-xs bg-black dark:bg-white text-white dark:text-black rounded-lg text-center z-10 shadow-lg pointer-events-none">
-                      Sample shared with client
-                    </span>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setSampleProvided(!sampleProvided)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background ${sampleProvided ? 'bg-primary' : 'bg-black/20 dark:bg-white/20'}`}
-                >
-                  <motion.span
-                    layout
-                    transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${sampleProvided ? 'translate-x-6' : 'translate-x-1'}`}
-                  />
-                </button>
-              </motion.div>
-
-              <AnimatePresence mode="wait">
-                {sampleProvided && (
-                  <motion.div
-                    key="sample-link"
-                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                    animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
-                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <InputField 
-                      index={8} 
-                      label="Sample Link (https://...)" 
-                      type="url" 
-                      value={sampleLink} 
-                      onChange={(e:any) => setSampleLink(e.target.value)} 
-                      required 
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Notes */}
-              <motion.div custom={9} variants={inputStagger} initial="hidden" animate="visible" className="relative w-full mt-2">
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  className="peer w-full bg-transparent p-3 pt-6 rounded-xl border border-[var(--border)] outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm min-h-[100px] resize-none"
-                  placeholder=" "
-                />
-                <label className={`absolute left-3 top-4 text-xs font-medium opacity-60 transition-all pointer-events-none 
-                  peer-placeholder-shown:text-sm peer-placeholder-shown:top-3 
-                  peer-focus:top-1 peer-focus:text-xs peer-focus:text-primary peer-focus:opacity-100
-                  ${notes ? 'top-1 text-xs opacity-100' : ''}`}
-                >
-                  Additional Notes
-                </label>
-              </motion.div>
-
-              {/* Actions */}
-              <motion.div custom={10} variants={inputStagger} initial="hidden" animate="visible" className="flex justify-end gap-3 mt-4 pt-4 border-t border-[var(--border)]">
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="px-5 py-2.5 rounded-xl font-medium border border-[var(--border)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting || !isValid}
-                  className="px-5 py-2.5 rounded-xl font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                      Saving...
-                    </>
-                  ) : 'Save Client'}
-                </button>
-              </motion.div>
-            </form>
-          </motion.div>
+    <CenteredModal 
+      isOpen={isOpen} 
+      onClose={handleClose} 
+      title={initialData ? 'Edit Client' : 'Add New Client'}
+      maxWidth="max-w-2xl"
+    >
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <InputField ref={focusRef} index={1} label="Client Name" value={name} onChange={(e:any) => setName(e.target.value)} required />
+          <InputField index={2} label="Contact Info (Email/Phone)" value={contact} onChange={(e:any) => setContact(e.target.value)} />
+          <div className="md:col-span-2">
+            <InputField index={3} label="Project Name" value={projectName} onChange={(e:any) => setProjectName(e.target.value)} required />
+          </div>
         </div>
-      )}
-    </AnimatePresence>
+
+        {/* Client Type Toggle */}
+        <motion.div custom={4} variants={inputStagger} initial="hidden" animate="visible" className="flex flex-col mb-4">
+          <label className="text-sm font-medium opacity-70 mb-2">Client Stage</label>
+          <div className="flex bg-black/5 dark:bg-white/5 p-1 rounded-xl">
+            {['potential', 'confirmed', 'completed'].map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setType(t)}
+                className={`flex-1 py-2 px-3 text-sm font-bold rounded-lg capitalize transition-all ${
+                  type === t 
+                    ? t === 'potential' ? 'bg-blue-600 text-white shadow-lg' 
+                    : t === 'confirmed' ? 'bg-amber-500 text-black shadow-lg' 
+                    : 'bg-green-600 text-white shadow-lg'
+                    : 'hover:bg-black/5 dark:hover:bg-white/10'
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Dynamic Fields */}
+        <AnimatePresence mode="popLayout">
+          {type === 'potential' && (
+            <motion.div key="potential" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex gap-4 flex-col md:flex-row w-full">
+              <InputField index={5} label="Expected Budget (₹)" type="number" value={expectedBudget} onChange={(e:any) => setExpectedBudget(e.target.value)} />
+            </motion.div>
+          )}
+          {type === 'confirmed' && (
+            <motion.div key="confirmed" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+              <InputField index={5} label="Total Amount (₹)" type="number" value={totalAmount} onChange={(e:any) => setTotalAmount(e.target.value)} required />
+              <InputField index={6} label="Advance Amount (₹)" type="number" value={advanceAmount} onChange={(e:any) => setAdvanceAmount(e.target.value)} required />
+              <InputField index={7} label="Start Date" type="date" value={startDate} onChange={(e:any) => setStartDate(e.target.value)} />
+            </motion.div>
+          )}
+          {type === 'completed' && (
+            <motion.div key="completed" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+              <InputField index={5} label="Final Amount Received (₹)" type="number" value={finalAmount} onChange={(e:any) => setFinalAmount(e.target.value)} required />
+              <InputField index={6} label="Completion Date" type="date" value={completionDate} onChange={(e:any) => setCompletionDate(e.target.value)} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Sample Provided Toggle */}
+        <motion.div custom={7} variants={inputStagger} initial="hidden" animate="visible" className="flex items-center justify-between bg-black/5 dark:bg-white/5 p-4 rounded-xl mt-2">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">{type === 'completed' ? 'Website Link?' : 'Sample Provided'}</span>
+            <div className="group relative flex items-center justify-center cursor-help opacity-50 hover:opacity-100 transition-opacity">
+              <Info size={14} />
+              <span className="absolute bottom-full mb-2 -left-3 hidden group-hover:block w-36 px-2 py-1.5 text-xs bg-black dark:bg-white text-white dark:text-black rounded-lg text-center z-10 shadow-lg pointer-events-none">
+                {type === 'completed' ? 'Link to the live project' : 'Sample shared with client'}
+              </span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSampleProvided(!sampleProvided)}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background ${sampleProvided ? 'bg-primary' : 'bg-black/20 dark:bg-white/20'}`}
+          >
+            <motion.span
+              layout
+              transition={{ type: "spring", stiffness: 700, damping: 30 }}
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${sampleProvided ? 'translate-x-6' : 'translate-x-1'}`}
+            />
+          </button>
+        </motion.div>
+
+        <AnimatePresence mode="wait">
+          {sampleProvided && (
+            <motion.div
+              key="sample-link"
+              initial={{ opacity: 0, height: 0, marginTop: 0 }}
+              animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
+              exit={{ opacity: 0, height: 0, marginTop: 0 }}
+              className="overflow-hidden"
+            >
+              <InputField 
+                index={8} 
+                label={type === 'completed' ? 'Website URL (https://...)' : 'Sample Link (https://...)'} 
+                type="url" 
+                value={sampleLink} 
+                onChange={(e:any) => setSampleLink(e.target.value)} 
+                required 
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
+        {/* Follow-up Settings */}
+        {type !== 'completed' && (
+          <motion.div custom={8.5} variants={inputStagger} initial="hidden" animate="visible" className="bg-indigo-600/5 border border-indigo-500/20 p-4 rounded-xl mt-2">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-sm font-bold text-indigo-500">Follow-up Interval</span>
+                <span className="text-[10px] opacity-60">Schedule next reminder every X days</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <input 
+                  type="number" 
+                  min="1" 
+                  max="30"
+                  value={followUpInterval}
+                  onChange={(e) => setFollowUpInterval(e.target.value)}
+                  className="w-16 px-2 py-1.5 rounded-lg bg-background border border-indigo-500/30 text-center font-bold text-sm outline-none focus:border-indigo-500 transition-all font-mono"
+                />
+                <span className="text-xs opacity-60 font-medium whitespace-nowrap">Days</span>
+              </div>
+            </div>
+            
+            <div className="mt-4 pt-4 border-t border-indigo-500/10">
+              <InputField 
+                index={8.6} 
+                label="Last Follow-up Date" 
+                type="date" 
+                value={lastFollowUp} 
+                onChange={(e:any) => setLastFollowUp(e.target.value)} 
+              />
+            </div>
+          </motion.div>
+        )}
+
+        {/* Notes */}
+        <motion.div custom={9} variants={inputStagger} initial="hidden" animate="visible" className="relative w-full mt-2">
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            className="peer w-full bg-transparent p-3 pt-6 rounded-xl border border-[var(--border)] outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm min-h-[100px] resize-none"
+            placeholder=" "
+          />
+          <label className={`absolute left-3 top-4 text-xs font-medium opacity-60 transition-all pointer-events-none 
+            peer-placeholder-shown:text-sm peer-placeholder-shown:top-3 
+            peer-focus:top-1 peer-focus:text-xs peer-focus:text-primary peer-focus:opacity-100
+            ${notes ? 'top-1 text-xs opacity-100' : ''}`}
+          >
+            Additional Notes
+          </label>
+        </motion.div>
+
+        {/* Actions */}
+        <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-[var(--border)]">
+          <button
+            type="button"
+            onClick={handleClose}
+            className="px-5 py-2.5 rounded-xl font-medium border border-[var(--border)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={isSubmitting || !isValid}
+            className={`px-5 py-2.5 rounded-xl font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${shake ? 'animate-shake' : ''}`}
+          >
+            {isSubmitting ? (
+              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+            ) : 'Save Client'}
+          </button>
+        </div>
+      </form>
+    </CenteredModal>
   );
 }
