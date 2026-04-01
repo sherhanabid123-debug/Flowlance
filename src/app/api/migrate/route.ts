@@ -23,7 +23,7 @@ export async function POST() {
         const newWorkspace = await Workspace.create({
           name: workspaceName,
           ownerId: user._id,
-          members: [user._id],
+          members: [{ userId: user._id, role: 'owner' }],
         });
         
         // Update user
