@@ -124,7 +124,7 @@ export default function ClientsPage() {
             onClick={() => setIsQuickAddOpen(true)}
             className="flex items-center gap-2 border border-primary text-primary px-4 py-2.5 rounded-xl font-medium hover:bg-primary/5 transition-all whitespace-nowrap text-sm"
           >
-            <Zap size={15} /> Quick Add
+            <Zap size={15} /> Quick Add Client
           </button>
           <button onClick={handleAddNew} className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-medium hover:opacity-90 transition-opacity whitespace-nowrap">
             <Plus size={18} /> New Client
