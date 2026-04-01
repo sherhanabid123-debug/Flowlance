@@ -65,7 +65,7 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
             </div>
             <h3 className="text-xl font-bold mb-2">Check your email</h3>
             <p className="text-sm opacity-60 max-w-xs mx-auto mb-6">
-              If an account exists for {email}, you will receive a password reset link shortly.
+              Success! A password reset link has been sent to <b>{email}</b>.
             </p>
             <button
               onClick={handleClose}
