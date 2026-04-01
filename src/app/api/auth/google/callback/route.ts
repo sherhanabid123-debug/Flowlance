@@ -6,7 +6,8 @@ import { signToken } from '@/lib/auth';
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get('code');
-  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/auth/google/callback`;
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/$/, '');
+  const redirectUri = `${baseUrl}/api/auth/google/callback`;
 
   if (!code) {
     return NextResponse.json({ error: 'Authorization code not provided' }, { status: 400 });
@@ -77,7 +78,7 @@ export async function GET(req: Request) {
     // 4. Issue JWT and set cookie
     const token = signToken(user._id.toString());
     
-    const response = NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`);
+    const response = NextResponse.redirect(`${baseUrl}/dashboard`);
     
     response.cookies.set('token', token, {
       httpOnly: true,
