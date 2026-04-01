@@ -40,7 +40,7 @@ export function canPerformAction(role: WorkspaceRole, scope: 'client' | 'team', 
 
   if (role === 'member') {
     if (scope === 'client') {
-      return action === 'edit'; // Members can only edit (follow-ups/notes handled separately in route)
+      return action === 'create' || action === 'edit';
     }
   }
 

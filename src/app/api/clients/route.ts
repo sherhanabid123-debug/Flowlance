@@ -22,11 +22,9 @@ export async function POST(req: Request) {
     const session = await getServerSession(req);
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // RBAC: Only owners can create clients
-    if (session.role !== 'owner') {
-      return NextResponse.json({ error: 'Access denied. Only workspace owners can create new clients.' }, { status: 403 });
-    }
-
+    // RBAC: Both owners and members can create clients
+    // (We previously restricted it to owner, but have loosened it based on user feedback)
+    
     await dbConnect();
     const data = await req.json();
     
@@ -41,6 +39,7 @@ export async function POST(req: Request) {
     const newClient = await Client.create({ 
       ...data, 
       workspaceId: session.workspaceId,
+      createdBy: session.userId,
       lastFollowUp: isCompleted ? undefined : lastDate,
       nextFollowUp: isCompleted ? undefined : nextFollowUp,
       followUpInterval: interval

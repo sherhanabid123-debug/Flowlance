@@ -63,6 +63,7 @@ export default function ClientsPage() {
   };
 
   const handleUpgradeStatus = (client: any, newStatus: string) => {
+    // Only owners can change stages for now (confirmed)
     if (!isOwner) {
       addToast('Only owners can move clients between stages', 'error');
       return;
@@ -81,10 +82,7 @@ export default function ClientsPage() {
   };
 
   const handleAddNew = () => {
-    if (!isOwner) {
-      addToast('Only owners can create new clients', 'error');
-      return;
-    }
+    // Both members and owners can now create clients
     setEditingClient(null);
     setIsModalOpen(true);
   };
@@ -108,24 +106,13 @@ export default function ClientsPage() {
   });
 
   return (
-    <div className="pt-8">
+    <div className="pt-8 text-left">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <h1 className="text-3xl font-bold tracking-tight">Client Management</h1>
         
-        {isOwner ? (
-          <button onClick={handleAddNew} className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-medium hover:opacity-90 transition-opacity whitespace-nowrap">
-            <Plus size={18} /> New Client
-          </button>
-        ) : (
-          <div className="group relative">
-            <button disabled className="flex items-center gap-2 bg-[var(--border)] text-[var(--text-muted)] px-5 py-2.5 rounded-xl font-medium cursor-not-allowed opacity-50 whitespace-nowrap">
-              <ShieldAlert size={18} /> New Client
-            </button>
-            <div className="absolute top-full right-0 mt-2 p-2 bg-black text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-              Only owners can create clients
-            </div>
-          </div>
-        )}
+        <button onClick={handleAddNew} className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-medium hover:opacity-90 transition-opacity whitespace-nowrap">
+          <Plus size={18} /> New Client
+        </button>
       </div>
 
       <div className="glass rounded-2xl p-4 md:p-6 mb-8 flex flex-col md:flex-row gap-4 justify-between items-center z-10 sticky top-[68px]">

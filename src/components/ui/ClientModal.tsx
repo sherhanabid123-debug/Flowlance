@@ -221,14 +221,14 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
         <motion.div custom={4} variants={inputStagger} initial="hidden" animate="visible" className="flex flex-col mb-2">
           <div className="flex items-center justify-between mb-2">
             <label className="text-sm font-medium opacity-70">Client Stage</label>
-            {!isOwner && <span className="text-[10px] text-amber-500 font-bold uppercase tracking-tighter">Owner Only</span>}
+            {!isOwner && !!initialData && <span className="text-[10px] text-amber-500 font-bold uppercase tracking-tighter">Owner Only</span>}
           </div>
-          <div className={`flex bg-black/5 dark:bg-white/5 p-1 rounded-xl ${!isOwner ? 'opacity-60 cursor-not-allowed' : ''}`}>
+          <div className={`flex bg-black/5 dark:bg-white/5 p-1 rounded-xl ${!isOwner && !!initialData ? 'opacity-60 cursor-not-allowed' : ''}`}>
             {['potential', 'confirmed', 'completed'].map((t) => (
               <button
                 key={t}
                 type="button"
-                disabled={!isOwner}
+                disabled={!isOwner && !!initialData}
                 onClick={() => setType(t)}
                 className={`flex-1 py-1.5 px-3 text-[11px] font-bold rounded-lg capitalize transition-all ${
                   type === t 
@@ -248,20 +248,20 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
         <AnimatePresence mode="popLayout">
           {type === 'potential' && (
             <motion.div key="potential" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex gap-4 flex-col md:flex-row w-full overflow-hidden">
-               <InputField index={5} label="Expected Budget (₹)" type="number" value={expectedBudget} onChange={(e:any) => setExpectedBudget(e.target.value)} disabled={!isOwner} />
+               <InputField index={5} label="Expected Budget (₹)" type="number" value={expectedBudget} onChange={(e:any) => setExpectedBudget(e.target.value)} disabled={!isOwner && !!initialData} />
             </motion.div>
           )}
           {type === 'confirmed' && (
             <motion.div key="confirmed" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full overflow-hidden">
-               <InputField index={5} label="Total Amount (₹)" type="number" value={totalAmount} onChange={(e:any) => setTotalAmount(e.target.value)} required disabled={!isOwner} />
-               <InputField index={6} label="Advance Amount (₹)" type="number" value={advanceAmount} onChange={(e:any) => setAdvanceAmount(e.target.value)} required disabled={!isOwner} />
-               <InputField index={7} label="Start Date" type="date" value={startDate} onChange={(e:any) => setStartDate(e.target.value)} disabled={!isOwner} />
+               <InputField index={5} label="Total Amount (₹)" type="number" value={totalAmount} onChange={(e:any) => setTotalAmount(e.target.value)} required disabled={!isOwner && !!initialData} />
+               <InputField index={6} label="Advance Amount (₹)" type="number" value={advanceAmount} onChange={(e:any) => setAdvanceAmount(e.target.value)} required disabled={!isOwner && !!initialData} />
+               <InputField index={7} label="Start Date" type="date" value={startDate} onChange={(e:any) => setStartDate(e.target.value)} disabled={!isOwner && !!initialData} />
             </motion.div>
           )}
           {type === 'completed' && (
             <motion.div key="completed" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full overflow-hidden">
-               <InputField index={5} label="Final Amount Received (₹)" type="number" value={finalAmount} onChange={(e:any) => setFinalAmount(e.target.value)} required disabled={!isOwner} />
-               <InputField index={6} label="Completion Date" type="date" value={completionDate} onChange={(e:any) => setCompletionDate(e.target.value)} disabled={!isOwner} />
+               <InputField index={5} label="Final Amount Received (₹)" type="number" value={finalAmount} onChange={(e:any) => setFinalAmount(e.target.value)} required disabled={!isOwner && !!initialData} />
+               <InputField index={6} label="Completion Date" type="date" value={completionDate} onChange={(e:any) => setCompletionDate(e.target.value)} disabled={!isOwner && !!initialData} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -282,7 +282,7 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
                 value={sampleLink} 
                 onChange={(e:any) => setSampleLink(e.target.value)} 
                 required 
-                disabled={!isOwner}
+                disabled={!isOwner && !!initialData}
               />
             </motion.div>
           )}
