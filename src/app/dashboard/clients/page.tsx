@@ -5,8 +5,9 @@ import { useClientStore } from '@/store/useClientStore';
 import { useWorkspaceStore } from '@/store/useWorkspaceStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Plus, Trash2, Edit, Link as LinkIcon, CheckCheck, MessageCircle } from 'lucide-react';
+import { Search, Plus, Trash2, Edit, Link as LinkIcon, CheckCheck, MessageCircle, Zap } from 'lucide-react';
 import { ClientModal } from '@/components/ui/ClientModal';
+import { QuickAddModal } from '@/components/ui/QuickAddModal';
 import { useToastStore } from '@/store/useToastStore';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { FollowUpBadge } from '@/components/ui/FollowUpBadge';
@@ -21,6 +22,7 @@ export default function ClientsPage() {
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<any>(null);
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const { addToast } = useToastStore();
   
   const role = getCurrentRole(user?._id);
@@ -117,9 +119,17 @@ export default function ClientsPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <h1 className="text-3xl font-bold tracking-tight">Client Management</h1>
         
-        <button onClick={handleAddNew} className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-medium hover:opacity-90 transition-opacity whitespace-nowrap">
-          <Plus size={18} /> New Client
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsQuickAddOpen(true)}
+            className="flex items-center gap-2 border border-primary text-primary px-4 py-2.5 rounded-xl font-medium hover:bg-primary/5 transition-all whitespace-nowrap text-sm"
+          >
+            <Zap size={15} /> Quick Add
+          </button>
+          <button onClick={handleAddNew} className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-medium hover:opacity-90 transition-opacity whitespace-nowrap">
+            <Plus size={18} /> New Client
+          </button>
+        </div>
       </div>
 
       <div className="glass rounded-2xl p-4 md:p-6 mb-8 flex flex-col md:flex-row gap-4 justify-between items-center z-10 sticky top-[68px]">
@@ -316,6 +326,14 @@ export default function ClientsPage() {
           setEditingClient(null);
         }} 
         initialData={editingClient}
+      />
+      <QuickAddModal
+        isOpen={isQuickAddOpen}
+        onClose={() => setIsQuickAddOpen(false)}
+        onAddDetails={(client) => {
+          setEditingClient(client);
+          setIsModalOpen(true);
+        }}
       />
     </div>
   );
