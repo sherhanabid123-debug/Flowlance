@@ -16,9 +16,12 @@ export async function POST(req: Request) {
 
     const user = await User.findOne({ email });
 
-    // Check if user exists
+    // Return explicit error if user not found as requested
     if (!user) {
-      return NextResponse.json({ error: 'User not found in database, please check if your email entered is correct' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'User not found in database, please check if your email entered is correct' }, 
+        { status: 404 }
+      );
     }
 
     // Generate secure reset token
@@ -33,7 +36,7 @@ export async function POST(req: Request) {
     // Send email with plain token (user will click this)
     await sendResetPasswordEmail(email, resetToken);
 
-    return NextResponse.json({ message: 'Success! A password reset link has been sent to your email.' }, { status: 200 });
+    return NextResponse.json({ message: 'Password reset link sent successfully.' }, { status: 200 });
   } catch (error: any) {
     console.error('Forgot password error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
