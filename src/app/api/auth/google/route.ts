@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 
-export async function GET() {
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const inviteToken = searchParams.get('inviteToken');
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/$/, '');
   const redirectUri = `${baseUrl}/api/auth/google/callback`;
@@ -21,6 +23,7 @@ export async function GET() {
       'https://www.googleapis.com/auth/userinfo.profile',
       'https://www.googleapis.com/auth/userinfo.email',
     ].join(' '),
+    state: inviteToken || '',
   };
 
   const qs = new URLSearchParams(options);

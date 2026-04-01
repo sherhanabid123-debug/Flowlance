@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useWorkspaceStore } from '@/store/useWorkspaceStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import { useToastStore } from '@/store/useToastStore';
 import { Loader2, Zap, CheckCircle2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,15 +12,22 @@ function InviteHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { joinWorkspace } = useWorkspaceStore();
+  const { isAuthenticated, user } = useAuthStore();
   const { addToast } = useToastStore();
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'guest'>('loading');
   const [error, setError] = useState('');
 
   useEffect(() => {
     const token = searchParams.get('token');
+    
     if (!token) {
       setStatus('error');
       setError('No invite token found in the URL.');
+      return;
+    }
+
+    if (!isAuthenticated) {
+      setStatus('guest');
       return;
     }
 
@@ -36,7 +44,7 @@ function InviteHandler() {
     };
 
     autoJoin();
-  }, [searchParams, joinWorkspace, addToast, router]);
+  }, [searchParams, joinWorkspace, isAuthenticated, addToast, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--background)] p-4">
@@ -102,6 +110,36 @@ function InviteHandler() {
               >
                 Go to Dashboard
               </button>
+            </motion.div>
+          )}
+
+          {status === 'guest' && (
+            <motion.div
+              key="guest"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="glass border rounded-3xl p-8 text-center space-y-7"
+            >
+              <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto rotate-12">
+                <Zap className="text-primary" size={32} />
+              </div>
+              <div className="space-y-3">
+                <h1 className="text-3xl font-bold tracking-tight">You're invited! ✨</h1>
+                <p className="text-[var(--text-muted)] text-sm leading-relaxed px-4">
+                  Join your team on <span className="text-primary font-bold">Flowlance</span>. Create an account to accept the invitation and start collaborating.
+                </p>
+              </div>
+              <button
+                onClick={() => router.push(`/login?inviteToken=${searchParams.get('token')}&register=true`)}
+                className="w-full py-4 bg-primary text-white font-bold rounded-2xl hover:shadow-xl hover:shadow-primary/20 transition-all active:scale-95"
+              >
+                Get Started
+              </button>
+              <div className="pt-2">
+                <p className="text-[10px] opacity-40">
+                  Already have an account? <button onClick={() => router.push(`/login?inviteToken=${searchParams.get('token')}`)} className="text-primary font-bold hover:underline">Log in</button>
+                </p>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

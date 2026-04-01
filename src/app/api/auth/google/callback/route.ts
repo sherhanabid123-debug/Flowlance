@@ -78,7 +78,11 @@ export async function GET(req: Request) {
     // 4. Issue JWT and set cookie
     const token = signToken(user._id.toString());
     
-    const response = NextResponse.redirect(`${baseUrl}/dashboard`);
+    // Check if we have an inviteToken in state
+    const inviteToken = searchParams.get('state');
+    const redirectPath = inviteToken ? `/invite?token=${inviteToken}` : '/dashboard';
+    
+    const response = NextResponse.redirect(`${baseUrl}${redirectPath}`);
     
     response.cookies.set('token', token, {
       httpOnly: true,

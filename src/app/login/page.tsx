@@ -1,27 +1,35 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '@/store/useAuthStore';
 import { ForgotPasswordModal } from '@/components/modals/ForgotPasswordModal';
 
-export default function LoginPage() {
-  const [isLogin, setIsLogin] = useState(true);
+function LoginContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const inviteToken = searchParams.get('inviteToken');
+  const shouldRegister = searchParams.get('register') === 'true';
+
+  const [isLogin, setIsLogin] = useState(!shouldRegister);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showForgotModal, setShowForgotModal] = useState(false);
   
-  const router = useRouter();
   const { setUser, isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push('/dashboard');
+      if (inviteToken) {
+        router.push(`/invite?token=${inviteToken}`);
+      } else {
+        router.push('/dashboard');
+      }
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, inviteToken]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,10 +52,18 @@ export default function LoginPage() {
 
       if (isLogin) {
         setUser({ email: data.email });
-        router.push('/dashboard');
+        if (inviteToken) {
+          router.push(`/invite?token=${inviteToken}`);
+        } else {
+          router.push('/dashboard');
+        }
       } else {
         setIsLogin(true); // Switch to login after successful register
-        alert('Registration successful! Please login.');
+        if (inviteToken) {
+          alert('Registration successful! Please login to join your team.');
+        } else {
+          alert('Registration successful! Please login.');
+        }
       }
     } catch (err: any) {
       setError(err.message);
@@ -69,6 +85,16 @@ export default function LoginPage() {
         <h2 className="text-3xl font-bold mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-500">
           {isLogin ? 'Welcome Back' : 'Create Account'}
         </h2>
+
+        {inviteToken && (
+           <motion.div
+             initial={{ opacity: 0, scale: 0.9 }}
+             animate={{ opacity: 1, scale: 1 }}
+             className="mb-6 p-4 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center gap-3 text-primary text-sm font-bold animate-pulse text-center"
+           >
+             🎁 You're invited to join a team!
+           </motion.div>
+        )}
 
         {error && (
           <div className="bg-destructive/10 text-destructive p-3 rounded-lg mb-4 text-sm text-center">
@@ -141,7 +167,11 @@ export default function LoginPage() {
 
         <button
           type="button"
-          onClick={() => window.location.href = '/api/auth/google'}
+          onClick={() => {
+            const googleUrl = new URL('/api/auth/google', window.location.origin);
+            if (inviteToken) googleUrl.searchParams.set('inviteToken', inviteToken);
+            window.location.href = googleUrl.toString();
+          }}
           className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-white text-black font-bold hover:bg-gray-100 transition-all border border-gray-200 shadow-sm group"
         >
           <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 48 48">
@@ -159,5 +189,13 @@ export default function LoginPage() {
         onClose={() => setShowForgotModal(false)} 
       />
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
   );
 }
