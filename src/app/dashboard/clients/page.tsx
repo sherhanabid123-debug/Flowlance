@@ -5,7 +5,7 @@ import { useClientStore } from '@/store/useClientStore';
 import { useWorkspaceStore } from '@/store/useWorkspaceStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Plus, Trash2, Edit, Link as LinkIcon, CheckCheck, MessageCircle, Zap } from 'lucide-react';
+import { Search, Plus, Trash2, Edit, Link as LinkIcon, CheckCheck, MessageCircle, Zap, CreditCard } from 'lucide-react';
 import { ClientModal } from '@/components/ui/ClientModal';
 import { QuickAddModal } from '@/components/ui/QuickAddModal';
 import { useToastStore } from '@/store/useToastStore';
@@ -34,6 +34,33 @@ export default function ClientsPage() {
         const res = await fetch('/api/clients');
         const data = await res.json();
         setClients(data.clients || []);
+        
+        // Handle checkout verification if URL contains payment feedback
+        const urlParams = new URLSearchParams(window.location.search);
+        const paymentRes = urlParams.get('payment');
+        const clientId = urlParams.get('id');
+        
+        if (paymentRes === 'success' && clientId) {
+          addToast('Payment verifying...', 'info');
+          const verify = await fetch('/api/checkout/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ clientId })
+          });
+          const result = await verify.json();
+          
+          if (result.success) {
+            addToast('Payment received! Project status updated.', 'success');
+            // Clean URL and re-fetch to reflect changes
+            window.history.replaceState({}, '', window.location.pathname);
+            const refetchRes = await fetch('/api/clients');
+            const refetchData = await refetchRes.json();
+            setClients(refetchData.clients || []);
+          }
+        } else if (paymentRes === 'cancelled') {
+          addToast('Payment cancelled.', 'info');
+          window.history.replaceState({}, '', window.location.pathname);
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -41,7 +68,7 @@ export default function ClientsPage() {
       }
     };
     fetchClients();
-  }, [setClients, setLoading]);
+  }, [setClients, setLoading, addToast]);
 
   const handleDelete = async (id: string) => {
     if (!isOwner) {
@@ -86,6 +113,22 @@ export default function ClientsPage() {
   const handleAddNew = () => {
     setEditingClient(null);
     setIsModalOpen(true);
+  };
+
+  const handlePayment = async (clientId: string) => {
+    addToast('Generating invoice...', 'info');
+    try {
+      const res = await fetch('/api/checkout/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clientId })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      if (data.url) window.location.href = data.url;
+    } catch (e: any) {
+      addToast(e.message || 'Payment engine unavailable', 'error');
+    }
   };
 
   const getWhatsAppLink = (client: any) => {
@@ -279,6 +322,14 @@ export default function ClientsPage() {
                   )}
 
                   <div className="flex items-center bg-black/5 dark:bg-white/5 p-1 rounded-xl">
+                    <button
+                        onClick={() => handlePayment(client._id)}
+                        className={`p-2 rounded-lg transition-all text-indigo-500 hover:bg-indigo-500/10 hover:scale-110 active:scale-95 cursor-pointer ${client.paymentStatus === 'paid' ? 'opacity-40 grayscale cursor-not-allowed' : ''}`}
+                        title={client.paymentStatus === 'paid' ? 'Paid' : 'Collect Payment'}
+                        disabled={client.paymentStatus === 'paid'}
+                    >
+                        <CreditCard size={18} />
+                    </button>
                     {(() => {
                       const waLink = getWhatsAppLink(client);
                       return (
