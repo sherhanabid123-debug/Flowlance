@@ -1,15 +1,24 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useClientStore } from '@/store/useClientStore';
-import { Users, CheckCircle, Wallet, Target, TrendingUp, AlertCircle, Clock, CheckCheck } from 'lucide-react';
+import { Users, CheckCircle, Wallet, Target, TrendingUp, AlertCircle, Clock, CheckCheck, ArrowRight } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { isPast, isToday } from 'date-fns';
-import { FollowUpBadge } from '@/components/ui/FollowUpBadge';
+import { isPast, isToday, formatDistanceToNow } from 'date-fns';
+import Link from 'next/link';
+
+interface MonthlyStat {
+  name: string;
+  sales: number;
+  index: number;
+  year: number;
+}
 
 export default function DashboardOverview() {
-  const { clients, setClients, isLoading, setLoading } = useClientStore();
+  const { clients, setClients, isLoading, setLoading, markFollowUpDone } = useClientStore();
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -27,80 +36,66 @@ export default function DashboardOverview() {
   }, [setClients, setLoading]);
 
   const metrics = useMemo(() => {
-    let potential = 0;
-    let confirmed = 0;
-    let completed = 0;
-    let potentialRevenue = 0;
-    let totalSales = 0;
-
+    let potential = 0, confirmed = 0, completed = 0, potentialRevenue = 0, totalSales = 0;
     clients.forEach(c => {
-      if (c.status === 'potential') {
-        potential++;
-        potentialRevenue += (c.expectedBudget || 0);
-      }
-      if (c.status === 'confirmed') {
-        confirmed++;
-        totalSales += (c.advanceAmount || 0);
-      }
-      if (c.status === 'completed') {
-        completed++;
-        totalSales += (c.finalAmount || 0);
-      }
+      if (c.status === 'potential') { potential++; potentialRevenue += (c.expectedBudget || 0); }
+      if (c.status === 'confirmed') { confirmed++; totalSales += (c.advanceAmount || 0); }
+      if (c.status === 'completed') { completed++; totalSales += (c.finalAmount || 0); }
     });
-
     return { potential, confirmed, completed, totalSales, potentialRevenue, totalClients: clients.length };
   }, [clients]);
 
-  // Properly aggregate real chart data from the clients list starting from Jan
   const chartData = useMemo(() => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
-    
-    interface MonthlyStat {
-      name: string;
-      sales: number;
-      index: number;
-      year: number;
-    }
-
-    // Initialize months from Jan to current month
     const timeline: MonthlyStat[] = [];
     for (let i = 0; i <= currentMonth; i++) {
-      timeline.push({
-        name: months[i],
-        sales: i === 1 ? 8000 : 0, // Start Feb with 8k as requested
-        index: i,
-        year: currentYear
-      });
+      timeline.push({ name: months[i], sales: i === 1 ? 8000 : 0, index: i, year: currentYear });
     }
-
     clients.forEach(c => {
       if (!c.createdAt) return;
       const date = new Date(c.createdAt);
       const m = date.getMonth();
       const y = date.getFullYear();
-      
-      // Calculate revenue contribution
       let amount = 0;
       if (c.status === 'confirmed') amount = c.advanceAmount || 0;
       if (c.status === 'completed') amount = c.finalAmount || 0;
-
-      // Add to the corresponding month in our timeline
       const targetMonth = timeline.find(t => t.index === m && t.year === y);
-      if (targetMonth) {
-        targetMonth.sales += amount;
-      }
+      if (targetMonth) targetMonth.sales += amount;
     });
-
     return timeline.map(({ name, sales }) => ({ name, sales }));
   }, [clients]);
 
-  const dueFollowUps = useMemo(() => {
-    return clients
-      .filter(c => c.nextFollowUp && (isPast(new Date(c.nextFollowUp)) || isToday(new Date(c.nextFollowUp))))
+  // Memoized — split into overdue and today
+  const { overdueFollowUps, todayFollowUps } = useMemo(() => {
+    const active = clients.filter(c =>
+      c.nextFollowUp &&
+      c.status !== 'completed' &&
+      !dismissedIds.has(c._id)
+    );
+    const overdue = active
+      .filter(c => isPast(new Date(c.nextFollowUp)) && !isToday(new Date(c.nextFollowUp)))
       .sort((a, b) => new Date(a.nextFollowUp).getTime() - new Date(b.nextFollowUp).getTime());
-  }, [clients]);
+    const today = active
+      .filter(c => isToday(new Date(c.nextFollowUp)))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    return { overdueFollowUps: overdue, todayFollowUps: today };
+  }, [clients, dismissedIds]);
+
+  const allFollowUps = useMemo(() => [...overdueFollowUps, ...todayFollowUps], [overdueFollowUps, todayFollowUps]);
+  const LIMIT = 5;
+  const visibleFollowUps = showAll ? allFollowUps : allFollowUps.slice(0, LIMIT);
+  const hasMore = allFollowUps.length > LIMIT;
+
+  const handleMarkDone = async (clientId: string) => {
+    setDismissedIds(prev => new Set(prev).add(clientId));
+    try {
+      await markFollowUpDone(clientId);
+    } catch {
+      setDismissedIds(prev => { const s = new Set(prev); s.delete(clientId); return s; });
+    }
+  };
 
   if (isLoading) {
     return <div className="flex h-64 items-center justify-center animate-pulse text-primary font-bold">Loading metrics...</div>;
@@ -120,7 +115,7 @@ export default function DashboardOverview() {
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
         {statCards.map((stat, i) => (
-          <motion.div 
+          <motion.div
             key={i}
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -147,7 +142,7 @@ export default function DashboardOverview() {
               <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.1} />
               <XAxis dataKey="name" strokeOpacity={0.5} />
               <YAxis strokeOpacity={0.5} />
-              <RechartsTooltip 
+              <RechartsTooltip
                 contentStyle={{ borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--card)' }}
                 itemStyle={{ color: 'var(--foreground)' }}
               />
@@ -158,49 +153,119 @@ export default function DashboardOverview() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Today's Follow-ups Widget */}
         <div className="lg:col-span-2 glass p-6 rounded-2xl">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-semibold flex items-center gap-2">
               <Clock className="text-indigo-500" size={20} />
-              Follow-ups Due
+              Today's Follow-ups
             </h3>
-            <span className="bg-indigo-500/10 text-indigo-500 px-2.5 py-1 rounded-full text-xs font-bold">
-              {dueFollowUps.length} Priority
-            </span>
+            <div className="flex items-center gap-2">
+              {overdueFollowUps.length > 0 && (
+                <span className="bg-red-500/10 text-red-500 px-2.5 py-1 rounded-full text-xs font-bold">
+                  {overdueFollowUps.length} Overdue
+                </span>
+              )}
+              {todayFollowUps.length > 0 && (
+                <span className="bg-amber-500/10 text-amber-500 px-2.5 py-1 rounded-full text-xs font-bold">
+                  {todayFollowUps.length} Today
+                </span>
+              )}
+            </div>
           </div>
 
-          <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-            {dueFollowUps.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 opacity-40 italic text-sm">
-                <CheckCheck size={40} className="mb-2 opacity-20" />
-                No follow-ups due today. You're all caught up!
-              </div>
-            ) : (
-              dueFollowUps.map((client) => (
-                <div key={client._id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl bg-black/5 dark:bg-white/5 border border-[var(--border)] hover:border-indigo-500/30 transition-all gap-4">
-                  <div className="flex items-center gap-4">
-                    <div className={`p-2.5 rounded-lg ${isPast(new Date(client.nextFollowUp)) && !isToday(new Date(client.nextFollowUp)) ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500'}`}>
-                      {isPast(new Date(client.nextFollowUp)) && !isToday(new Date(client.nextFollowUp)) ? <AlertCircle size={20} /> : <Clock size={20} />}
+          <div className="space-y-3">
+            <AnimatePresence initial={false}>
+              {allFollowUps.length === 0 ? (
+                <motion.div
+                  key="empty"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex flex-col items-center justify-center py-12 opacity-50 text-sm"
+                >
+                  <CheckCheck size={40} className="mb-3 opacity-40" />
+                  <p className="font-semibold text-base">You're all caught up 🎉</p>
+                  <p className="text-xs opacity-70 mt-1">No follow-ups due today.</p>
+                </motion.div>
+              ) : (
+                <>
+                  {overdueFollowUps.length > 0 && visibleFollowUps.some(c => overdueFollowUps.includes(c)) && (
+                    <div className="flex items-center gap-2 mb-1">
+                      <AlertCircle size={13} className="text-red-500" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-red-500">Overdue</span>
                     </div>
-                    <div>
-                      <h4 className="font-bold text-sm">{client.name}</h4>
-                      <p className="text-xs opacity-60">{client.projectName}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
-                    <FollowUpBadge nextDate={client.nextFollowUp} />
-                    <button 
-                      onClick={() => useClientStore.getState().markFollowUpDone(client._id)}
-                      className="p-2 rounded-lg bg-indigo-600 text-white hover:scale-110 active:scale-95 transition-all shadow-md shadow-indigo-600/20"
-                      title="Mark Done"
+                  )}
+
+                  {visibleFollowUps.map(client => {
+                    const isOverdue = overdueFollowUps.includes(client);
+                    const isFirstToday = !isOverdue && visibleFollowUps.find(c => !overdueFollowUps.includes(c)) === client;
+                    return (
+                      <div key={client._id}>
+                        {isFirstToday && (
+                          <div className="flex items-center gap-2 mt-3 mb-1">
+                            <Clock size={13} className="text-amber-500" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-amber-500">Due Today</span>
+                          </div>
+                        )}
+                        <motion.div
+                          layout
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 20, height: 0, marginBottom: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl border transition-all gap-4 ${
+                            isOverdue
+                              ? 'bg-red-500/5 border-red-500/20 hover:border-red-500/40'
+                              : 'bg-amber-500/5 border-amber-500/20 hover:border-amber-500/40'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-lg shrink-0 ${isOverdue ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500'}`}>
+                              {isOverdue ? <AlertCircle size={18} /> : <Clock size={18} />}
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-sm">{client.name}</h4>
+                              <p className="text-xs opacity-60">{client.projectName}</p>
+                              <p className={`text-[11px] font-semibold mt-0.5 ${isOverdue ? 'text-red-500' : 'text-amber-500'}`}>
+                                {isOverdue
+                                  ? `${formatDistanceToNow(new Date(client.nextFollowUp))} overdue`
+                                  : 'Due today'}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => handleMarkDone(client._id)}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:scale-105 active:scale-95 transition-all shadow-md shadow-indigo-600/20 whitespace-nowrap shrink-0"
+                          >
+                            <CheckCheck size={14} />
+                            Mark Done
+                          </button>
+                        </motion.div>
+                      </div>
+                    );
+                  })}
+
+                  {hasMore && (
+                    <button
+                      onClick={() => setShowAll(prev => !prev)}
+                      className="w-full mt-2 py-2.5 text-xs font-bold text-primary hover:bg-primary/5 rounded-xl transition-colors flex items-center justify-center gap-1"
                     >
-                      <CheckCheck size={16} />
+                      {showAll ? 'Show Less' : `View All (${allFollowUps.length})`}
+                      <ArrowRight size={14} className={`transition-transform ${showAll ? 'rotate-90' : ''}`} />
                     </button>
-                  </div>
-                </div>
-              ))
-            )}
+                  )}
+                </>
+              )}
+            </AnimatePresence>
           </div>
+
+          {allFollowUps.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-[var(--border)]">
+              <Link href="/dashboard/clients" className="text-xs font-bold text-primary hover:underline flex items-center gap-1">
+                Go to Client Management <ArrowRight size={12} />
+              </Link>
+            </div>
+          )}
         </div>
 
         <div className="glass p-6 rounded-2xl flex flex-col justify-center items-center text-center space-y-4">
