@@ -7,7 +7,7 @@ import { UserPlus, Trash2, Shield, User, Copy, Check, ChevronDown, AlertTriangle
 import { useState, useEffect, useMemo } from 'react';
 
 export default function TeamPage() {
-  const { workspace, fetchWorkspace, generateInviteLink, removeMember, updateMemberRole, leaveWorkspace, isLoading } = useWorkspaceStore();
+  const { workspace, fetchWorkspace, generateInviteLink, getInviteLink, removeMember, updateMemberRole, leaveWorkspace, isLoading } = useWorkspaceStore();
   const [isLeaving, setIsLeaving] = useState(false);
   const { user } = useAuthStore();
   const [inviteLink, setInviteLink] = useState('');
@@ -16,7 +16,14 @@ export default function TeamPage() {
 
   useEffect(() => {
     fetchWorkspace();
-  }, [fetchWorkspace]);
+    
+    // Fetch existing invite link for all members
+    const checkInvite = async () => {
+      const link = await getInviteLink();
+      if (link) setInviteLink(link);
+    };
+    checkInvite();
+  }, [fetchWorkspace, getInviteLink]);
 
   const handleGenerateInvite = async () => {
     setIsGenerating(true);
@@ -178,8 +185,8 @@ export default function TeamPage() {
                   <UserPlus size={20} />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-semibold text-sm">Invite with a link</h3>
-                  <p className="text-xs text-[var(--text-muted)]">Anyone with this unique link can join your agency workspace.</p>
+                  <h3 className="font-semibold text-sm">Agency Join Link</h3>
+                  <p className="text-xs text-[var(--text-muted)]">Share this link with anyone to add them to your team instantly.</p>
                 </div>
               </div>
             </div>
@@ -208,22 +215,27 @@ export default function TeamPage() {
                     {copied ? <Check size={18} /> : <Copy size={18} />}
                   </button>
                 </div>
-                <p className="text-[10px] text-center text-amber-500 font-medium italic">
-                  Link expires in 7 days. Only share with people you trust.
-                </p>
-                <button
-                   onClick={() => setInviteLink('')}
-                   className="w-full text-xs font-bold text-primary hover:underline"
-                >
-                  Clear Link
-                </button>
+                {isOwner && (
+                  <button
+                     onClick={() => setInviteLink('')}
+                     className="w-full text-[10px] font-bold text-primary hover:underline"
+                  >
+                    Reset & Clear Link
+                  </button>
+                )}
               </div>
             )}
 
-            {!isOwner && (
-              <p className="text-[10px] text-red-500 italic text-center font-medium">
-                * Only the workspace owner can generate invite links.
+            {!inviteLink && !isOwner && (
+              <p className="text-[10px] text-amber-500 italic text-center font-medium">
+                * No join link has been generated yet. Ask the owner to create one.
               </p>
+            )}
+
+            {inviteLink && (
+               <p className="text-[10px] text-center text-indigo-500 font-medium italic">
+                 Any team member can share this link to add teammates.
+               </p>
             )}
 
             <div className="pt-4 border-t border-[var(--border)]">

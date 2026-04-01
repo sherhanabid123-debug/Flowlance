@@ -28,6 +28,7 @@ interface WorkspaceState {
   isLoading: boolean;
   fetchWorkspace: () => Promise<void>;
   generateInviteLink: () => Promise<string>;
+  getInviteLink: () => Promise<string | null>;
   removeMember: (memberId: string) => Promise<void>;
   updateMemberRole: (memberId: string, role: WorkspaceRole) => Promise<void>;
   leaveWorkspace: () => Promise<void>;
@@ -62,6 +63,17 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         } catch (error) {
           console.error(error);
           throw error;
+        }
+      },
+      getInviteLink: async () => {
+        try {
+          const res = await fetch('/api/workspaces/invite');
+          if (!res.ok) return null;
+          const data = await res.json();
+          return data.inviteLink;
+        } catch (error) {
+          console.error('Failed to get invite link:', error);
+          return null;
         }
       },
       removeMember: async (memberId: string) => {
@@ -108,8 +120,9 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         }
       },
       getCurrentRole: (userId) => {
-        if (!get().workspace || !userId) return 'member';
-        const member = get().workspace?.members?.find(m => m.userId._id === userId);
+        const workspace = get().workspace;
+        if (!workspace || !userId) return 'member';
+        const member = workspace.members?.find(m => m.userId?._id === userId);
         return member?.role || 'member';
       },
     }),
