@@ -3,7 +3,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useClientStore } from '@/store/useClientStore';
-import { Users, CheckCircle, Wallet, Target, TrendingUp, AlertCircle, Clock, CheckCheck, ArrowRight } from 'lucide-react';
+import { Users, CheckCircle, Wallet, Target, TrendingUp, AlertCircle, Clock, CheckCheck, ArrowRight, Zap, Plus } from 'lucide-react';
+import { ClientModal } from '@/components/ui/ClientModal';
+import { QuickAddModal } from '@/components/ui/QuickAddModal';
 import { LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { isPast, isToday, formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
@@ -19,6 +21,9 @@ export default function DashboardOverview() {
   const { clients, setClients, isLoading, setLoading, markFollowUpDone } = useClientStore();
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
   const [showAll, setShowAll] = useState(false);
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingClient, setEditingClient] = useState<any>(null);
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -111,7 +116,17 @@ export default function DashboardOverview() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 flex flex-col pt-8 animate-in fade-in">
-      <h1 className="text-3xl font-bold mb-4">Overview</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-3xl font-bold">Overview</h1>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsQuickAddOpen(true)}
+            className="flex items-center gap-2 border border-primary text-primary px-4 py-2.5 rounded-xl font-medium hover:bg-primary/5 transition-all whitespace-nowrap text-sm"
+          >
+            <Zap size={15} /> Quick Add Client
+          </button>
+        </div>
+      </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
         {statCards.map((stat, i) => (
@@ -278,6 +293,24 @@ export default function DashboardOverview() {
           </p>
         </div>
       </div>
+      
+      <ClientModal 
+        isOpen={isEditModalOpen} 
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingClient(null);
+        }} 
+        initialData={editingClient}
+      />
+
+      <QuickAddModal
+        isOpen={isQuickAddOpen}
+        onClose={() => setIsQuickAddOpen(false)}
+        onAddDetails={(client) => {
+          setEditingClient(client);
+          setIsEditModalOpen(true);
+        }}
+      />
     </motion.div>
   );
 }

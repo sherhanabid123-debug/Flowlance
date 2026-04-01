@@ -24,9 +24,6 @@ export interface IClient extends Document {
   sampleProvided?: boolean;
   sampleLink?: string;
   
-  paymentStatus?: 'pending' | 'paid' | 'failed';
-  stripeSessionId?: string;
-  
   lastFollowUp?: Date;
   nextFollowUp?: Date;
   followUpInterval?: number;
@@ -81,13 +78,6 @@ const ClientSchema: Schema<IClient> = new Schema(
     // Samples
     sampleProvided: { type: Boolean, default: false },
     sampleLink: { type: String, trim: true },
-    
-    paymentStatus: { 
-      type: String, 
-      enum: ['pending', 'paid', 'failed'],
-      default: 'pending'
-    },
-    stripeSessionId: { type: String },
     
     // Follow-ups
     lastFollowUp: { type: Date },
