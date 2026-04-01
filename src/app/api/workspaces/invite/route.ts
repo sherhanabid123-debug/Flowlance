@@ -61,18 +61,10 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: 'Invalid or expired invite link.' }, { status: 400 });
     }
 
-    // Robust check for membership (handling both new object and old ObjectId remnants)
-    const alreadyMember = workspace.members.some(m => {
-      if (!m) return false;
-      const mId = (m as any).userId ? (m as any).userId.toString() : m.toString();
-      return mId === userId;
-    });
-    
-    if (!alreadyMember) {
-      workspace.members.push({
-        userId: new mongoose.Types.ObjectId(userId),
-        role: 'member'
-      } as any);
+    // Add user to workspace if not already a member
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    if (!workspace.members.find(m => m.toString() === userId)) {
+      workspace.members.push(userObjectId as any);
       await workspace.save();
     }
 
@@ -81,7 +73,6 @@ export async function PUT(req: Request) {
 
     return NextResponse.json({ message: 'Successfully joined workspace', workspaceName: workspace.name }, { status: 200 });
   } catch (error: any) {
-    console.error('Accept invite error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

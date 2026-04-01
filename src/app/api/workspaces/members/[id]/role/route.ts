@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import { Workspace } from '@/models/Workspace';
-import { User } from '@/models/User';
 import { getServerSession } from '@/lib/permissions';
 
 export async function PATCH(req: Request, props: { params: Promise<{ id: string }> }) {
@@ -22,12 +21,8 @@ export async function PATCH(req: Request, props: { params: Promise<{ id: string 
 
     await dbConnect();
     
-    // Target the specific workspace ID and ensure user is owner
-    const workspace = await Workspace.findOne({ 
-      _id: session.workspaceId, 
-      ownerId: session.userId 
-    });
-
+    // Find member by ID and update their role object
+    const workspace = await Workspace.findOne({ ownerId: session.userId });
     if (!workspace) return NextResponse.json({ error: 'Workspace not found.' }, { status: 404 });
 
     const member = workspace.members.find(m => m.userId.toString() === params.id);
