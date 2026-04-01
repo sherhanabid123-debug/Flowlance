@@ -60,19 +60,24 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
             animate={{ opacity: 1, scale: 1 }}
             className="py-8 text-center"
           >
-            <div className="w-16 h-16 bg-green-500/10 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle size={32} />
-            </div>
-            <h3 className="text-xl font-bold mb-2">Check your email</h3>
+            <h3 className="text-xl font-bold mb-2">Check your inbox</h3>
             <p className="text-sm opacity-60 max-w-xs mx-auto mb-6">
-              A password reset link has been sent to <b>{email}</b>. Please check your inbox and follow the instructions.
+              If an account with <b>{email}</b> exists in our database, a password reset link has been sent. Please check your inbox and follow the instructions.
             </p>
-            <button
-              onClick={handleClose}
-              className="px-6 py-2.5 bg-primary text-primary-foreground rounded-xl font-bold hover:opacity-90 transition-opacity"
-            >
-              Back to Login
-            </button>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleClose}
+                className="px-6 py-2.5 bg-primary text-primary-foreground rounded-xl font-bold hover:opacity-90 transition-opacity"
+              >
+                Back to Login
+              </button>
+              <button
+                onClick={() => setStatus('idle')}
+                className="text-xs font-bold opacity-60 hover:opacity-100 transition-opacity"
+              >
+                Mistyped? Try again
+              </button>
+            </div>
           </motion.div>
         ) : (
           <motion.div

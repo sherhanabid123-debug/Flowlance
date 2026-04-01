@@ -16,11 +16,11 @@ export async function POST(req: Request) {
 
     const user = await User.findOne({ email });
 
-    // Return explicit error if user not found as requested
+    // Secure neutral response to prevent user enumeration
     if (!user) {
       return NextResponse.json(
-        { error: 'User not found in database, please check if your email entered is correct' }, 
-        { status: 404 }
+        { message: 'If an account exists with that email, a reset link has been sent.' }, 
+        { status: 200 }
       );
     }
 
@@ -36,7 +36,10 @@ export async function POST(req: Request) {
     // Send email with plain token (user will click this)
     await sendResetPasswordEmail(email, resetToken);
 
-    return NextResponse.json({ message: 'Password reset link sent successfully.' }, { status: 200 });
+    return NextResponse.json(
+      { message: 'If an account exists with that email, a reset link has been sent.' }, 
+      { status: 200 }
+    );
   } catch (error: any) {
     console.error('Forgot password error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
