@@ -55,26 +55,36 @@ export default function TeamPage() {
     }
   };
 
-  const isOwner = user?._id?.toString() === workspace?.ownerId?._id?.toString();
+  // Safe checks for owner ID
+  const ownerIdRaw = (workspace?.ownerId as any)?._id || workspace?.ownerId;
+  const ownerIdStr = ownerIdRaw?.toString();
+  const isOwner = user?._id?.toString() === ownerIdStr;
 
   // Robust member list: Even if owner isn't in the sub-collection, we show them
   const memberList = useMemo(() => {
-    if (!workspace || !workspace.ownerId) return [];
+    if (!workspace || !ownerIdStr) return [];
     
     // Start with existing members
     const list = [...(workspace.members || [])];
     
     // Check if owner is already in the list
-    const ownerIdStr = workspace.ownerId._id.toString();
-    const isOwnerInList = list.some(m => m.userId?._id?.toString() === ownerIdStr);
+    const isOwnerInList = list.some(m => {
+      const mId = (m.userId as any)?._id || m.userId;
+      return mId?.toString() === ownerIdStr;
+    });
     
     if (!isOwnerInList) {
       // Add owner explicitly from ownerId data if they aren't listed
+      const ownerName = (workspace.ownerId as any)?.name || 'Owner';
+      const ownerEmail = (workspace.ownerId as any)?.email || '';
+      const ownerAvatar = (workspace.ownerId as any)?.avatar;
+
       list.unshift({
         userId: {
-          _id: workspace.ownerId._id,
-          name: workspace.ownerId.name || 'Owner',
-          email: workspace.ownerId.email,
+          _id: ownerIdStr,
+          name: ownerName,
+          email: ownerEmail,
+          avatar: ownerAvatar,
           userType: 'agency'
         } as any,
         role: 'owner'
@@ -82,7 +92,7 @@ export default function TeamPage() {
     }
     
     return list;
-  }, [workspace]);
+  }, [workspace, ownerIdStr]);
 
   return (
     <div className="space-y-8">
@@ -98,7 +108,7 @@ export default function TeamPage() {
           <div className="glass border rounded-2xl overflow-hidden">
             <div className="divide-y divide-[var(--border)]">
               {memberList.map((member) => (
-                <div key={member.userId?._id?.toString() || Math.random().toString()} className="p-4 flex items-center justify-between hover:bg-primary/5 transition-colors">
+                <div key={((member.userId as any)?._id || member.userId)?.toString()} className="p-4 flex items-center justify-between hover:bg-primary/5 transition-colors">
                   <div className="flex items-center gap-4 text-left">
                     <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center overflow-hidden">
                       {member.userId?.avatar ? (
@@ -115,7 +125,7 @@ export default function TeamPage() {
                             <Shield size={10} /> Owner
                           </span>
                         )}
-                        {member.userId?._id?.toString() === user?._id?.toString() && (
+                        {((member.userId as any)?._id || member.userId)?.toString() === user?._id?.toString() && (
                           <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-md border border-primary/20 uppercase font-bold tracking-tighter">You</span>
                         )}
                       </div>
@@ -125,11 +135,11 @@ export default function TeamPage() {
 
                   <div className="flex items-center gap-3">
                     {/* Role Selector or Badge */}
-                    {isOwner && member.userId?._id?.toString() !== user?._id?.toString() ? (
+                    {isOwner && ((member.userId as any)?._id || member.userId)?.toString() !== user?._id?.toString() ? (
                       <div className="relative group">
                         <select
                           value={member.role}
-                          onChange={(e) => handleRoleChange(member.userId._id, e.target.value as WorkspaceRole)}
+                          onChange={(e) => handleRoleChange((member.userId as any)?._id || member.userId, e.target.value as WorkspaceRole)}
                           className={`appearance-none bg-primary/10 text-primary text-[11px] font-bold px-3 py-1.5 rounded-lg border border-primary/20 pr-8 focus:outline-none cursor-pointer transition-all ${
                             member.role === 'owner' ? 'bg-amber-500/10 text-amber-600 border-amber-500/20' : ''
                           }`}
@@ -147,9 +157,9 @@ export default function TeamPage() {
                       </span>
                     )}
 
-                    {isOwner && member.userId?._id?.toString() !== user?._id?.toString() && (
+                    {isOwner && ((member.userId as any)?._id || member.userId)?.toString() !== user?._id?.toString() && (
                       <button
-                        onClick={() => handleRemoveMember(member.userId._id)}
+                        onClick={() => handleRemoveMember((member.userId as any)?._id || member.userId)}
                         className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors shrink-0"
                         title="Remove Member"
                       >
