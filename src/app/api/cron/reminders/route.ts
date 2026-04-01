@@ -28,11 +28,12 @@ export async function GET(req: Request) {
     for (const user of users) {
       if (!user.currentWorkspace || !user.email) continue;
 
-      // 3. Find clients due today or overdue for this user's workspace
+      // 3. Find clients due today or overdue for this user's workspace, respecting individual client preference
       const dueClients = await Client.find({
         workspaceId: user.currentWorkspace,
         status: { $ne: 'completed' },
-        nextFollowUp: { $lte: rangeEnd }
+        nextFollowUp: { $lte: rangeEnd },
+        emailReminders: { $ne: false }
       });
 
       if (dueClients.length > 0) {

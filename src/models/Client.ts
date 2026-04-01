@@ -27,6 +27,7 @@ export interface IClient extends Document {
   lastFollowUp?: Date;
   nextFollowUp?: Date;
   followUpInterval?: number;
+  emailReminders?: boolean;
   
   createdAt: Date;
   updatedAt: Date;

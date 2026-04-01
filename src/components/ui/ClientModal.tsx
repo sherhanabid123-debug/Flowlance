@@ -82,6 +82,7 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
   const [notes, setNotes] = useState('');
   const [followUpInterval, setFollowUpInterval] = useState('3');
   const [lastFollowUp, setLastFollowUp] = useState(new Date().toISOString().split('T')[0]);
+  const [emailReminders, setEmailReminders] = useState(true);
   
   // Sample
   const [sampleProvided, setSampleProvided] = useState(false);
@@ -105,6 +106,7 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
       setSampleLink(initialData.sampleLink || '');
       setFollowUpInterval(initialData.followUpInterval?.toString() || '3');
       setLastFollowUp(initialData.lastFollowUp ? new Date(initialData.lastFollowUp).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
+      setEmailReminders(initialData.emailReminders !== false);
     } else {
       setName('');
       setContact('');
@@ -122,6 +124,7 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
       setSampleLink('');
       setFollowUpInterval('3');
       setLastFollowUp(new Date().toISOString().split('T')[0]);
+      setEmailReminders(true);
     }
   }, [initialData, isOpen]);
 
@@ -167,6 +170,7 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
     sampleLink: sampleProvided ? sampleLink : '',
     followUpInterval: Number(followUpInterval),
     lastFollowUp,
+    emailReminders,
     ...(type === 'potential' && { expectedBudget: Number(expectedBudget) }),
     ...(type === 'confirmed' && { advanceAmount: Number(advanceAmount), totalAmount: Number(totalAmount), startDate }),
     ...(type === 'completed' && { finalAmount: Number(finalAmount), totalAmount: Number(totalAmount), completionDate }),
@@ -382,6 +386,26 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
                 value={lastFollowUp} 
                 onChange={(e:any) => setLastFollowUp(e.target.value)} 
               />
+            </div>
+            
+            <div className="mt-4 pt-4 border-t border-indigo-500/10 flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-[11px] font-bold text-indigo-500">Email Notifications</span>
+                <span className="text-[9px] opacity-60">Send me an email when this is due</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEmailReminders(!emailReminders)}
+                className={`relative w-10 h-5 rounded-full transition-colors duration-300 ${
+                  emailReminders ? 'bg-indigo-500' : 'bg-black/20 dark:bg-white/20'
+                }`}
+              >
+                <motion.div
+                  animate={{ x: emailReminders ? 22 : 2 }}
+                  className="absolute top-1 left-0 w-3 h-3 bg-white rounded-full shadow-sm"
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                />
+              </button>
             </div>
           </motion.div>
         )}
