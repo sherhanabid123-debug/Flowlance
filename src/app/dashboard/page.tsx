@@ -43,32 +43,45 @@ export default function DashboardOverview() {
   const metrics = useMemo(() => {
     let potential = 0, confirmed = 0, completed = 0, potentialRevenue = 0, totalSales = 0;
     clients.forEach(c => {
-      if (c.status === 'potential') { potential++; potentialRevenue += (c.expectedBudget || 0); }
-      if (c.status === 'confirmed') { confirmed++; totalSales += (c.advanceAmount || 0); }
-      if (c.status === 'completed') { completed++; totalSales += (c.finalAmount || 0); }
+      if (c.status === 'potential') {
+        potential++;
+        potentialRevenue += (c.expectedBudget || 0);
+      } else if (c.status === 'confirmed') {
+        confirmed++;
+      } else if (c.status === 'completed') {
+        completed++;
+        totalSales += (c.finalAmount || 0);
+      }
     });
     return { potential, confirmed, completed, totalSales, potentialRevenue, totalClients: clients.length };
   }, [clients]);
 
   const chartData = useMemo(() => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
-    const timeline: MonthlyStat[] = [];
-    for (let i = 0; i <= currentMonth; i++) {
-      timeline.push({ name: months[i], sales: i === 1 ? 8000 : 0, index: i, year: currentYear });
-    }
+    
+    // Initialize all 12 months of the current year with 0 revenue
+    const timeline = months.map((month, index) => ({
+      name: month,
+      sales: 0,
+      index,
+      year: currentYear
+    }));
+
+    // Fill with real data from completed clients
     clients.forEach(c => {
-      if (!c.createdAt) return;
-      const date = new Date(c.createdAt);
+      if (c.status !== 'completed' || !c.completionDate) return;
+      
+      const date = new Date(c.completionDate);
       const m = date.getMonth();
       const y = date.getFullYear();
-      let amount = 0;
-      if (c.status === 'confirmed') amount = c.advanceAmount || 0;
-      if (c.status === 'completed') amount = c.finalAmount || 0;
-      const targetMonth = timeline.find(t => t.index === m && t.year === y);
-      if (targetMonth) targetMonth.sales += amount;
+
+      // Only count revenue for the current year
+      if (y === currentYear) {
+        timeline[m].sales += (c.finalAmount || 0);
+      }
     });
+
     return timeline.map(({ name, sales }) => ({ name, sales }));
   }, [clients]);
 
@@ -107,7 +120,7 @@ export default function DashboardOverview() {
   }
 
   const statCards = [
-    { title: 'Total Revenue', value: `₹${metrics.totalSales.toLocaleString('en-IN')}`, icon: Wallet, color: 'text-white', bg: 'bg-green-600 shadow-lg shadow-green-600/10', tooltip: 'Total actual income from confirmed & completed projects' },
+    { title: 'Total Revenue', value: `₹${metrics.totalSales.toLocaleString('en-IN')}`, icon: Wallet, color: 'text-white', bg: 'bg-green-600 shadow-lg shadow-green-600/10', tooltip: 'Total actual income from completed projects' },
     { title: 'Potential Revenue', value: `₹${metrics.potentialRevenue.toLocaleString('en-IN')}`, icon: TrendingUp, color: 'text-white', bg: 'bg-indigo-600 shadow-lg shadow-indigo-600/10', tooltip: 'Total estimated revenue from potential clients' },
     { title: 'Total Clients', value: metrics.totalClients, icon: Users, color: 'text-white', bg: 'bg-blue-600 shadow-lg shadow-blue-600/10', tooltip: 'Sum of all clients in your database' },
     { title: 'Active Projects', value: metrics.confirmed, icon: Target, color: 'text-black', bg: 'bg-amber-500 shadow-lg shadow-amber-500/10', tooltip: 'Currently active (confirmed) projects' },
