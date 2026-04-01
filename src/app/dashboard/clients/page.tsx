@@ -272,20 +272,17 @@ export default function ClientsPage() {
                     {(() => {
                       const waLink = getWhatsAppLink(client);
                       return (
-                        <a
-                          href={waLink || undefined}
-                          target="_blank"
-                          rel="noreferrer"
-                          onClick={!waLink ? (e) => e.preventDefault() : undefined}
+                        <button
+                          onClick={() => waLink && window.open(waLink, '_blank')}
                           title={waLink ? 'Message on WhatsApp' : 'No phone number available'}
                           className={`p-2 rounded-lg transition-all ${
                             waLink
-                              ? 'text-[#25D366] hover:bg-[#25D366]/10 hover:scale-110 active:scale-95 cursor-pointer'
+                              ? 'text-[#25D366] hover:bg-[#25D366]/10 hover:scale-110 active:scale-95'
                               : 'text-[#25D366]/30 cursor-not-allowed'
                           }`}
                         >
                           <MessageCircle size={18} />
-                        </a>
+                        </button>
                       );
                     })()}
                     <button 
