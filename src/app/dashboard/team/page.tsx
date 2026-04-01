@@ -3,8 +3,8 @@
 import { useWorkspaceStore, WorkspaceRole } from '@/store/useWorkspaceStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { motion } from 'framer-motion';
-import { UserPlus, Trash2, Shield, User, Copy, Check, ChevronDown } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { UserPlus, Trash2, Shield, User, Copy, Check, ChevronDown, AlertTriangle } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
 
 export default function TeamPage() {
   const { workspace, fetchWorkspace, generateInviteLink, removeMember, updateMemberRole, isLoading } = useWorkspaceStore();
@@ -55,6 +55,13 @@ export default function TeamPage() {
 
   const isOwner = user?._id === workspace?.ownerId?._id;
 
+  // Filter out invalid members (those without a populated userId)
+  const validMembers = useMemo(() => {
+    return workspace?.members?.filter(m => m.userId && typeof m.userId === 'object' && m.userId._id) || [];
+  }, [workspace?.members]);
+
+  const ghostMemberCount = (workspace?.members?.length || 0) - validMembers.length;
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-2">
@@ -65,10 +72,18 @@ export default function TeamPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Members List */}
         <div className="lg:col-span-2 space-y-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wider opacity-50">Members ({workspace?.members?.length || 0})</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold uppercase tracking-wider opacity-50">Members ({validMembers.length})</h2>
+            {ghostMemberCount > 0 && (
+              <div className="flex items-center gap-1.5 text-[10px] bg-red-500/10 text-red-500 px-2 py-1 rounded-lg border border-red-500/20 font-bold uppercase tracking-tighter">
+                <AlertTriangle size={12} /> {ghostMemberCount} Sync Errors
+              </div>
+            )}
+          </div>
+          
           <div className="glass border rounded-2xl overflow-hidden">
             <div className="divide-y divide-[var(--border)]">
-              {workspace?.members?.map((member) => (
+              {validMembers.map((member) => (
                 <div key={member.userId._id} className="p-4 flex items-center justify-between hover:bg-primary/5 transition-colors">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center overflow-hidden">
@@ -80,12 +95,12 @@ export default function TeamPage() {
                     </div>
                     <div>
                       <div className="font-medium flex items-center gap-2">
-                        {member.userId.name || member.userId.email.split('@')[0]}
+                        {member.userId.name || member.userId.email?.split('@')[0] || 'Unknown User'}
                         {member.userId._id === user?._id && (
                           <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-md border border-primary/20 uppercase font-bold tracking-tighter">You</span>
                         )}
                       </div>
-                      <div className="text-xs text-[var(--text-muted)]">{member.userId.email}</div>
+                      <div className="text-xs text-[var(--text-muted)]">{member.userId.email || 'No Email'}</div>
                     </div>
                   </div>
 
@@ -118,6 +133,12 @@ export default function TeamPage() {
                   </div>
                 </div>
               ))}
+              
+              {validMembers.length === 0 && !isLoading && (
+                <div className="p-12 text-center opacity-40 italic text-sm">
+                   No team members found.
+                </div>
+              )}
             </div>
           </div>
         </div>

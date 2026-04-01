@@ -18,11 +18,14 @@ export async function GET(req: Request) {
 
     await dbConnect();
     
+    // 1. Get user and verify they have a current workspace
     const user = await User.findById(userId);
     if (!user || !user.currentWorkspace) {
       return NextResponse.json({ error: 'No workspace found' }, { status: 404 });
     }
 
+    // 2. Fetch workspace and populate members correctly
+    // We populate members.userId to get the actual user details
     const workspace = await Workspace.findById(user.currentWorkspace)
       .populate('members.userId', 'name email avatar userType')
       .populate('ownerId', 'name email');
@@ -31,8 +34,28 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Workspace not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ workspace }, { status: 200 });
+    // 3. Clean up the response: Remove members where the user no longer exists (e.g. deleted user)
+    // and filter out entries that somehow failed to populate but remain as IDs
+    const cleanedMembers = workspace.members.filter(m => m.userId && typeof m.userId === 'object');
+    
+    // Sort members: Owner first, then alphabetically
+    const sortedMembers = [...cleanedMembers].sort((a, b) => {
+      const isAOwner = (a.userId as any)._id.toString() === workspace.ownerId._id.toString();
+      const isBOwner = (b.userId as any)._id.toString() === workspace.ownerId._id.toString();
+      if (isAOwner && !isBOwner) return -1;
+      if (!isAOwner && isBOwner) return 1;
+      return (a.userId as any).name?.localeCompare((b.userId as any).name) || 0;
+    });
+
+    // We return a plain object to avoid Mongoose-specific issues with nested populate during JSON serialization
+    const result = {
+      ...workspace.toObject(),
+      members: sortedMembers
+    };
+
+    return NextResponse.json({ workspace: result }, { status: 200 });
   } catch (error: any) {
+    console.error('Workspaces GET Error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
