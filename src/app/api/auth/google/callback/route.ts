@@ -13,7 +13,12 @@ export async function GET(req: Request) {
   }
 
   try {
+    console.log('--- Google OAuth Callback Started ---');
+    await dbConnect();
+    console.log('--- DB Connected ---');
+
     // 1. Exchange code for tokens
+    console.log('--- Exchanging Code for Tokens ---');
     const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -28,38 +33,42 @@ export async function GET(req: Request) {
 
     const tokens = await tokenRes.json();
     if (!tokens.access_token) {
+      console.error('--- Token Exchange Failed:', tokens);
       throw new Error('Failed to exchange code for tokens');
     }
 
     // 2. Fetch user information
+    console.log('--- Fetching Google User Info ---');
     const userRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
       headers: { Authorization: `Bearer ${tokens.access_token}` },
     });
 
     const googleUser = await userRes.json();
+    console.log('--- Google User Data:', { id: googleUser.id, email: googleUser.email });
+
     if (!googleUser.email) {
       throw new Error('Failed to fetch user info from Google');
     }
 
-    await dbConnect();
+    const gId = googleUser.id || googleUser.sub;
 
     // 3. Find or create local user
     let user = await User.findOne({ 
-      $or: [{ googleId: googleUser.id }, { email: googleUser.email }] 
+      $or: [{ googleId: gId }, { email: googleUser.email }] 
     });
 
     if (!user) {
-      // Create new user
+      console.log('--- Creating New User ---');
       user = await User.create({
         email: googleUser.email,
         name: googleUser.name,
-        googleId: googleUser.id,
+        googleId: gId,
         avatar: googleUser.picture,
-        userType: 'freelancer', // Default
+        userType: 'freelancer',
       });
     } else {
-      // Update existing user with Google metadata
-      user.googleId = googleUser.id;
+      console.log('--- Updating Existing User ---');
+      user.googleId = gId;
       user.avatar = googleUser.picture || user.avatar;
       if (!user.name) user.name = googleUser.name;
       await user.save();
@@ -74,13 +83,14 @@ export async function GET(req: Request) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60 * 24 * 7,
       path: '/',
     });
 
+    console.log('--- Google Auth Success ---');
     return response;
   } catch (error: any) {
-    console.error('Google Auth Error:', error);
-    return NextResponse.json({ error: 'Authentication failed' }, { status: 500 });
+    console.error('--- Google Auth Full Error:', error);
+    return NextResponse.json({ error: 'Authentication failed', details: error.message }, { status: 500 });
   }
 }
