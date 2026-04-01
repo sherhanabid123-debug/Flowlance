@@ -3,27 +3,24 @@
 import { useWorkspaceStore, WorkspaceRole } from '@/store/useWorkspaceStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { motion } from 'framer-motion';
-import { UserPlus, Trash2, Shield, User, Copy, Check, ChevronDown, AlertTriangle, LogOut } from 'lucide-react';
+import { UserPlus, Trash2, Shield, User, Copy, Check, ChevronDown, AlertTriangle, LogOut, Loader2 } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
+import { useToastStore } from '@/store/useToastStore';
 
 export default function TeamPage() {
-  const { workspace, fetchWorkspace, generateInviteLink, getInviteLink, removeMember, updateMemberRole, leaveWorkspace, isLoading } = useWorkspaceStore();
+  const { workspace, fetchWorkspace, generateInviteLink, removeMember, updateMemberRole, leaveWorkspace, joinWorkspace, isLoading } = useWorkspaceStore();
   const [isLeaving, setIsLeaving] = useState(false);
   const { user } = useAuthStore();
+  const { addToast } = useToastStore();
   const [inviteLink, setInviteLink] = useState('');
+  const [pastedInvite, setPastedInvite] = useState('');
   const [copied, setCopied] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isJoining, setIsJoining] = useState(false);
 
   useEffect(() => {
     fetchWorkspace();
-    
-    // Fetch existing invite link for all members
-    const checkInvite = async () => {
-      const link = await getInviteLink();
-      if (link) setInviteLink(link);
-    };
-    checkInvite();
-  }, [fetchWorkspace, getInviteLink]);
+  }, [fetchWorkspace]);
 
   const handleGenerateInvite = async () => {
     setIsGenerating(true);
@@ -72,6 +69,20 @@ export default function TeamPage() {
     } catch (error: any) {
       alert(error.message);
       setIsLeaving(false);
+    }
+  };
+
+  const handleJoinWorkspace = async () => {
+    if (!pastedInvite.trim()) return;
+    setIsJoining(true);
+    try {
+      const workspaceName = await joinWorkspace(pastedInvite);
+      addToast(`Successfully joined "${workspaceName}" team!`, 'success');
+      setPastedInvite('');
+    } catch (error: any) {
+      addToast(error.message || 'Failed to join workspace', 'error');
+    } finally {
+      setIsJoining(false);
     }
   };
 
@@ -185,8 +196,8 @@ export default function TeamPage() {
                   <UserPlus size={20} />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-semibold text-sm">Agency Join Link</h3>
-                  <p className="text-xs text-[var(--text-muted)]">Share this link with anyone to add them to your team instantly.</p>
+                  <h3 className="font-semibold text-sm">Invite with a link</h3>
+                  <p className="text-xs text-[var(--text-muted)]">Anyone with this unique link can join your agency workspace.</p>
                 </div>
               </div>
             </div>
@@ -215,27 +226,22 @@ export default function TeamPage() {
                     {copied ? <Check size={18} /> : <Copy size={18} />}
                   </button>
                 </div>
-                {isOwner && (
-                  <button
-                     onClick={() => setInviteLink('')}
-                     className="w-full text-[10px] font-bold text-primary hover:underline"
-                  >
-                    Reset & Clear Link
-                  </button>
-                )}
+                <p className="text-[10px] text-center text-amber-500 font-medium italic">
+                  Link expires in 7 days. Only share with people you trust.
+                </p>
+                <button
+                   onClick={() => setInviteLink('')}
+                   className="w-full text-xs font-bold text-primary hover:underline"
+                >
+                  Clear Link
+                </button>
               </div>
             )}
 
-            {!inviteLink && !isOwner && (
-              <p className="text-[10px] text-amber-500 italic text-center font-medium">
-                * No join link has been generated yet. Ask the owner to create one.
+            {!isOwner && (
+              <p className="text-[10px] text-red-500 italic text-center font-medium">
+                * Only the workspace owner can generate invite links.
               </p>
-            )}
-
-            {inviteLink && (
-               <p className="text-[10px] text-center text-indigo-500 font-medium italic">
-                 Any team member can share this link to add teammates.
-               </p>
             )}
 
             <div className="pt-4 border-t border-[var(--border)]">
@@ -244,6 +250,40 @@ export default function TeamPage() {
                  <p>Members can view all clients but cannot edit financial data or delete clients.</p>
               </div>
             </div>
+          </div>
+
+          <h2 className="text-sm font-semibold uppercase tracking-wider opacity-50 pt-4">Join a Workspace</h2>
+          <div className="glass border border-indigo-500/20 rounded-3xl p-6 space-y-4">
+            <div className="space-y-1">
+              <h3 className="font-semibold text-sm">Have an invite link?</h3>
+              <p className="text-xs text-[var(--text-muted)]">Paste the link or token below to join a new team.</p>
+            </div>
+            
+            <div className="relative group">
+              <input
+                type="text"
+                value={pastedInvite}
+                onChange={(e) => setPastedInvite(e.target.value)}
+                placeholder="Paste link here..."
+                className="w-full h-12 bg-indigo-500/5 border border-indigo-500/20 rounded-2xl px-4 text-xs pr-12 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono"
+              />
+              <UserPlus size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-indigo-500 opacity-40 shrink-0" />
+            </div>
+
+            <button
+              onClick={handleJoinWorkspace}
+              disabled={isJoining || !pastedInvite.trim()}
+              className="w-full h-12 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition-all shadow-lg active:scale-95 disabled:opacity-50 disabled:grayscale disabled:scale-100 flex items-center justify-center gap-2"
+            >
+              {isJoining ? (
+                <Loader2 size={18} className="animate-spin" />
+              ) : (
+                <>
+                  <Check size={18} />
+                  Join Team
+                </>
+              )}
+            </button>
           </div>
         </div>
       </div>

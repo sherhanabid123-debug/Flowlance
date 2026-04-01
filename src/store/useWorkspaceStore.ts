@@ -28,10 +28,10 @@ interface WorkspaceState {
   isLoading: boolean;
   fetchWorkspace: () => Promise<void>;
   generateInviteLink: () => Promise<string>;
-  getInviteLink: () => Promise<string | null>;
   removeMember: (memberId: string) => Promise<void>;
   updateMemberRole: (memberId: string, role: WorkspaceRole) => Promise<void>;
   leaveWorkspace: () => Promise<void>;
+  joinWorkspace: (tokenOrLink: string) => Promise<string>;
   getCurrentRole: (userId: string | undefined) => WorkspaceRole;
 }
 
@@ -63,17 +63,6 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         } catch (error) {
           console.error(error);
           throw error;
-        }
-      },
-      getInviteLink: async () => {
-        try {
-          const res = await fetch('/api/workspaces/invite');
-          if (!res.ok) return null;
-          const data = await res.json();
-          return data.inviteLink;
-        } catch (error) {
-          console.error('Failed to get invite link:', error);
-          return null;
         }
       },
       removeMember: async (memberId: string) => {
@@ -119,10 +108,36 @@ export const useWorkspaceStore = create<WorkspaceState>()(
           throw error;
         }
       },
+      joinWorkspace: async (tokenOrLink: string) => {
+        let token = tokenOrLink.trim();
+        try {
+          if (token.includes('?token=')) {
+            const url = new URL(token);
+            token = url.searchParams.get('token') || token;
+          }
+        } catch (e) {
+          // If not a valid URL, just use what they pasted as the token
+        }
+
+        try {
+          const res = await fetch('/api/workspaces/invite', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed to join workspace');
+          
+          await get().fetchWorkspace();
+          return data.workspaceName;
+        } catch (error) {
+          console.error(error);
+          throw error;
+        }
+      },
       getCurrentRole: (userId) => {
-        const workspace = get().workspace;
-        if (!workspace || !userId) return 'member';
-        const member = workspace.members?.find(m => m.userId?._id === userId);
+        if (!get().workspace || !userId) return 'member';
+        const member = get().workspace?.members?.find(m => m.userId._id === userId);
         return member?.role || 'member';
       },
     }),
