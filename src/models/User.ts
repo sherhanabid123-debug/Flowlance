@@ -10,6 +10,7 @@ export interface IUser extends Document {
   resetPasswordExpires?: Date;
   googleId?: string;
   avatar?: string;
+  emailReminders?: boolean;
   currentWorkspace?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -36,6 +37,10 @@ const UserSchema: Schema<IUser> = new Schema(
     agencyName: {
       type: String,
       trim: true,
+    },
+    emailReminders: {
+      type: Boolean,
+      default: true,
     },
     password: {
       type: String,

@@ -6,6 +6,8 @@ import { User, Mail, Loader2 } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useToastStore } from '@/store/useToastStore';
 import { CenteredModal } from '@/components/ui/CenteredModal';
+import { useAutosave } from '@/hooks/useAutosave';
+import { SaveStatus } from '@/components/ui/SaveStatus';
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -20,6 +22,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
   const [email, setEmail] = useState('');
   const [userType, setUserType] = useState<'freelancer' | 'agency'>('freelancer');
   const [agencyName, setAgencyName] = useState('');
+  const [emailReminders, setEmailReminders] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -31,6 +34,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
       setEmail(user.email || '');
       setUserType(user.userType || 'freelancer');
       setAgencyName(user.agencyName || '');
+      setEmailReminders(user.emailReminders !== false);
     }
   }, [user, isOpen]);
 
@@ -39,6 +43,58 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
       setTimeout(() => focusRef.current?.focus(), 100);
     }
   }, [isOpen]);
+
+  const isValid = name.trim() !== '' && 
+                  email.trim() !== '' && 
+                  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
+                  (userType === 'freelancer' || agencyName.trim() !== '');
+
+  // Autosave logic for profile
+  const saveProfileData = async (currentData: any) => {
+    const res = await fetch('/api/user/update', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(currentData),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to update profile');
+    }
+
+    setUser(data.user);
+    return data.user;
+  };
+
+  const payload = { 
+    name, 
+    email, 
+    userType, 
+    agencyName: userType === 'agency' ? agencyName : '',
+    emailReminders
+  };
+
+  const { status: saveStatus, error: saveError, hasChanges, isSaving, forceSave } = useAutosave(
+    payload,
+    saveProfileData,
+    { 
+      skip: !isOpen || !isValid,
+      debounceMs: 1000 
+    }
+  );
+
+  // Prevent accidental closing
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasChanges || isSaving) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasChanges, isSaving]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,10 +125,15 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
     }
   };
 
-  const isValid = name.trim() !== '' && 
-                  email.trim() !== '' && 
-                  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
-                  (userType === 'freelancer' || agencyName.trim() !== '');
+  const handleClose = () => {
+    if (hasChanges || isSaving) {
+      if (confirm('You have unsaved changes. Are you sure you want to close?')) {
+        onClose();
+      }
+      return;
+    }
+    onClose();
+  };
 
   return (
     <CenteredModal isOpen={isOpen} onClose={onClose} title="Account Settings">
@@ -166,23 +227,40 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
               </motion.div>
             )}
           </div>
+
+          <div className="pt-4 border-t border-[var(--border)]">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-indigo-500/5 border border-indigo-500/10">
+              <div className="flex flex-col">
+                <span className="text-sm font-bold text-indigo-500">Email Reminders</span>
+                <span className="text-[10px] opacity-60">Receive daily summaries of your follow-ups</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEmailReminders(!emailReminders)}
+                className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${
+                  emailReminders ? 'bg-indigo-500' : 'bg-black/20 dark:bg-white/20'
+                }`}
+              >
+                <motion.div
+                  animate={{ x: emailReminders ? 26 : 2 }}
+                  className="absolute top-1 left-0 w-4 h-4 bg-white rounded-full shadow-sm"
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                />
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-6 border-t border-[var(--border)]">
+        <div className="flex items-center justify-between pt-6 border-t border-[var(--border)]">
+          <div className="flex-1">
+            <SaveStatus status={saveStatus} error={saveError} onRetry={() => forceSave()} />
+          </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="px-6 py-2.5 rounded-xl font-medium border border-[var(--border)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
           >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading || !isValid}
-            className="px-6 py-2.5 rounded-xl font-bold bg-primary text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-          >
-            {loading && <Loader2 className="animate-spin" size={18} />}
-            {loading ? 'Saving...' : 'Update Settings'}
+            Close
           </button>
         </div>
       </form>

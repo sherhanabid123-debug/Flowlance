@@ -58,3 +58,67 @@ export const sendResetPasswordEmail = async (email: string, token: string) => {
     return false;
   }
 };
+
+export const sendDailyReminderEmail = async (email: string, clients: any[]) => {
+  const dashboardUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`;
+  
+  const clientRows = clients.map(c => `
+    <tr>
+      <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f6;">
+        <div style="font-weight: bold; color: #111827; font-size: 14px;">${c.name}</div>
+        <div style="font-size: 12px; color: #6b7280;">${c.projectName}</div>
+      </td>
+      <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f6; text-align: right;">
+        <span style="background: #fef3c7; color: #92400e; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; text-transform: uppercase;">Due Today</span>
+      </td>
+    </tr>
+  `).join('');
+
+  const mailOptions = {
+    from: '"Flowlance ⚡" <no-reply@flowlance.com>',
+    to: email,
+    subject: `⚡ Action Required: ${clients.length} Follow-ups Today`,
+    html: `
+      <div style="font-family: 'Inter', system-ui, sans-serif; background-color: #f9fafb; padding: 40px 20px;">
+        <div style="max-width: 500px; margin: 0 auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+          <div style="background: #4f46e5; padding: 30px; text-align: center;">
+             <h1 style="color: white; margin: 0; font-size: 22px;">Daily Follow-up Digest</h1>
+             <p style="color: rgba(255,255,255,0.8); margin-top: 5px; font-size: 14px;">Stay on top of your growth.</p>
+          </div>
+          <div style="padding: 40px 30px;">
+            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+              Hello, you have <b>${clients.length}</b> client follow-up${clients.length > 1 ? 's' : ''} scheduled for today.
+            </p>
+            
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+              ${clientRows}
+            </table>
+
+            <div style="text-align: center; margin-top: 20px;">
+              <a href="${dashboardUrl}" style="background: #4f46e5; color: white; padding: 14px 28px; border-radius: 12px; font-weight: bold; text-decoration: none; display: inline-block;">
+                Visit Your Dashboard
+              </a>
+            </div>
+          </div>
+          <div style="background: #f3f4f6; padding: 20px; text-align: center; color: #9ca3af; font-size: 12px;">
+            &copy; ${new Date().getFullYear()} Flowlance CRM. <br/>
+            You received this because Email Reminders are ON in your profile.
+          </div>
+        </div>
+      </div>
+    `,
+  };
+
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.log('\x1b[33m%s\x1b[0m', `⚠️ SMTP not configured. Daily reminder for ${email} would contain ${clients.length} clients.`);
+    return true; 
+  }
+
+  try {
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error('Daily reminder email failed:', error);
+    return false;
+  }
+};

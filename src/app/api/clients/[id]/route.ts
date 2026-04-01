@@ -6,6 +6,10 @@ import { addDays } from 'date-fns';
 
 const FINANCIAL_FIELDS = ['expectedBudget', 'advanceAmount', 'totalAmount', 'finalAmount'];
 
+export async function PATCH(req: Request, props: { params: Promise<{ id: string }> }) {
+  return PUT(req, props);
+}
+
 export async function PUT(req: Request, props: { params: Promise<{ id: string }> }) {
   try {
     const params = await props.params;

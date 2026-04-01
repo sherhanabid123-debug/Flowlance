@@ -8,6 +8,9 @@ import { useWorkspaceStore } from '@/store/useWorkspaceStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useToastStore } from '@/store/useToastStore';
 import { CenteredModal } from './CenteredModal';
+import { useAutosave } from '@/hooks/useAutosave';
+import { SaveStatus } from './SaveStatus';
+import { AlertCircle } from 'lucide-react';
 
 interface ClientModalProps {
   isOpen: boolean;
@@ -139,6 +142,58 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
     type === 'confirmed' ? isConfirmedValid :
     isCompletedValid) && isSampleValid;
 
+  // Autosave logic for editing existing clients
+  const saveClientData = async (currentData: any) => {
+    const url = `/api/clients/${initialData._id}`;
+    const res = await fetch(url, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(currentData),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || 'Failed to auto-save client');
+    }
+
+    const { client } = await res.json();
+    updateClient(client);
+    return client;
+  };
+
+  const payload = {
+    name, contact, phoneNumber, projectName, status: type, notes,
+    sampleProvided,
+    sampleLink: sampleProvided ? sampleLink : '',
+    followUpInterval: Number(followUpInterval),
+    lastFollowUp,
+    ...(type === 'potential' && { expectedBudget: Number(expectedBudget) }),
+    ...(type === 'confirmed' && { advanceAmount: Number(advanceAmount), totalAmount: Number(totalAmount), startDate }),
+    ...(type === 'completed' && { finalAmount: Number(finalAmount), totalAmount: Number(totalAmount), completionDate }),
+  };
+
+  const { status: saveStatus, error: saveError, hasChanges, isSaving, forceSave } = useAutosave(
+    payload,
+    saveClientData,
+    { 
+      skip: !initialData || !isOpen || !isValid,
+      debounceMs: 1000 
+    }
+  );
+
+  // Prevent accidental closing
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasChanges || isSaving) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasChanges, isSaving]);
+
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => focusRef.current?.focus(), 100);
@@ -201,6 +256,12 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
   };
 
   const handleClose = () => {
+    if (hasChanges || isSaving) {
+      if (confirm('You have unsaved changes. Are you sure you want to close?')) {
+        onClose();
+      }
+      return;
+    }
     onClose();
   };
 
@@ -343,23 +404,34 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
         </motion.div>
 
         {/* Actions */}
-        <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-[var(--border)]">
-          <button
-            type="button"
-            onClick={handleClose}
-            className="px-5 py-2.5 rounded-xl font-medium border border-[var(--border)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className={`px-5 py-2.5 rounded-xl font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${shake ? 'animate-shake' : ''}`}
-          >
-            {isSubmitting ? (
-              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-            ) : 'Save Client'}
-          </button>
+        <div className="flex items-center justify-between mt-4 pt-4 border-t border-[var(--border)]">
+          <div className="flex-1">
+            {initialData && (
+              <SaveStatus status={saveStatus} error={saveError} onRetry={() => forceSave()} />
+            )}
+          </div>
+          
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={handleClose}
+              className="px-5 py-2.5 rounded-xl font-medium border border-[var(--border)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+            >
+              {initialData ? 'Close' : 'Cancel'}
+            </button>
+            
+            {!initialData && (
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`px-5 py-2.5 rounded-xl font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${shake ? 'animate-shake' : ''}`}
+              >
+                {isSubmitting ? (
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                ) : 'Save Client'}
+              </button>
+            )}
+          </div>
         </div>
       </form>
     </CenteredModal>

@@ -1,14 +1,15 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useClientStore } from '@/store/useClientStore';
 import { Users, CheckCircle, Wallet, Target, TrendingUp, AlertCircle, Clock, CheckCheck, ArrowRight, Zap, Plus } from 'lucide-react';
 import { ClientModal } from '@/components/ui/ClientModal';
 import { QuickAddModal } from '@/components/ui/QuickAddModal';
 import { LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { isPast, isToday, formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, isPast, isToday } from 'date-fns';
 import Link from 'next/link';
+import { useToastStore } from '@/store/useToastStore';
 
 interface MonthlyStat {
   name: string;
@@ -39,6 +40,34 @@ export default function DashboardOverview() {
     };
     fetchClients();
   }, [setClients, setLoading]);
+
+  const { overdueFollowUps, todayFollowUps } = useMemo(() => {
+    const active = clients.filter(c =>
+      c.nextFollowUp &&
+      c.status !== 'completed' &&
+      !dismissedIds.has(c._id)
+    );
+    const overdue = active
+      .filter(c => isPast(new Date(c.nextFollowUp)) && !isToday(new Date(c.nextFollowUp)))
+      .sort((a, b) => new Date(a.nextFollowUp).getTime() - new Date(b.nextFollowUp).getTime());
+    const today = active
+      .filter(c => isToday(new Date(c.nextFollowUp)))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    return { overdueFollowUps: overdue, todayFollowUps: today };
+  }, [clients, dismissedIds]);
+
+  const { addToast } = useToastStore();
+  const alertTriggered = useRef(false);
+
+  useEffect(() => {
+    if (!isLoading && clients.length > 0 && !alertTriggered.current) {
+      const total = overdueFollowUps.length + todayFollowUps.length;
+      if (total > 0) {
+        addToast(`You have ${total} follow-up${total > 1 ? 's' : ''} to handle today.`, 'info');
+        alertTriggered.current = true;
+      }
+    }
+  }, [isLoading, clients.length, overdueFollowUps.length, todayFollowUps.length, addToast]);
 
   const metrics = useMemo(() => {
     let potential = 0, confirmed = 0, completed = 0, potentialRevenue = 0, totalSales = 0;
@@ -84,22 +113,6 @@ export default function DashboardOverview() {
 
     return timeline.map(({ name, sales }) => ({ name, sales }));
   }, [clients]);
-
-  // Memoized — split into overdue and today
-  const { overdueFollowUps, todayFollowUps } = useMemo(() => {
-    const active = clients.filter(c =>
-      c.nextFollowUp &&
-      c.status !== 'completed' &&
-      !dismissedIds.has(c._id)
-    );
-    const overdue = active
-      .filter(c => isPast(new Date(c.nextFollowUp)) && !isToday(new Date(c.nextFollowUp)))
-      .sort((a, b) => new Date(a.nextFollowUp).getTime() - new Date(b.nextFollowUp).getTime());
-    const today = active
-      .filter(c => isToday(new Date(c.nextFollowUp)))
-      .sort((a, b) => a.name.localeCompare(b.name));
-    return { overdueFollowUps: overdue, todayFollowUps: today };
-  }, [clients, dismissedIds]);
 
   const allFollowUps = useMemo(() => [...overdueFollowUps, ...todayFollowUps], [overdueFollowUps, todayFollowUps]);
   const LIMIT = 5;

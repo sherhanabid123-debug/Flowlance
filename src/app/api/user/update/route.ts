@@ -18,9 +18,9 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const { name, email, userType, agencyName } = await req.json();
+    const { name, email, userType, agencyName, emailReminders } = await req.json();
 
-    if (!name && !email && !userType && agencyName === undefined) {
+    if (!name && !email && !userType && agencyName === undefined && emailReminders === undefined) {
       return NextResponse.json({ error: 'No fields provided for update' }, { status: 400 });
     }
 
@@ -40,7 +40,8 @@ export async function PATCH(req: Request) {
         ...(name && { name }), 
         ...(email && { email }),
         ...(userType && { userType }),
-        ...(agencyName !== undefined && { agencyName })
+        ...(agencyName !== undefined && { agencyName }),
+        ...(emailReminders !== undefined && { emailReminders })
       },
       { new: true }
     ).select('-password');
