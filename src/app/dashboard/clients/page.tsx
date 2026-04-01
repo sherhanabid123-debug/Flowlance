@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useClientStore } from '@/store/useClientStore';
+import { useWorkspaceStore } from '@/store/useWorkspaceStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Plus, Trash2, Edit, Link as LinkIcon, CheckCheck } from 'lucide-react';
+import { Search, Plus, Trash2, Edit, Link as LinkIcon, CheckCheck, ShieldAlert } from 'lucide-react';
 import { ClientModal } from '@/components/ui/ClientModal';
 import { useToastStore } from '@/store/useToastStore';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -12,6 +14,8 @@ import { isPast, isToday, format } from 'date-fns';
 
 export default function ClientsPage() {
   const { clients, setClients, isLoading, setLoading, deleteClient, markFollowUpDone } = useClientStore();
+  const { workspace, getCurrentRole } = useWorkspaceStore();
+  const { user } = useAuthStore();
   const [filter, setFilter] = useState('all');
   const [followUpFilter, setFollowUpFilter] = useState('all');
   const [search, setSearch] = useState('');
@@ -19,6 +23,9 @@ export default function ClientsPage() {
   const [editingClient, setEditingClient] = useState<any>(null);
   const { addToast } = useToastStore();
   
+  const role = getCurrentRole(user?._id);
+  const isOwner = role === 'owner';
+
   useEffect(() => {
     const fetchClients = async () => {
       try {
@@ -35,6 +42,10 @@ export default function ClientsPage() {
   }, [setClients, setLoading]);
 
   const handleDelete = async (id: string) => {
+    if (!isOwner) {
+      addToast('Only owners can delete clients', 'error');
+      return;
+    }
     if (!confirm('Are you sure you want to delete this client?')) return;
     try {
       const res = await fetch(`/api/clients/${id}`, { method: 'DELETE' });
@@ -52,6 +63,10 @@ export default function ClientsPage() {
   };
 
   const handleUpgradeStatus = (client: any, newStatus: string) => {
+    if (!isOwner) {
+      addToast('Only owners can move clients between stages', 'error');
+      return;
+    }
     setEditingClient({ ...client, status: newStatus });
     setIsModalOpen(true);
   };
@@ -66,6 +81,10 @@ export default function ClientsPage() {
   };
 
   const handleAddNew = () => {
+    if (!isOwner) {
+      addToast('Only owners can create new clients', 'error');
+      return;
+    }
     setEditingClient(null);
     setIsModalOpen(true);
   };
@@ -92,9 +111,21 @@ export default function ClientsPage() {
     <div className="pt-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <h1 className="text-3xl font-bold tracking-tight">Client Management</h1>
-        <button onClick={handleAddNew} className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-medium hover:opacity-90 transition-opacity whitespace-nowrap">
-          <Plus size={18} /> New Client
-        </button>
+        
+        {isOwner ? (
+          <button onClick={handleAddNew} className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-medium hover:opacity-90 transition-opacity whitespace-nowrap">
+            <Plus size={18} /> New Client
+          </button>
+        ) : (
+          <div className="group relative">
+            <button disabled className="flex items-center gap-2 bg-[var(--border)] text-[var(--text-muted)] px-5 py-2.5 rounded-xl font-medium cursor-not-allowed opacity-50 whitespace-nowrap">
+              <ShieldAlert size={18} /> New Client
+            </button>
+            <div className="absolute top-full right-0 mt-2 p-2 bg-black text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+              Only owners can create clients
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="glass rounded-2xl p-4 md:p-6 mb-8 flex flex-col md:flex-row gap-4 justify-between items-center z-10 sticky top-[68px]">
@@ -174,7 +205,7 @@ export default function ClientsPage() {
                   'border-transparent hover:border-primary/40'
                 }`}
               >
-                <div className="w-full md:w-auto">
+                <div className="w-full md:w-auto text-left">
                   <div className="flex items-center gap-3 mb-1">
                     <h3 className="font-semibold text-lg">{client.name}</h3>
                     {filter === 'all' && <StatusBadge status={client.status as any} />}
@@ -215,7 +246,7 @@ export default function ClientsPage() {
                 </div>
                 
                 <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
-                  {client.status === 'potential' && (
+                  {client.status === 'potential' && isOwner && (
                     <button 
                       onClick={() => handleUpgradeStatus(client, 'confirmed')}
                       className="text-xs font-bold px-4 py-2 bg-amber-500 text-black rounded-xl hover:scale-105 active:scale-95 transition-all shadow-md shadow-amber-500/10"
@@ -223,7 +254,7 @@ export default function ClientsPage() {
                       Confirm Project
                     </button>
                   )}
-                  {client.status === 'confirmed' && (
+                  {client.status === 'confirmed' && isOwner && (
                     <button 
                       onClick={() => handleUpgradeStatus(client, 'completed')}
                       className="text-xs font-bold px-4 py-2 bg-green-600 text-white rounded-xl hover:scale-105 active:scale-95 transition-all shadow-md shadow-green-600/10"
@@ -251,13 +282,15 @@ export default function ClientsPage() {
                     >
                       <Edit size={18} />
                     </button>
-                    <button 
-                      onClick={() => handleDelete(client._id)} 
-                      className="p-2 rounded-lg hover:bg-red-500/20 text-red-500 transition-colors"
-                      title="Delete Client"
-                    >
-                      <Trash2 size={18} />
-                    </button>
+                    {isOwner && (
+                      <button 
+                        onClick={() => handleDelete(client._id)} 
+                        className="p-2 rounded-lg hover:bg-red-500/20 text-red-500 transition-colors"
+                        title="Delete Client"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    )}
                   </div>
                 </div>
               </motion.div>

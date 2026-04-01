@@ -61,10 +61,15 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: 'Invalid or expired invite link.' }, { status: 400 });
     }
 
-    // Add user to workspace if not already a member
+    // Add user to workspace if not already a member (RBAC Object Format)
     const userObjectId = new mongoose.Types.ObjectId(userId);
-    if (!workspace.members.find(m => m.toString() === userId)) {
-      workspace.members.push(userObjectId as any);
+    const alreadyMember = workspace.members.some(m => m.userId.toString() === userId);
+    
+    if (!alreadyMember) {
+      workspace.members.push({
+        userId: userObjectId,
+        role: 'member'
+      } as any);
       await workspace.save();
     }
 

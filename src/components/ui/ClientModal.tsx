@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect, useRef, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link as LinkIcon, Info } from 'lucide-react';
+import { Link as LinkIcon, Info, Lock } from 'lucide-react';
 import { useClientStore } from '@/store/useClientStore';
+import { useWorkspaceStore } from '@/store/useWorkspaceStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import { useToastStore } from '@/store/useToastStore';
 import { CenteredModal } from './CenteredModal';
 
@@ -22,24 +24,28 @@ const inputStagger = {
   })
 };
 
-const InputField = forwardRef<HTMLInputElement, any>(({ label, value, onChange, type="text", required=false, index=0 }, ref) => (
+const InputField = forwardRef<HTMLInputElement, any>(({ label, value, onChange, type="text", required=false, index=0, disabled=false }, ref) => (
   <motion.div custom={index} variants={inputStagger} initial="hidden" animate="visible" className="relative mb-5 w-full">
-    <input
-      ref={ref}
-      type={type}
-      value={value}
-      onChange={onChange}
-      required={required}
-      className="peer w-full bg-transparent p-3 pt-6 rounded-xl border border-[var(--border)] outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
-      placeholder=" "
-    />
-    <label className={`absolute left-3 top-4 text-xs font-medium opacity-60 transition-all pointer-events-none 
-        peer-placeholder-shown:text-sm peer-placeholder-shown:top-3 
-        peer-focus:top-1 peer-focus:text-xs peer-focus:text-primary peer-focus:opacity-100
-        ${value ? 'top-1 text-xs opacity-100' : ''}`}
-    >
-      {label} {required && <span className="text-destructive">*</span>}
-    </label>
+    <div className="relative">
+      <input
+        ref={ref}
+        type={type}
+        value={value}
+        onChange={onChange}
+        required={required}
+        disabled={disabled}
+        className={`peer w-full bg-transparent p-3 pt-6 rounded-xl border border-[var(--border)] outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm disabled:cursor-not-allowed disabled:bg-black/5 dark:disabled:bg-white/5 disabled:opacity-60`}
+        placeholder=" "
+      />
+      <label className={`absolute left-3 top-4 text-xs font-medium opacity-60 transition-all pointer-events-none 
+          peer-placeholder-shown:text-sm peer-placeholder-shown:top-3 
+          peer-focus:top-1 peer-focus:text-xs peer-focus:text-primary peer-focus:opacity-100
+          ${value ? 'top-1 text-xs opacity-100' : ''}`}
+      >
+        {label} {required && <span className="text-destructive">*</span>}
+      </label>
+      {disabled && <Lock size={12} className="absolute right-3 top-1/2 -translate-y-1/2 opacity-30" />}
+    </div>
   </motion.div>
 ));
 
@@ -47,7 +53,12 @@ InputField.displayName = 'InputField';
 
 export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) {
   const { addClient, updateClient } = useClientStore();
+  const { workspace, getCurrentRole } = useWorkspaceStore();
+  const { user } = useAuthStore();
   const { addToast } = useToastStore();
+
+  const role = getCurrentRole(user?._id);
+  const isOwner = role === 'owner';
 
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
@@ -90,7 +101,6 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
       setFollowUpInterval(initialData.followUpInterval?.toString() || '3');
       setLastFollowUp(initialData.lastFollowUp ? new Date(initialData.lastFollowUp).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
     } else {
-      // Clear if no initial data
       setName('');
       setContact('');
       setProjectName('');
@@ -114,9 +124,8 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
   
   const focusRef = useRef<HTMLInputElement>(null);
   
-  // Derived validation
   const isBasicValid = name.trim() !== '' && projectName.trim() !== '';
-  const isPotentialValid = isBasicValid; // optional budget
+  const isPotentialValid = isBasicValid;
   const isConfirmedValid = isBasicValid && advanceAmount && totalAmount;
   const isCompletedValid = isBasicValid && finalAmount;
   
@@ -127,7 +136,6 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
     type === 'confirmed' ? isConfirmedValid :
     isCompletedValid) && isSampleValid;
 
-  // Autfocuss
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => focusRef.current?.focus(), 100);
@@ -165,7 +173,10 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error('Failed to save client');
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to save client');
+      }
       
       const { client } = await res.json();
       if (initialData) {
@@ -177,8 +188,8 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
       }
       
       handleClose();
-    } catch (error) {
-      addToast('Error saving client. Please try again.', 'error');
+    } catch (error: any) {
+      addToast(error.message || 'Error saving client. Please try again.', 'error');
       setShake(true);
       setTimeout(() => setShake(false), 500);
     } finally {
@@ -199,29 +210,33 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <InputField ref={focusRef} index={1} label="Client Name" value={name} onChange={(e:any) => setName(e.target.value)} required />
-          <InputField index={2} label="Contact Info (Email/Phone)" value={contact} onChange={(e:any) => setContact(e.target.value)} />
+          <InputField ref={focusRef} index={1} label="Client Name" value={name} onChange={(e:any) => setName(e.target.value)} required disabled={!isOwner && !!initialData} />
+          <InputField index={2} label="Contact Info (Email/Phone)" value={contact} onChange={(e:any) => setContact(e.target.value)} disabled={!isOwner && !!initialData} />
           <div className="md:col-span-2">
-            <InputField index={3} label="Project Name" value={projectName} onChange={(e:any) => setProjectName(e.target.value)} required />
+            <InputField index={3} label="Project Name" value={projectName} onChange={(e:any) => setProjectName(e.target.value)} required disabled={!isOwner && !!initialData} />
           </div>
         </div>
 
         {/* Client Type Toggle */}
-        <motion.div custom={4} variants={inputStagger} initial="hidden" animate="visible" className="flex flex-col mb-4">
-          <label className="text-sm font-medium opacity-70 mb-2">Client Stage</label>
-          <div className="flex bg-black/5 dark:bg-white/5 p-1 rounded-xl">
+        <motion.div custom={4} variants={inputStagger} initial="hidden" animate="visible" className="flex flex-col mb-2">
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium opacity-70">Client Stage</label>
+            {!isOwner && <span className="text-[10px] text-amber-500 font-bold uppercase tracking-tighter">Owner Only</span>}
+          </div>
+          <div className={`flex bg-black/5 dark:bg-white/5 p-1 rounded-xl ${!isOwner ? 'opacity-60 cursor-not-allowed' : ''}`}>
             {['potential', 'confirmed', 'completed'].map((t) => (
               <button
                 key={t}
                 type="button"
+                disabled={!isOwner}
                 onClick={() => setType(t)}
-                className={`flex-1 py-2 px-3 text-sm font-bold rounded-lg capitalize transition-all ${
+                className={`flex-1 py-1.5 px-3 text-[11px] font-bold rounded-lg capitalize transition-all ${
                   type === t 
                     ? t === 'potential' ? 'bg-blue-600 text-white shadow-lg' 
                     : t === 'confirmed' ? 'bg-amber-500 text-black shadow-lg' 
                     : 'bg-green-600 text-white shadow-lg'
                     : 'hover:bg-black/5 dark:hover:bg-white/10'
-                }`}
+                } disabled:cursor-not-allowed`}
               >
                 {t}
               </button>
@@ -232,56 +247,32 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
         {/* Dynamic Fields */}
         <AnimatePresence mode="popLayout">
           {type === 'potential' && (
-            <motion.div key="potential" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex gap-4 flex-col md:flex-row w-full">
-              <InputField index={5} label="Expected Budget (₹)" type="number" value={expectedBudget} onChange={(e:any) => setExpectedBudget(e.target.value)} />
+            <motion.div key="potential" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex gap-4 flex-col md:flex-row w-full overflow-hidden">
+               <InputField index={5} label="Expected Budget (₹)" type="number" value={expectedBudget} onChange={(e:any) => setExpectedBudget(e.target.value)} disabled={!isOwner} />
             </motion.div>
           )}
           {type === 'confirmed' && (
-            <motion.div key="confirmed" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-              <InputField index={5} label="Total Amount (₹)" type="number" value={totalAmount} onChange={(e:any) => setTotalAmount(e.target.value)} required />
-              <InputField index={6} label="Advance Amount (₹)" type="number" value={advanceAmount} onChange={(e:any) => setAdvanceAmount(e.target.value)} required />
-              <InputField index={7} label="Start Date" type="date" value={startDate} onChange={(e:any) => setStartDate(e.target.value)} />
+            <motion.div key="confirmed" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full overflow-hidden">
+               <InputField index={5} label="Total Amount (₹)" type="number" value={totalAmount} onChange={(e:any) => setTotalAmount(e.target.value)} required disabled={!isOwner} />
+               <InputField index={6} label="Advance Amount (₹)" type="number" value={advanceAmount} onChange={(e:any) => setAdvanceAmount(e.target.value)} required disabled={!isOwner} />
+               <InputField index={7} label="Start Date" type="date" value={startDate} onChange={(e:any) => setStartDate(e.target.value)} disabled={!isOwner} />
             </motion.div>
           )}
           {type === 'completed' && (
-            <motion.div key="completed" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-              <InputField index={5} label="Final Amount Received (₹)" type="number" value={finalAmount} onChange={(e:any) => setFinalAmount(e.target.value)} required />
-              <InputField index={6} label="Completion Date" type="date" value={completionDate} onChange={(e:any) => setCompletionDate(e.target.value)} />
+            <motion.div key="completed" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full overflow-hidden">
+               <InputField index={5} label="Final Amount Received (₹)" type="number" value={finalAmount} onChange={(e:any) => setFinalAmount(e.target.value)} required disabled={!isOwner} />
+               <InputField index={6} label="Completion Date" type="date" value={completionDate} onChange={(e:any) => setCompletionDate(e.target.value)} disabled={!isOwner} />
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* Sample Provided Toggle */}
-        <motion.div custom={7} variants={inputStagger} initial="hidden" animate="visible" className="flex items-center justify-between bg-black/5 dark:bg-white/5 p-4 rounded-xl mt-2">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">{type === 'completed' ? 'Website Link?' : 'Sample Provided'}</span>
-            <div className="group relative flex items-center justify-center cursor-help opacity-50 hover:opacity-100 transition-opacity">
-              <Info size={14} />
-              <span className="absolute bottom-full mb-2 -left-3 hidden group-hover:block w-36 px-2 py-1.5 text-xs bg-black dark:bg-white text-white dark:text-black rounded-lg text-center z-10 shadow-lg pointer-events-none">
-                {type === 'completed' ? 'Link to the live project' : 'Sample shared with client'}
-              </span>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setSampleProvided(!sampleProvided)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background ${sampleProvided ? 'bg-primary' : 'bg-black/20 dark:bg-white/20'}`}
-          >
-            <motion.span
-              layout
-              transition={{ type: "spring", stiffness: 700, damping: 30 }}
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${sampleProvided ? 'translate-x-6' : 'translate-x-1'}`}
-            />
-          </button>
-        </motion.div>
 
         <AnimatePresence mode="wait">
           {sampleProvided && (
             <motion.div
               key="sample-link"
-              initial={{ opacity: 0, height: 0, marginTop: 0 }}
-              animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
-              exit={{ opacity: 0, height: 0, marginTop: 0 }}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
               className="overflow-hidden"
             >
               <InputField 
@@ -291,6 +282,7 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
                 value={sampleLink} 
                 onChange={(e:any) => setSampleLink(e.target.value)} 
                 required 
+                disabled={!isOwner}
               />
             </motion.div>
           )}
@@ -357,7 +349,7 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
           </button>
           <button
             type="submit"
-            disabled={isSubmitting || !isValid}
+            disabled={isSubmitting}
             className={`px-5 py-2.5 rounded-xl font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${shake ? 'animate-shake' : ''}`}
           >
             {isSubmitting ? (

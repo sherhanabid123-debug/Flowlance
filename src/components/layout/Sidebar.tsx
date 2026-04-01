@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Briefcase, Users, LogOut, UserPlus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useWorkspaceStore } from '@/store/useWorkspaceStore';
 import { useRouter } from 'next/navigation';
 
 const navItems = [
@@ -16,6 +17,7 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const { logout, user } = useAuthStore();
+  const { workspace } = useWorkspaceStore();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -32,15 +34,13 @@ export function Sidebar() {
     >
       <div className="flex flex-col mb-10 w-full">
         <div className="text-2xl font-bold text-primary tracking-tight">Flowlance</div>
-        {user?.userType === 'agency' && user?.agencyName && (
-          <motion.div 
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="text-[10px] uppercase font-bold tracking-[0.2em] opacity-40 mt-1 pl-1 truncate"
-          >
-            {user.agencyName}
-          </motion.div>
-        )}
+        <motion.div 
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="text-[10px] uppercase font-bold tracking-[0.2em] opacity-40 mt-1 pl-1 truncate"
+        >
+          {workspace?.name || 'Workspace'}
+        </motion.div>
       </div>
       
       <nav className="w-full flex-1 space-y-2">

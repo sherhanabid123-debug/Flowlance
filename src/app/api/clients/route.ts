@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import { Client } from '@/models/Client';
-import { getWorkspaceId } from '@/lib/auth';
+import { getServerSession } from '@/lib/permissions';
 import { addDays } from 'date-fns';
 
 export async function GET(req: Request) {
   try {
-    const workspaceId = await getWorkspaceId(req);
-    if (!workspaceId) return NextResponse.json({ error: 'Unauthorized: No assigned workspace' }, { status: 401 });
+    const session = await getServerSession(req);
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     await dbConnect();
-    const clients = await Client.find({ workspaceId }).sort({ createdAt: -1 });
+    const clients = await Client.find({ workspaceId: session.workspaceId }).sort({ createdAt: -1 });
     return NextResponse.json({ clients }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -19,8 +19,13 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const workspaceId = await getWorkspaceId(req);
-    if (!workspaceId) return NextResponse.json({ error: 'Unauthorized: No assigned workspace' }, { status: 401 });
+    const session = await getServerSession(req);
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    // RBAC: Only owners can create clients
+    if (session.role !== 'owner') {
+      return NextResponse.json({ error: 'Access denied. Only workspace owners can create new clients.' }, { status: 403 });
+    }
 
     await dbConnect();
     const data = await req.json();
@@ -35,7 +40,7 @@ export async function POST(req: Request) {
     
     const newClient = await Client.create({ 
       ...data, 
-      workspaceId,
+      workspaceId: session.workspaceId,
       lastFollowUp: isCompleted ? undefined : lastDate,
       nextFollowUp: isCompleted ? undefined : nextFollowUp,
       followUpInterval: interval

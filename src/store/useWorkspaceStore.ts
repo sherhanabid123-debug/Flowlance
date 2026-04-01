@@ -1,12 +1,17 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+export type WorkspaceRole = 'owner' | 'member';
+
 interface WorkspaceMember {
-  _id: string;
-  name: string;
-  email: string;
-  avatar?: string;
-  userType: string;
+  userId: {
+    _id: string;
+    name: string;
+    email: string;
+    avatar?: string;
+    userType: string;
+  };
+  role: WorkspaceRole;
 }
 
 interface WorkspaceState {
@@ -24,6 +29,8 @@ interface WorkspaceState {
   fetchWorkspace: () => Promise<void>;
   generateInviteLink: () => Promise<string>;
   removeMember: (memberId: string) => Promise<void>;
+  updateMemberRole: (memberId: string, role: WorkspaceRole) => Promise<void>;
+  getCurrentRole: (userId: string | undefined) => WorkspaceRole;
 }
 
 export const useWorkspaceStore = create<WorkspaceState>()(
@@ -63,12 +70,33 @@ export const useWorkspaceStore = create<WorkspaceState>()(
             const data = await res.json();
             throw new Error(data.error || 'Failed to remove member');
           }
-          // Refresh workspace data
           await get().fetchWorkspace();
         } catch (error) {
           console.error(error);
           throw error;
         }
+      },
+      updateMemberRole: async (memberId: string, role: WorkspaceRole) => {
+        try {
+          const res = await fetch(`/api/workspaces/members/${memberId}/role`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ role }),
+          });
+          if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.error || 'Failed to update role');
+          }
+          await get().fetchWorkspace();
+        } catch (error) {
+          console.error(error);
+          throw error;
+        }
+      },
+      getCurrentRole: (userId) => {
+        if (!get().workspace || !userId) return 'member';
+        const member = get().workspace?.members?.find(m => m.userId._id === userId);
+        return member?.role || 'member';
       },
     }),
     {

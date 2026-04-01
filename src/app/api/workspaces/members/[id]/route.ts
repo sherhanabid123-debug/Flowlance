@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import { Workspace } from '@/models/Workspace';
-import { User, IUser } from '@/models/User';
+import { User } from '@/models/User';
 import { verifyToken } from '@/lib/auth';
-import mongoose from 'mongoose';
 
 const getUserId = (req: Request) => {
   const token = req.headers.get('cookie')?.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
@@ -26,25 +25,29 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
 
     await dbConnect();
 
+    const user = await User.findById(userId);
+    if (!user || !user.currentWorkspace) {
+      return NextResponse.json({ error: 'No workspace found' }, { status: 404 });
+    }
+
     // Check if requester is owner of their current workspace
-    const workspace = await Workspace.findOne({ ownerId: userId });
+    const workspace = await Workspace.findOne({ 
+      _id: user.currentWorkspace, 
+      ownerId: userId 
+    });
     
     if (!workspace) {
       return NextResponse.json({ error: 'Only workspace owners can remove members.' }, { status: 403 });
     }
 
-    // Remove from members list
-    workspace.members = workspace.members.filter(m => m.toString() !== memberIdToRemove) as any;
+    // RBAC Fix: members is now an array of objects { userId, role }
+    workspace.members = workspace.members.filter(m => m.userId.toString() !== memberIdToRemove);
     await workspace.save();
 
     // Clear the removed user's currentWorkspace if it was this one
-    // We just find them and check if their currentWorkspace is this one
     const removedUser = await User.findById(memberIdToRemove);
     if (removedUser && removedUser.currentWorkspace?.toString() === workspace._id.toString()) {
       removedUser.currentWorkspace = undefined;
-      
-      // Fallback: If they belong to other workspaces, we should assign one.
-      // For now, setting to undefined is safest. They will be prompted to create/join one next login.
       await removedUser.save();
     }
 

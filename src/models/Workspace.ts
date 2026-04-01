@@ -1,10 +1,17 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { IUser } from './User';
 
+export type WorkspaceRole = 'owner' | 'member';
+
+export interface IWorkspaceMember {
+  userId: mongoose.Types.ObjectId | IUser;
+  role: WorkspaceRole;
+}
+
 export interface IWorkspace extends Document {
   name: string;
   ownerId: mongoose.Types.ObjectId | IUser;
-  members: mongoose.Types.ObjectId[] | IUser[];
+  members: IWorkspaceMember[];
   inviteToken?: string;
   inviteTokenExpires?: Date;
   createdAt: Date;
@@ -26,8 +33,16 @@ const WorkspaceSchema: Schema<IWorkspace> = new Schema(
     },
     members: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+          required: true,
+        },
+        role: {
+          type: String,
+          enum: ['owner', 'member'],
+          default: 'member',
+        },
       },
     ],
     inviteToken: {
