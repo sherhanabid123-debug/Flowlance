@@ -3,11 +3,12 @@
 import { useWorkspaceStore, WorkspaceRole } from '@/store/useWorkspaceStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { motion } from 'framer-motion';
-import { UserPlus, Trash2, Shield, User, Copy, Check, ChevronDown, AlertTriangle } from 'lucide-react';
+import { UserPlus, Trash2, Shield, User, Copy, Check, ChevronDown, AlertTriangle, LogOut } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 
 export default function TeamPage() {
-  const { workspace, fetchWorkspace, generateInviteLink, removeMember, updateMemberRole, isLoading } = useWorkspaceStore();
+  const { workspace, fetchWorkspace, generateInviteLink, removeMember, updateMemberRole, leaveWorkspace, isLoading } = useWorkspaceStore();
+  const [isLeaving, setIsLeaving] = useState(false);
   const { user } = useAuthStore();
   const [inviteLink, setInviteLink] = useState('');
   const [copied, setCopied] = useState(false);
@@ -55,6 +56,18 @@ export default function TeamPage() {
 
   const isOwner = user?._id === workspace?.ownerId?._id;
 
+  const handleLeaveWorkspace = async () => {
+    if (!confirm('Are you sure you want to leave this workspace? You will lose access to all shared clients and data.')) return;
+    setIsLeaving(true);
+    try {
+      await leaveWorkspace();
+      window.location.href = '/dashboard';
+    } catch (error: any) {
+      alert(error.message);
+      setIsLeaving(false);
+    }
+  };
+
   // Filter out invalid members (those without a populated userId)
   const validMembers = useMemo(() => {
     return workspace?.members?.filter(m => m.userId && typeof m.userId === 'object' && m.userId._id) || [];
@@ -64,9 +77,21 @@ export default function TeamPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight">Team Management</h1>
-        <p className="text-[var(--text-muted)]">Manage your agency members, roles, and invitations.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Team Management</h1>
+          <p className="text-[var(--text-muted)]">Manage your agency members, roles, and invitations.</p>
+        </div>
+        {!isOwner && (
+          <button
+            onClick={handleLeaveWorkspace}
+            disabled={isLeaving}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm text-red-500 border border-red-500/30 hover:bg-red-500/10 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+          >
+            <LogOut size={16} />
+            {isLeaving ? 'Leaving...' : 'Leave Team'}
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

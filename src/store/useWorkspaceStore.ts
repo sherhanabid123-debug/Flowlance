@@ -30,6 +30,7 @@ interface WorkspaceState {
   generateInviteLink: () => Promise<string>;
   removeMember: (memberId: string) => Promise<void>;
   updateMemberRole: (memberId: string, role: WorkspaceRole) => Promise<void>;
+  leaveWorkspace: () => Promise<void>;
   getCurrentRole: (userId: string | undefined) => WorkspaceRole;
 }
 
@@ -88,6 +89,19 @@ export const useWorkspaceStore = create<WorkspaceState>()(
             throw new Error(data.error || 'Failed to update role');
           }
           await get().fetchWorkspace();
+        } catch (error) {
+          console.error(error);
+          throw error;
+        }
+      },
+      leaveWorkspace: async () => {
+        try {
+          const res = await fetch('/api/workspaces/members/leave', { method: 'DELETE' });
+          if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.error || 'Failed to leave workspace');
+          }
+          set({ workspace: null });
         } catch (error) {
           console.error(error);
           throw error;
