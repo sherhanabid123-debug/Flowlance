@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
-import { Workspace } from '@/models/Workspace';
-import { User, IUser } from '@/models/User';
+import { User } from '@/models/User';
 import { verifyToken } from '@/lib/auth';
 import mongoose from 'mongoose';
 
@@ -21,35 +20,37 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
 
     const memberIdToRemove = params.id;
     if (userId === memberIdToRemove) {
-      return NextResponse.json({ error: 'Owner cannot remove themselves. Delete workspace instead.' }, { status: 400 });
+      return NextResponse.json({ error: 'You cannot remove yourself. Use "Leave Team" instead.' }, { status: 400 });
     }
 
     await dbConnect();
+    const db = mongoose.connection.db;
+    if (!db) throw new Error('DB connection not found');
 
-    // Check if requester is owner of their current workspace
-    const workspace = await Workspace.findOne({ ownerId: userId });
-    
+    // Find workspace owned by this user
+    const workspace = await db.collection('workspaces').findOne({ 
+      ownerId: new mongoose.Types.ObjectId(userId) 
+    });
+
     if (!workspace) {
       return NextResponse.json({ error: 'Only workspace owners can remove members.' }, { status: 403 });
     }
 
-    // Remove from members list
-    workspace.members = workspace.members.filter(m => m.toString() !== memberIdToRemove) as any;
-    await workspace.save();
+    // Use $pull to avoid Mongoose re-validating all members (bypasses legacy data issues)
+    await db.collection('workspaces').updateOne(
+      { _id: workspace._id },
+      { $pull: { members: { userId: new mongoose.Types.ObjectId(memberIdToRemove) } } } as any
+    );
 
-    // Clear the removed user's currentWorkspace if it was this one
-    // We just find them and check if their currentWorkspace is this one
+    // Clear the removed user's currentWorkspace if it was this workspace
     const removedUser = await User.findById(memberIdToRemove);
     if (removedUser && removedUser.currentWorkspace?.toString() === workspace._id.toString()) {
-      removedUser.currentWorkspace = undefined;
-      
-      // Fallback: If they belong to other workspaces, we should assign one.
-      // For now, setting to undefined is safest. They will be prompted to create/join one next login.
-      await removedUser.save();
+      await User.findByIdAndUpdate(memberIdToRemove, { $unset: { currentWorkspace: "" } });
     }
 
     return NextResponse.json({ message: 'Member removed successfully' }, { status: 200 });
   } catch (error: any) {
+    console.error('Remove Member Error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
