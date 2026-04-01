@@ -280,7 +280,7 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <InputField ref={focusRef} index={1} label="Client Name" value={name} onChange={(e:any) => setName(e.target.value)} required disabled={!isOwner && !!initialData} />
           <InputField index={2} label="Contact Info (Email)" value={contact} onChange={(e:any) => setContact(e.target.value)} disabled={!isOwner && !!initialData} />
-          <InputField index={3} label="Phone Number (e.g. +919876543210)" value={phoneNumber} onChange={(e:any) => setPhoneNumber(e.target.value)} />
+          <InputField index={3} label="Phone Number" value={phoneNumber} onChange={(e:any) => setPhoneNumber(e.target.value)} />
           <div className="md:col-span-2">
             <InputField index={3} label="Project Name" value={projectName} onChange={(e:any) => setProjectName(e.target.value)} required disabled={!isOwner && !!initialData} />
           </div>
