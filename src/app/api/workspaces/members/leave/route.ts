@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
+import mongoose from 'mongoose';
 import { Workspace } from '@/models/Workspace';
 import { User } from '@/models/User';
 import { getServerSession } from '@/lib/permissions';
@@ -14,24 +15,27 @@ export async function DELETE(req: Request) {
     const workspace = await Workspace.findById(session.workspaceId);
     if (!workspace) return NextResponse.json({ error: 'Workspace not found' }, { status: 404 });
 
-    // Important: Owners cannot leave their only workspace. 
-    // They must promote someone first or delete it.
+    // Owners cannot leave — they must promote someone or delete the workspace.
     if (session.role === 'owner') {
       return NextResponse.json({ 
-        error: 'As the Workspace Owner, you cannot leave. Please promote another member to Owner or delete the workspace.' 
+        error: 'As the Workspace Owner, you cannot leave. Please promote another member to Owner first.' 
       }, { status: 403 });
     }
 
-    // 1. Remove from workspace array
-    workspace.members = workspace.members.filter(m => m.userId.toString() !== session.userId);
-    await workspace.save();
+    // Use direct $pull to avoid Mongoose re-validating all members in the array
+    // This bypasses the validation error on legacy members with inconsistent casing
+    const db = mongoose.connection.db;
+    if (!db) throw new Error('DB connection not found');
 
-    // 2. Clear user currentWorkspace
+    await db.collection('workspaces').updateOne(
+      { _id: new mongoose.Types.ObjectId(session.workspaceId) },
+      { $pull: { members: { userId: new mongoose.Types.ObjectId(session.userId) } } } as any
+    );
+
+    // Clear user's currentWorkspace reference
     await User.findByIdAndUpdate(session.userId, { 
       $unset: { currentWorkspace: "" } 
     });
-
-    console.log(`--- User ${session.userId} left workspace ${session.workspaceId} ---`);
 
     return NextResponse.json({ message: 'Left workspace successfully' }, { status: 200 });
   } catch (error: any) {
