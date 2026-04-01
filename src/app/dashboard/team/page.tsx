@@ -15,6 +15,8 @@ export default function TeamPage() {
 
   useEffect(() => {
     fetchWorkspace();
+    const interval = setInterval(fetchWorkspace, 30000); // Auto refresh every 30s
+    return () => clearInterval(interval);
   }, [fetchWorkspace]);
 
   const handleGenerateInvite = async () => {
@@ -53,25 +55,25 @@ export default function TeamPage() {
     }
   };
 
-  const isOwner = user?._id === workspace?.ownerId?._id;
+  const isOwner = user?._id?.toString() === workspace?.ownerId?._id?.toString();
 
   // Robust member list: Even if owner isn't in the sub-collection, we show them
   const memberList = useMemo(() => {
-    if (!workspace) return [];
+    if (!workspace || !workspace.ownerId) return [];
     
     // Start with existing members
     const list = [...(workspace.members || [])];
     
-    // Check if owner is in the list
-    const ownerId = workspace.ownerId._id;
-    const isOwnerInList = list.some(m => m.userId._id === ownerId);
+    // Check if owner is already in the list
+    const ownerIdStr = workspace.ownerId._id.toString();
+    const isOwnerInList = list.some(m => m.userId?._id?.toString() === ownerIdStr);
     
     if (!isOwnerInList) {
-      // Add owner explicitly from ownerId data
+      // Add owner explicitly from ownerId data if they aren't listed
       list.unshift({
         userId: {
           _id: workspace.ownerId._id,
-          name: workspace.ownerId.name,
+          name: workspace.ownerId.name || 'Owner',
           email: workspace.ownerId.email,
           userType: 'agency'
         } as any,
@@ -84,7 +86,7 @@ export default function TeamPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 text-left">
         <h1 className="text-3xl font-bold tracking-tight">Team Management</h1>
         <p className="text-[var(--text-muted)]">Manage your agency members, roles, and invitations.</p>
       </div>
@@ -92,14 +94,14 @@ export default function TeamPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Members List */}
         <div className="lg:col-span-2 space-y-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wider opacity-50">Members ({memberList.length})</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-wider opacity-50 text-left">Members ({memberList.length})</h2>
           <div className="glass border rounded-2xl overflow-hidden">
             <div className="divide-y divide-[var(--border)]">
               {memberList.map((member) => (
-                <div key={member.userId._id} className="p-4 flex items-center justify-between hover:bg-primary/5 transition-colors">
-                  <div className="flex items-center gap-4">
+                <div key={member.userId?._id?.toString() || Math.random().toString()} className="p-4 flex items-center justify-between hover:bg-primary/5 transition-colors">
+                  <div className="flex items-center gap-4 text-left">
                     <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center overflow-hidden">
-                      {member.userId.avatar ? (
+                      {member.userId?.avatar ? (
                         <img src={member.userId.avatar} alt={member.userId.name} className="w-full h-full object-cover" />
                       ) : (
                         <User size={20} className="text-primary" />
@@ -107,23 +109,23 @@ export default function TeamPage() {
                     </div>
                     <div>
                       <div className="font-medium flex items-center gap-2">
-                        {member.userId.name || member.userId.email.split('@')[0]}
+                        {member.userId?.name || member.userId?.email?.split('@')[0] || 'Unknown Member'}
                         {member.role === 'owner' && (
                           <span className="flex items-center gap-1 text-[10px] bg-amber-500/10 text-amber-600 px-1.5 py-0.5 rounded-md border border-amber-500/20 uppercase font-bold tracking-tighter">
                             <Shield size={10} /> Owner
                           </span>
                         )}
-                        {member.userId._id === user?._id && (
+                        {member.userId?._id?.toString() === user?._id?.toString() && (
                           <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-md border border-primary/20 uppercase font-bold tracking-tighter">You</span>
                         )}
                       </div>
-                      <div className="text-xs text-[var(--text-muted)]">{member.userId.email}</div>
+                      <div className="text-xs text-[var(--text-muted)]">{member.userId?.email}</div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3">
                     {/* Role Selector or Badge */}
-                    {isOwner && member.userId._id !== user?._id ? (
+                    {isOwner && member.userId?._id?.toString() !== user?._id?.toString() ? (
                       <div className="relative group">
                         <select
                           value={member.role}
@@ -140,15 +142,15 @@ export default function TeamPage() {
                     ) : (
                       <span className={`text-[11px] font-bold px-3 py-1.5 rounded-lg border ${
                         member.role === 'owner' ? 'bg-amber-500/10 text-amber-600 border-amber-500/20' : 'bg-primary/10 text-primary border-primary/20 invisible md:visible'
-                      } uppercase transition-all`}>
-                        {member.role}
+                      } uppercase transition-all whitespace-nowrap`}>
+                        {member.role === 'owner' ? 'Owner' : 'Member'}
                       </span>
                     )}
 
-                    {isOwner && member.userId._id !== user?._id && (
+                    {isOwner && member.userId?._id?.toString() !== user?._id?.toString() && (
                       <button
                         onClick={() => handleRemoveMember(member.userId._id)}
-                        className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors"
+                        className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors shrink-0"
                         title="Remove Member"
                       >
                         <Trash2 size={18} />
@@ -163,9 +165,9 @@ export default function TeamPage() {
 
         {/* Invite Section */}
         <div className="space-y-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wider opacity-50">Add Team Member</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-wider opacity-50 text-left">Add Team Member</h2>
           <div className="glass border rounded-3xl p-6 space-y-6">
-            <div className="p-4 bg-primary/5 border border-primary/10 rounded-2xl">
+            <div className="p-4 bg-primary/5 border border-primary/10 rounded-2xl text-left">
               <div className="flex items-start gap-4">
                 <div className="p-2 bg-primary/10 rounded-xl text-primary mt-1">
                   <UserPlus size={20} />
@@ -220,7 +222,7 @@ export default function TeamPage() {
             )}
 
             <div className="pt-4 border-t border-[var(--border)]">
-              <div className="flex items-center gap-2 text-[10px] text-[var(--text-muted)] bg-primary/5 p-3 rounded-xl">
+              <div className="flex items-center gap-2 text-[10px] text-[var(--text-muted)] bg-primary/5 p-3 rounded-xl text-left">
                  <Shield size={14} className="text-primary shrink-0" />
                  <p>Members can view all clients but cannot edit financial data or delete clients.</p>
               </div>
