@@ -4,7 +4,7 @@ import { IUser } from './User';
 export type ClientStatus = 'potential' | 'confirmed' | 'completed';
 
 export interface IClient extends Document {
-  userId: mongoose.Types.ObjectId | IUser;
+  workspaceId: mongoose.Types.ObjectId;
   name: string;
   contact?: string;
   projectName: string;
@@ -33,9 +33,9 @@ export interface IClient extends Document {
 
 const ClientSchema: Schema<IClient> = new Schema(
   {
-    userId: {
+    workspaceId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'Workspace',
       required: true,
       index: true,
     },

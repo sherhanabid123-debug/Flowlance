@@ -2,14 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, LogOut } from 'lucide-react';
+import { LayoutDashboard, Briefcase, Users, LogOut, UserPlus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useRouter } from 'next/navigation';
 
 const navItems = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Client Management', href: '/dashboard/clients', icon: Users },
+  { name: 'Clients', href: '/dashboard/clients', icon: Briefcase },
+  { name: 'Team', href: '/dashboard/team', icon: Users },
 ];
 
 export function Sidebar() {

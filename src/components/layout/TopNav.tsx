@@ -4,10 +4,18 @@ import { ThemeToggle } from './ThemeToggle';
 import { UserDropdown } from './UserDropdown';
 import { NotificationDropdown } from './NotificationDropdown';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useWorkspaceStore } from '@/store/useWorkspaceStore';
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
+import { Users } from 'lucide-react';
 
 export function TopNav() {
   const { user } = useAuthStore();
+  const { workspace, fetchWorkspace } = useWorkspaceStore();
+
+  useEffect(() => {
+    fetchWorkspace();
+  }, [fetchWorkspace]);
   
   return (
     <motion.header 
@@ -29,7 +37,10 @@ export function TopNav() {
         <h2 className="text-xl font-bold tracking-tight">
           Hello, {user?.name || user?.email?.split('@')[0] || 'User'}!
         </h2>
-        <p className="text-xs opacity-50 font-medium">Welcome back to your workspace</p>
+        <div className="flex items-center gap-1.5 text-xs opacity-50 font-medium">
+          <Users size={12} className="text-primary" />
+          <span>{workspace?.name || 'Loading Workspace...'}</span>
+        </div>
       </div>
       
       <div className="flex items-center space-x-2">

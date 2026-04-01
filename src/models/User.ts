@@ -10,6 +10,7 @@ export interface IUser extends Document {
   resetPasswordExpires?: Date;
   googleId?: string;
   avatar?: string;
+  currentWorkspace?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -57,6 +58,10 @@ const UserSchema: Schema<IUser> = new Schema(
     resetPasswordExpires: {
       type: Date,
       required: false,
+    },
+    currentWorkspace: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Workspace',
     },
   },
   {
