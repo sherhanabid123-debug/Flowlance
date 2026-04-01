@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 
 const navItems = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Clients', href: '/dashboard/clients', icon: Briefcase },
+  { name: 'Client management', href: '/dashboard/clients', icon: Briefcase },
   { name: 'Team', href: '/dashboard/team', icon: Users },
 ];
 
