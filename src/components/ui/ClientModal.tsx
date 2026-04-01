@@ -62,6 +62,7 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
 
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [projectName, setProjectName] = useState('');
   const [type, setType] = useState('potential');
   
@@ -87,6 +88,7 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
     if (initialData) {
       setName(initialData.name || '');
       setContact(initialData.contact || '');
+      setPhoneNumber(initialData.phoneNumber || '');
       setProjectName(initialData.projectName || '');
       setType(initialData.status || 'potential');
       setExpectedBudget(initialData.expectedBudget?.toString() || '');
@@ -103,6 +105,7 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
     } else {
       setName('');
       setContact('');
+      setPhoneNumber('');
       setProjectName('');
       setType('potential');
       setExpectedBudget('');
@@ -153,7 +156,7 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
     setIsSubmitting(true);
     
     const payload = {
-      name, contact, projectName, status: type, notes,
+      name, contact, phoneNumber, projectName, status: type, notes,
       sampleProvided,
       sampleLink: sampleProvided ? sampleLink : '',
       followUpInterval: Number(followUpInterval),
@@ -211,7 +214,8 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <InputField ref={focusRef} index={1} label="Client Name" value={name} onChange={(e:any) => setName(e.target.value)} required disabled={!isOwner && !!initialData} />
-          <InputField index={2} label="Contact Info (Email/Phone)" value={contact} onChange={(e:any) => setContact(e.target.value)} disabled={!isOwner && !!initialData} />
+          <InputField index={2} label="Contact Info (Email)" value={contact} onChange={(e:any) => setContact(e.target.value)} disabled={!isOwner && !!initialData} />
+          <InputField index={3} label="Phone Number (e.g. +919876543210)" value={phoneNumber} onChange={(e:any) => setPhoneNumber(e.target.value)} />
           <div className="md:col-span-2">
             <InputField index={3} label="Project Name" value={projectName} onChange={(e:any) => setProjectName(e.target.value)} required disabled={!isOwner && !!initialData} />
           </div>

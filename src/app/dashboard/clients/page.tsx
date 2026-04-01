@@ -5,7 +5,7 @@ import { useClientStore } from '@/store/useClientStore';
 import { useWorkspaceStore } from '@/store/useWorkspaceStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Plus, Trash2, Edit, Link as LinkIcon, CheckCheck, ShieldAlert } from 'lucide-react';
+import { Search, Plus, Trash2, Edit, Link as LinkIcon, CheckCheck, MessageCircle } from 'lucide-react';
 import { ClientModal } from '@/components/ui/ClientModal';
 import { useToastStore } from '@/store/useToastStore';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -82,9 +82,16 @@ export default function ClientsPage() {
   };
 
   const handleAddNew = () => {
-    // Both members and owners can now create clients
     setEditingClient(null);
     setIsModalOpen(true);
+  };
+
+  const getWhatsAppLink = (client: any) => {
+    if (!client.phoneNumber) return null;
+    const cleaned = client.phoneNumber.replace(/[\s+\-()]/g, '');
+    if (!/^\d{7,15}$/.test(cleaned)) return null;
+    const message = encodeURIComponent(`Hi ${client.name}, following up regarding ${client.projectName}`);
+    return `https://wa.me/${cleaned}?text=${message}`;
   };
 
   const filteredClients = clients.filter(c => {
@@ -262,6 +269,25 @@ export default function ClientsPage() {
                   )}
 
                   <div className="flex items-center bg-black/5 dark:bg-white/5 p-1 rounded-xl">
+                    {(() => {
+                      const waLink = getWhatsAppLink(client);
+                      return (
+                        <a
+                          href={waLink || undefined}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={!waLink ? (e) => e.preventDefault() : undefined}
+                          title={waLink ? 'Message on WhatsApp' : 'No phone number available'}
+                          className={`p-2 rounded-lg transition-all ${
+                            waLink
+                              ? 'text-[#25D366] hover:bg-[#25D366]/10 hover:scale-110 active:scale-95 cursor-pointer'
+                              : 'text-[#25D366]/30 cursor-not-allowed'
+                          }`}
+                        >
+                          <MessageCircle size={18} />
+                        </a>
+                      );
+                    })()}
                     <button 
                       onClick={() => handleEdit(client)}
                       className="p-2 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 text-primary transition-colors"

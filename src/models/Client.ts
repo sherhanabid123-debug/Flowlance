@@ -7,6 +7,7 @@ export interface IClient extends Document {
   workspaceId: mongoose.Types.ObjectId;
   name: string;
   contact?: string;
+  phoneNumber?: string;
   projectName: string;
   status: ClientStatus;
   
@@ -45,6 +46,10 @@ const ClientSchema: Schema<IClient> = new Schema(
       trim: true,
     },
     contact: {
+      type: String,
+      trim: true,
+    },
+    phoneNumber: {
       type: String,
       trim: true,
     },
