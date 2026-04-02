@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
 
   const isAuthPage = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register');
   const isDashboardPage = request.nextUrl.pathname.startsWith('/dashboard');
 
+  // Allow Guest Mode on Dashboard
   if (isDashboardPage && !token) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.next();
   }
 
   if (isAuthPage && token) {
