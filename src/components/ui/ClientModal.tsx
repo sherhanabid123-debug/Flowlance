@@ -91,58 +91,79 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
 
   // Revenue Split
   const [shares, setShares] = useState<any[]>([]);
+  const hasInitialized = useRef<string | null>(null);
+
+  const getUID = (id: any) => {
+    if (!id) return '';
+    if (typeof id === 'string') return id;
+    return (id._id || id).toString();
+  };
 
   useEffect(() => {
-    if (initialData) {
-      setName(initialData.name || '');
-      setContact(initialData.contact || '');
-      setPhoneNumber(initialData.phoneNumber || '');
-      setProjectName(initialData.projectName || '');
-      setType(initialData.status || 'potential');
-      setExpectedBudget(initialData.expectedBudget?.toString() || '');
-      setAdvanceAmount(initialData.advanceAmount?.toString() || '');
-      setTotalAmount(initialData.totalAmount?.toString() || '');
-      setStartDate(initialData.startDate ? new Date(initialData.startDate).toISOString().split('T')[0] : '');
-      setFinalAmount(initialData.finalAmount?.toString() || '');
-      setCompletionDate(initialData.completionDate ? new Date(initialData.completionDate).toISOString().split('T')[0] : '');
-      setNotes(initialData.notes || '');
-      setSampleProvided(initialData.sampleProvided || false);
-      setSampleLink(initialData.sampleLink || '');
-      setFollowUpInterval(initialData.followUpInterval?.toString() || '3');
-      setLastFollowUp(initialData.lastFollowUp ? new Date(initialData.lastFollowUp).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
-      setEmailReminders(initialData.emailReminders !== false);
+    if (isOpen) {
+      const clientId = initialData?._id || 'new';
       
-      // Prioritize existing shares, then default to owner if workspace is ready
-      if (initialData.shares && initialData.shares.length > 0) {
-        setShares(initialData.shares);
-      } else if (workspace?.ownerId) {
-        const oId = (workspace.ownerId as any)._id || workspace.ownerId;
-        setShares([{ userId: oId.toString(), percentage: 100 }]);
+      // If we've already initialized THIS client in THIS session, skip re-initialization
+      // This prevents store updates (e.g. from autosave) from overwriting local changes
+      if (hasInitialized.current === clientId) return;
+
+      if (initialData) {
+        setName(initialData.name || '');
+        setContact(initialData.contact || '');
+        setPhoneNumber(initialData.phoneNumber || '');
+        setProjectName(initialData.projectName || '');
+        setType(initialData.status || 'potential');
+        setExpectedBudget(initialData.expectedBudget?.toString() || '');
+        setAdvanceAmount(initialData.advanceAmount?.toString() || '');
+        setTotalAmount(initialData.totalAmount?.toString() || '');
+        setStartDate(initialData.startDate ? new Date(initialData.startDate).toISOString().split('T')[0] : '');
+        setFinalAmount(initialData.finalAmount?.toString() || '');
+        setCompletionDate(initialData.completionDate ? new Date(initialData.completionDate).toISOString().split('T')[0] : '');
+        setNotes(initialData.notes || '');
+        setSampleProvided(initialData.sampleProvided || false);
+        setSampleLink(initialData.sampleLink || '');
+        setFollowUpInterval(initialData.followUpInterval?.toString() || '3');
+        setLastFollowUp(initialData.lastFollowUp ? new Date(initialData.lastFollowUp).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
+        setEmailReminders(initialData.emailReminders !== false);
+        
+        // Prioritize existing shares, then default to owner if workspace is ready
+        if (initialData.shares && initialData.shares.length > 0) {
+          setShares(initialData.shares);
+          hasInitialized.current = clientId;
+        } else if (workspace?.ownerId) {
+          const oId = getUID(workspace.ownerId);
+          setShares([{ userId: oId, percentage: 100 }]);
+          hasInitialized.current = clientId;
+        }
+      } else {
+        // For NEW clients
+        setName('');
+        setContact('');
+        setPhoneNumber('');
+        setProjectName('');
+        setType('potential');
+        setExpectedBudget('');
+        setAdvanceAmount('');
+        setTotalAmount('');
+        setStartDate('');
+        setFinalAmount('');
+        setCompletionDate('');
+        setNotes('');
+        setSampleProvided(false);
+        setSampleLink('');
+        setFollowUpInterval('3');
+        setLastFollowUp(new Date().toISOString().split('T')[0]);
+        setEmailReminders(true);
+
+        if (workspace?.ownerId) {
+          const oId = getUID(workspace.ownerId);
+          setShares([{ userId: oId, percentage: 100 }]);
+          hasInitialized.current = clientId;
+        }
       }
     } else {
-      // For NEW clients, default to owner if workspace is ready
-      setName('');
-      setContact('');
-      setPhoneNumber('');
-      setProjectName('');
-      setType('potential');
-      setExpectedBudget('');
-      setAdvanceAmount('');
-      setTotalAmount('');
-      setStartDate('');
-      setFinalAmount('');
-      setCompletionDate('');
-      setNotes('');
-      setSampleProvided(false);
-      setSampleLink('');
-      setFollowUpInterval('3');
-      setLastFollowUp(new Date().toISOString().split('T')[0]);
-      setEmailReminders(true);
-
-      if (workspace?.ownerId) {
-        const oId = (workspace.ownerId as any)._id || workspace.ownerId;
-        setShares([{ userId: oId.toString(), percentage: 100 }]);
-      }
+      // Reset synchronization flag when modal closes
+      hasInitialized.current = null;
     }
   }, [initialData, isOpen, workspace?.ownerId]);
 

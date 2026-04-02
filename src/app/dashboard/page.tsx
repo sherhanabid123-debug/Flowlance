@@ -90,15 +90,18 @@ export default function DashboardOverview() {
         totalSales += (c.finalAmount || 0);
 
         // Calculate personal earnings
+        const getUID = (id: any) => (id?._id || id || '').toString();
+        const myId = user?._id || '';
+
         if (c.shares && c.shares.length > 0) {
-          const myShare = c.shares.find((s: any) => (s.userId._id || s.userId) === user?._id);
+          const myShare = c.shares.find((s: any) => getUID(s.userId) === myId);
           if (myShare) {
             myEarnings += (c.finalAmount * myShare.percentage) / 100;
           }
         } else {
           // Default: Owner gets 100% if no shares defined
-          const isOwner = workspace?.ownerId === user?._id || (workspace?.ownerId as any)?._id === user?._id;
-          if (isOwner) {
+          const ownerIdString = getUID(workspace?.ownerId);
+          if (ownerIdString === myId) {
             myEarnings += (c.finalAmount || 0);
           }
         }
