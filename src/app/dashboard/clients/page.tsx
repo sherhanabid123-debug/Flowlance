@@ -6,7 +6,7 @@ import { useClientStore } from '@/store/useClientStore';
 import { useWorkspaceStore } from '@/store/useWorkspaceStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Plus, Trash2, Edit, Link as LinkIcon, CheckCheck, MessageCircle, Zap } from 'lucide-react';
+import { Search, Plus, Trash2, Edit, Link as LinkIcon, CheckCheck, MessageCircle, Zap, Download } from 'lucide-react';
 import { ClientModal } from '@/components/ui/ClientModal';
 import { QuickAddModal } from '@/components/ui/QuickAddModal';
 import { useToastStore } from '@/store/useToastStore';
@@ -14,6 +14,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { FollowUpBadge } from '@/components/ui/FollowUpBadge';
 import { HealthBadge } from '@/components/ui/HealthBadge';
 import { getClientHealthStatus } from '@/lib/clientHealth';
+import { exportClientsToCSV } from '@/lib/exportUtils';
 import { isPast, isToday, format } from 'date-fns';
 
 function ClientsContent() {
@@ -164,6 +165,14 @@ function ClientsContent() {
           >
             <Zap size={15} /> Quick Add Client
           </button>
+          
+          <button 
+            onClick={() => exportClientsToCSV(clients)}
+            className="flex items-center gap-2 border border-[var(--border)] px-4 py-2.5 rounded-xl font-medium hover:bg-black/5 dark:hover:bg-white/5 transition-all text-sm"
+          >
+            <Download size={18} /> Export Data
+          </button>
+
           <button onClick={handleAddNew} className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-medium hover:opacity-90 transition-opacity whitespace-nowrap">
             <Plus size={18} /> New Client
           </button>
