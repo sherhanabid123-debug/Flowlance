@@ -1,3 +1,5 @@
+'use client';
+
 import { useWorkspaceStore, WorkspaceRole } from '@/store/useWorkspaceStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useClientStore } from '@/store/useClientStore';

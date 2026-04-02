@@ -112,16 +112,15 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
       setLastFollowUp(initialData.lastFollowUp ? new Date(initialData.lastFollowUp).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
       setEmailReminders(initialData.emailReminders !== false);
       
-      // Default to owner if no shares exist
+      // Prioritize existing shares, then default to owner if workspace is ready
       if (initialData.shares && initialData.shares.length > 0) {
         setShares(initialData.shares);
       } else if (workspace?.ownerId) {
         const oId = (workspace.ownerId as any)._id || workspace.ownerId;
-        setShares([{ userId: oId, percentage: 100 }]);
-      } else {
-        setShares([]);
+        setShares([{ userId: oId.toString(), percentage: 100 }]);
       }
     } else {
+      // For NEW clients, default to owner if workspace is ready
       setName('');
       setContact('');
       setPhoneNumber('');
@@ -140,12 +139,9 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
       setLastFollowUp(new Date().toISOString().split('T')[0]);
       setEmailReminders(true);
 
-      // Default to owner for new clients
       if (workspace?.ownerId) {
         const oId = (workspace.ownerId as any)._id || workspace.ownerId;
-        setShares([{ userId: oId, percentage: 100 }]);
-      } else {
-        setShares([]);
+        setShares([{ userId: oId.toString(), percentage: 100 }]);
       }
     }
   }, [initialData, isOpen, workspace?.ownerId]);

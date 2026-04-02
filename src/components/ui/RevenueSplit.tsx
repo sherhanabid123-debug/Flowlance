@@ -16,6 +16,14 @@ interface RevenueSplitProps {
   totalAmount: number;
 }
 
+// Robust ID extraction for consistent matching across DB and store
+const getUID = (id: any) => {
+  if (!id) return '';
+  if (typeof id === 'string') return id;
+  if (id._id) return id._id.toString();
+  return id.toString();
+};
+
 export function RevenueSplit({ shares, onChange, totalAmount }: RevenueSplitProps) {
   const { workspace } = useWorkspaceStore();
   const [error, setError] = useState<string | null>(null);
@@ -35,19 +43,19 @@ export function RevenueSplit({ shares, onChange, totalAmount }: RevenueSplitProp
     
     // We update by mapping all possible members, preserving existing shares
     const updated = workspace!.members.map(m => {
-      const mIdString = (m.userId._id || m.userId).toString();
-      const existing = shares.find(s => (s.userId._id || s.userId).toString() === mIdString);
+      const mIdString = getUID(m.userId);
+      const existing = shares.find(s => getUID(s.userId) === mIdString);
       
       if (mIdString === userId) {
         return { userId, percentage: numValue };
       }
-      return existing || { userId: mIdString, percentage: 0 };
+      return existing ? { userId: getUID(existing.userId), percentage: existing.percentage } : { userId: mIdString, percentage: 0 };
     });
     
-    // Ensure owner is included if not in members list (workspace owners are usually in members list)
-    const ownerIdString = ((workspace!.ownerId as any)._id || workspace!.ownerId).toString();
-    if (!updated.find(u => (u.userId._id || u.userId).toString() === ownerIdString)) {
-       const existingOwner = shares.find(s => (s.userId._id || s.userId).toString() === ownerIdString);
+    // Ensure owner is included if not in members list
+    const ownerIdString = getUID(workspace!.ownerId);
+    if (!updated.find(u => getUID(u.userId) === ownerIdString)) {
+       const existingOwner = shares.find(s => getUID(s.userId) === ownerIdString);
        const finalPercentage = userId === ownerIdString ? numValue : (existingOwner?.percentage || 0);
        updated.push({ userId: ownerIdString, percentage: finalPercentage });
     }
@@ -72,8 +80,8 @@ export function RevenueSplit({ shares, onChange, totalAmount }: RevenueSplitProp
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {allMembers.map((member) => {
-          const uId = (member.userId._id || member.userId).toString();
-          const share = shares.find(s => (s.userId._id || s.userId).toString() === uId) || { userId: uId, percentage: 0 };
+          const uId = getUID(member.userId);
+          const share = shares.find(s => getUID(s.userId) === uId) || { userId: uId, percentage: 0 };
           const amount = (totalAmount * share.percentage) / 100;
 
           return (
