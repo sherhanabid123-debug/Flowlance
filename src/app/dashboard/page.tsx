@@ -10,6 +10,8 @@ import { LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveCo
 import { formatDistanceToNow, isPast, isToday } from 'date-fns';
 import Link from 'next/link';
 import { useToastStore } from '@/store/useToastStore';
+import { HealthBadge } from '@/components/ui/HealthBadge';
+import { getClientHealthStatus } from '@/lib/clientHealth';
 
 interface MonthlyStat {
   name: string;
@@ -264,8 +266,11 @@ export default function DashboardOverview() {
                             <div className={`p-2 rounded-lg shrink-0 ${isOverdue ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500'}`}>
                               {isOverdue ? <AlertCircle size={18} /> : <Clock size={18} />}
                             </div>
-                            <div>
-                              <h4 className="font-bold text-sm">{client.name}</h4>
+                             <div>
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-bold text-sm">{client.name}</h4>
+                                <HealthBadge lastFollowUp={client.lastFollowUp} compact />
+                              </div>
                               <p className="text-xs opacity-60">{client.projectName}</p>
                               <p className={`text-[11px] font-semibold mt-0.5 ${isOverdue ? 'text-red-500' : 'text-amber-500'}`}>
                                 {isOverdue

@@ -11,6 +11,8 @@ import { QuickAddModal } from '@/components/ui/QuickAddModal';
 import { useToastStore } from '@/store/useToastStore';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { FollowUpBadge } from '@/components/ui/FollowUpBadge';
+import { HealthBadge } from '@/components/ui/HealthBadge';
+import { getClientHealthStatus } from '@/lib/clientHealth';
 import { isPast, isToday, format } from 'date-fns';
 
 export default function ClientsPage() {
@@ -194,6 +196,8 @@ export default function ClientsPage() {
           {filteredClients.map((client, i) => {
             const isOverdue = client.nextFollowUp && isPast(new Date(client.nextFollowUp)) && !isToday(new Date(client.nextFollowUp));
             const isDueToday = client.nextFollowUp && isToday(new Date(client.nextFollowUp));
+            const health = getClientHealthStatus(client.lastFollowUp);
+            const isCold = health.status === 'cold' && client.status !== 'completed';
 
             return (
               <motion.div
@@ -206,13 +210,15 @@ export default function ClientsPage() {
                 className={`glass p-5 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-all border-2 ${
                   client.status !== 'completed' && isOverdue ? 'border-red-500/40 shadow-[0_0_20px_rgba(239,68,68,0.15)] ring-1 ring-red-500/20' : 
                   client.status !== 'completed' && isDueToday ? 'border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/20' : 
+                  isCold ? 'border-red-500/20 bg-red-500/[0.02] shadow-lg shadow-red-500/5' :
                   'border-transparent hover:border-primary/40'
                 }`}
               >
                 <div className="w-full md:w-auto text-left">
-                  <div className="flex items-center gap-3 mb-1">
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
                     <h3 className="font-semibold text-lg">{client.name}</h3>
                     {filter === 'all' && <StatusBadge status={client.status as any} />}
+                    <HealthBadge lastFollowUp={client.lastFollowUp} />
                   </div>
                   <p className="text-sm opacity-70 mb-1">{client.projectName}</p>
                   <p className="text-[10px] font-bold opacity-40 uppercase tracking-tighter mb-2">Joined: {format(new Date(client.createdAt), 'dd/MM/yy')}</p>
