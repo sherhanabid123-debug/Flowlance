@@ -5,7 +5,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { usePathname, useRouter } from 'next/navigation';
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const { setUser, setLoading, isAuthenticated, user } = useAuthStore();
+  const { setUser, setLoading } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -18,6 +18,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
         if (res.ok) {
           const data = await res.json();
           setUser(data.user);
+          
+          // Navigation Guard: Redirect to onboarding if no workspace
+          const isPublicPath = ['/', '/login', '/register', '/onboarding'].includes(pathname);
+          if (data.user && !data.user.currentWorkspace && !isPublicPath) {
+            router.push('/onboarding');
+          }
         } else {
           setUser(null);
         }
@@ -29,16 +35,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     };
 
     fetchUser();
-  }, [setUser, setLoading]);
-
-  // Onboarding Guard
-  useEffect(() => {
-    if (mounted && isAuthenticated && user && !user.currentWorkspace) {
-      if (pathname !== '/onboarding') {
-        router.push('/onboarding');
-      }
-    }
-  }, [mounted, isAuthenticated, user, pathname, router]);
+  }, [setUser, setLoading, pathname, router]);
 
   if (!mounted) {
     return null;

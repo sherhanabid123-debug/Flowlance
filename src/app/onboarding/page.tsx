@@ -27,33 +27,20 @@ export default function OnboardingPage() {
       router.push('/login');
       return;
     }
-    if (isInitialized && user?.currentWorkspace) {
+    if (isInitialized && user?.currentWorkspace && step !== 'loading') {
       router.push('/dashboard');
     }
-  }, [user, isInitialized, isAuthenticated, router]);
+  }, [user, isInitialized, isAuthenticated, router, step]);
 
   const handleNextStep = () => {
     if (step === 'name') {
-      if (!name.trim()) {
-        addToast('Please enter your name', 'error');
-        return;
-      }
+      if (!name.trim()) return addToast('Please enter your name', 'error');
       setStep('type');
     } else if (step === 'type') {
-      if (!type) {
-        addToast('Please select a profile type', 'error');
-        return;
-      }
-      if (type === 'agency') {
-        setStep('company');
-      } else {
-        submitOnboarding();
-      }
+      if (!type) return addToast('Please select a profile type', 'error');
+      type === 'agency' ? setStep('company') : submitOnboarding();
     } else if (step === 'company') {
-      if (!companyName.trim()) {
-        addToast('Please enter your company name', 'error');
-        return;
-      }
+      if (!companyName.trim()) return addToast('Please enter your company name', 'error');
       submitOnboarding();
     }
   };
@@ -71,13 +58,17 @@ export default function OnboardingPage() {
       if (!res.ok) throw new Error(data.error || 'Failed to complete onboarding');
 
       setUser(data.user);
-      addToast('Welcome to Flowlance!', 'success');
-      setStep('loading');
-      setTimeout(() => router.push('/dashboard'), 1500);
+      finishOnboarding();
     } catch (err: any) {
       addToast(err.message, 'error');
+    } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const finishOnboarding = () => {
+    setStep('loading');
+    setTimeout(() => router.push('/dashboard'), 1500);
   };
 
   if (!isInitialized) return null;
@@ -102,11 +93,11 @@ export default function OnboardingPage() {
                 <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6 scale-110">
                   <Sparkles className="text-primary fill-primary/20" size={32} />
                 </div>
-                <h1 className="text-4xl font-extrabold tracking-tight">Let's get started.</h1>
-                <p className="text-[var(--text-muted)] text-lg">First, what should we call you?</p>
+                <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">Let's get started.</h1>
+                <p className="text-[var(--text-muted)] text-base md:text-lg">First, what should we call you?</p>
               </div>
 
-              <div className="glass border rounded-[2rem] p-8 shadow-2xl shadow-primary/5">
+              <div className="glass border rounded-[2rem] p-6 md:p-8 shadow-2xl shadow-primary/5">
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-widest opacity-40 px-1">Your Full Name</label>
@@ -141,8 +132,8 @@ export default function OnboardingPage() {
               className="space-y-8"
             >
               <div className="text-center space-y-3">
-                <h1 className="text-3xl font-extrabold tracking-tight">Welcome, {name.split(' ')[0]}!</h1>
-                <p className="text-[var(--text-muted)]">How will you be using Flowlance?</p>
+                <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">Welcome, {name.split(' ')[0]}!</h1>
+                <p className="text-[var(--text-muted)] text-sm md:text-base">How will you be using Flowlance?</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -166,10 +157,10 @@ export default function OnboardingPage() {
                 <button onClick={() => setStep('name')} className="text-sm font-bold opacity-40 hover:opacity-100 transition-opacity">Back</button>
                 <button
                   onClick={handleNextStep}
-                  disabled={!type}
-                  className="px-12 h-14 bg-primary text-white font-bold rounded-2xl flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-primary/20 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale"
+                  disabled={!type || isSubmitting}
+                  className="px-8 md:px-12 h-14 bg-primary text-white font-bold rounded-2xl flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-primary/20 transition-all active:scale-95 disabled:opacity-50 text-sm md:text-base"
                 >
-                  {type === 'agency' ? 'Next' : 'Create My Workspace'}
+                  {isSubmitting ? <Loader2 className="animate-spin" /> : (type === 'agency' ? 'Next' : 'Create My Workspace')}
                   <ArrowRight size={20} />
                 </button>
               </div>
@@ -188,11 +179,11 @@ export default function OnboardingPage() {
                 <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <Building2 className="text-blue-500" size={32} />
                 </div>
-                <h1 className="text-3xl font-extrabold tracking-tight">Your Agency Name</h1>
-                <p className="text-[var(--text-muted)]">This will be shown on your dashboard and invoices.</p>
+                <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">Your Agency Name</h1>
+                <p className="text-[var(--text-muted)] text-sm md:text-base">This will be shown on your dashboard and invoices.</p>
               </div>
 
-              <div className="glass border rounded-[2rem] p-8 shadow-2xl">
+              <div className="glass border rounded-[2rem] p-6 md:p-8 shadow-2xl">
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-widest opacity-40 px-1">Company / Agency Name</label>
@@ -207,11 +198,11 @@ export default function OnboardingPage() {
                     />
                   </div>
                   <div className="flex gap-4">
-                    <button onClick={() => setStep('type')} className="h-16 px-6 glass border-[var(--border)] font-bold rounded-2xl hover:bg-primary/5 transition-all">Back</button>
+                    <button onClick={() => setStep('type')} className="h-16 px-6 glass border-[var(--border)] font-bold rounded-2xl hover:bg-primary/5 transition-all text-sm">Back</button>
                     <button
                       onClick={handleNextStep}
                       disabled={isSubmitting || !companyName.trim()}
-                      className="flex-1 h-16 bg-primary text-white font-bold rounded-2xl flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-primary/20 transition-all active:scale-95 disabled:opacity-50"
+                      className="flex-1 h-16 bg-primary text-white font-bold rounded-2xl flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-primary/20 transition-all active:scale-95 disabled:opacity-50 text-sm md:text-base"
                     >
                       {isSubmitting ? <Loader2 className="animate-spin" /> : 'Finalize Setup'}
                       <ArrowRight size={20} />
@@ -240,8 +231,8 @@ export default function OnboardingPage() {
                 </div>
               </div>
               <div className="space-y-3">
-                <h2 className="text-3xl font-extrabold tracking-tight">Setting up your world...</h2>
-                <p className="text-[var(--text-muted)]">Creating your workspace at lightning speed.</p>
+                <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">Finishing up...</h2>
+                <p className="text-[var(--text-muted)] text-sm md:text-base">Redirecting you to your new command center.</p>
               </div>
             </motion.div>
           )}
@@ -250,14 +241,23 @@ export default function OnboardingPage() {
 
       {/* Progress Indicator */}
       <div className="fixed top-8 left-1/2 -translate-x-1/2 flex items-center gap-2">
-        {(['name', 'type', 'company'] as Step[]).filter(s => s !== 'loading').map((s) => (
-          <div 
-            key={s}
-            className={`h-1.5 rounded-full transition-all duration-500 ${
-              s === step ? 'w-8 bg-primary' : 'w-2 bg-[var(--border)]'
-            }`}
-          />
-        ))}
+        {(['name', 'type', 'company'] as Step[]).filter(s => s !== 'loading').map((s) => {
+          const steps: Step[] = ['name', 'type', 'company'];
+          const currentIndex = steps.indexOf(step as Step);
+          const itemIndex = steps.indexOf(s);
+          
+          // Only show company if agency selected
+          if (s === 'company' && type !== 'agency' && step !== 'loading') return null;
+
+          return (
+            <div 
+              key={s}
+              className={`h-1.5 rounded-full transition-all duration-500 ${
+                s === step ? 'w-8 bg-primary' : itemIndex < currentIndex ? 'w-2 bg-primary/40' : 'w-2 bg-[var(--border)]'
+              }`}
+            />
+          );
+        })}
       </div>
     </div>
   );

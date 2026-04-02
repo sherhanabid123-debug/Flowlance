@@ -5,26 +5,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useClientStore } from '@/store/useClientStore';
 import { useWorkspaceStore } from '@/store/useWorkspaceStore';
 import { useAuthStore } from '@/store/useAuthStore';
-import { Users, CheckCircle, Wallet, Target, TrendingUp, AlertCircle, Clock, CheckCheck, ArrowRight, Zap, Plus } from 'lucide-react';
+import { 
+  Users, Wallet, Target, TrendingUp, AlertCircle, 
+  Clock, CheckCheck, ArrowRight, Plus 
+} from 'lucide-react';
 import { ClientModal } from '@/components/ui/ClientModal';
 import { QuickAddModal } from '@/components/ui/QuickAddModal';
-import { LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { 
+  LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip, 
+  ResponsiveContainer, CartesianGrid 
+} from 'recharts';
 import { formatDistanceToNow, isPast, isToday } from 'date-fns';
 import Link from 'next/link';
 import { useToastStore } from '@/store/useToastStore';
 import { HealthBadge } from '@/components/ui/HealthBadge';
-import { getClientHealthStatus } from '@/lib/clientHealth';
 import { SmartInsights } from '@/components/dashboard/SmartInsights';
 import { useAuthBarrier } from '@/hooks/useAuthBarrier';
 import { MOCK_CLIENTS } from '@/lib/mockClients';
 import { GuestBanner } from '@/components/layout/GuestBanner';
-
-interface MonthlyStat {
-  name: string;
-  sales: number;
-  index: number;
-  year: number;
-}
+import { FirstClientCTA } from '@/components/dashboard/FirstClientCTA';
 
 export default function DashboardOverview() {
   const { clients, setClients, isLoading, setLoading, markFollowUpDone } = useClientStore();
@@ -180,55 +179,82 @@ export default function DashboardOverview() {
   ];
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 flex flex-col pt-12 relative animate-in fade-in">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 flex flex-col pt-4 md:pt-12 relative animate-in fade-in pb-24">
       <GuestBanner />
       
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-3xl font-bold">Overview</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Dashboard Overview</h1>
         <div className="flex items-center gap-3">
           <button
             onClick={() => runProtected(() => setIsQuickAddOpen(true))}
-            className="flex items-center gap-2 border border-primary text-primary px-4 py-2.5 rounded-xl font-medium hover:bg-primary/5 transition-all whitespace-nowrap text-sm"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-xl font-bold hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-primary/20 text-sm whitespace-nowrap"
           >
-            <Zap size={15} /> Quick Add Client
+            <Plus size={18} /> Quick Add
           </button>
         </div>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6">
         {statCards.map((stat, i) => (
           <motion.div
             key={i}
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: i * 0.1 }}
-            className="glass p-6 rounded-2xl flex items-center justify-between group relative h-full"
+            className="glass p-5 md:p-6 rounded-2xl flex items-center justify-between group relative h-full border border-white/5"
             title={stat.tooltip}
           >
             <div>
-              <p className="text-sm font-medium opacity-70 mb-1">{stat.title}</p>
-              <h3 className="text-2xl font-bold tracking-tight">{stat.value}</h3>
+              <p className="text-xs font-bold uppercase tracking-widest opacity-40 mb-1">{stat.title}</p>
+              <h3 className="text-xl md:text-2xl font-black tracking-tight">{stat.value}</h3>
             </div>
-            <div className={`p-4 rounded-xl ${stat.bg} ${stat.color} transition-transform group-hover:scale-110`}>
-              <stat.icon size={24} />
+            <div className={`p-3 md:p-4 rounded-xl ${stat.bg} ${stat.color} transition-transform group-hover:scale-110 shrink-0 shadow-xl`}>
+              <stat.icon size={20} />
             </div>
           </motion.div>
         ))}
       </div>
 
-      <div className="glass p-6 rounded-2xl mt-8">
-        <h3 className="text-xl font-semibold mb-6">Revenue Overview</h3>
-        <div className="h-80 w-full">
+      <div className="glass p-4 md:p-6 rounded-2xl md:mt-8">
+        <h3 className="text-lg md:text-xl font-bold mb-6 flex items-center gap-2">
+          <TrendingUp className="text-primary" size={20} />
+          Revenue Growth
+        </h3>
+        <div className="h-64 md:h-80 w-full overflow-hidden">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.1} />
-              <XAxis dataKey="name" strokeOpacity={0.5} />
-              <YAxis strokeOpacity={0.5} />
-              <RechartsTooltip
-                contentStyle={{ borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--card)' }}
-                itemStyle={{ color: 'var(--foreground)' }}
+              <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.05} vertical={false} />
+              <XAxis 
+                dataKey="name" 
+                axisLine={false} 
+                tickLine={false} 
+                tick={{ fontSize: 10, opacity: 0.5 }} 
+                dy={10}
               />
-              <Line type="monotone" dataKey="sales" stroke="var(--primary)" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 8 }} />
+              <YAxis 
+                axisLine={false} 
+                tickLine={false} 
+                tick={{ fontSize: 10, opacity: 0.5 }} 
+              />
+              <RechartsTooltip
+                contentStyle={{ 
+                  borderRadius: '16px', 
+                  border: '1px solid var(--border)', 
+                  background: 'rgba(var(--card-rgb), 0.8)',
+                  backdropFilter: 'blur(12px)',
+                  boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+                  padding: '12px'
+                }}
+                itemStyle={{ color: 'var(--primary)', fontWeight: 'bold' }}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="sales" 
+                stroke="var(--primary)" 
+                strokeWidth={4} 
+                dot={{ r: 4, strokeWidth: 2, fill: 'var(--background)' }} 
+                activeDot={{ r: 8, strokeWidth: 0 }} 
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -236,21 +262,21 @@ export default function DashboardOverview() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Today's Follow-ups Widget */}
-        <div className="lg:col-span-2 glass p-6 rounded-2xl">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold flex items-center gap-2">
+        <div className="lg:col-span-2 glass p-5 md:p-6 rounded-2xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <h3 className="text-lg md:text-xl font-bold flex items-center gap-2">
               <Clock className="text-indigo-500" size={20} />
-              Today's Follow-ups
+              Queue & Actions
             </h3>
             <div className="flex items-center gap-2">
               {overdueFollowUps.length > 0 && (
-                <span className="bg-red-500/10 text-red-500 px-2.5 py-1 rounded-full text-xs font-bold">
+                <span className="bg-red-500 text-white px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter">
                   {overdueFollowUps.length} Overdue
                 </span>
               )}
               {todayFollowUps.length > 0 && (
-                <span className="bg-amber-500/10 text-amber-500 px-2.5 py-1 rounded-full text-xs font-bold">
-                  {todayFollowUps.length} Today
+                <span className="bg-amber-500 text-black px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter">
+                  {todayFollowUps.length} Due
                 </span>
               )}
             </div>
@@ -263,100 +289,80 @@ export default function DashboardOverview() {
                   key="empty"
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="flex flex-col items-center justify-center py-12 opacity-50 text-sm"
+                  className="flex flex-col items-center justify-center py-12 text-center"
                 >
-                  <CheckCheck size={40} className="mb-3 opacity-40" />
-                  <p className="font-semibold text-base">You're all caught up 🎉</p>
-                  <p className="text-xs opacity-70 mt-1">No follow-ups due today.</p>
+                  <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mb-4">
+                    <CheckCheck size={32} className="text-green-500" />
+                  </div>
+                  <p className="font-bold text-lg">Clear Horizon</p>
+                  <p className="text-xs opacity-50 mt-1 max-w-[200px]">All your follow-ups are completed for now.</p>
                 </motion.div>
               ) : (
                 <>
-                  {overdueFollowUps.length > 0 && visibleFollowUps.some(c => overdueFollowUps.includes(c)) && (
-                    <div className="flex items-center gap-2 mb-1">
-                      <AlertCircle size={13} className="text-red-500" />
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-red-500">Overdue</span>
-                    </div>
-                  )}
-
                   {visibleFollowUps.map(client => {
                     const isOverdue = overdueFollowUps.includes(client);
-                    const isFirstToday = !isOverdue && visibleFollowUps.find(c => !overdueFollowUps.includes(c)) === client;
                     return (
-                      <div key={client._id}>
-                        {isFirstToday && (
-                          <div className="flex items-center gap-2 mt-3 mb-1">
-                            <Clock size={13} className="text-amber-500" />
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-amber-500">Due Today</span>
+                      <motion.div
+                        key={client._id}
+                        layout
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95, x: 20 }}
+                        className={`flex flex-col sm:flex-row items-stretch sm:items-center justify-between p-4 rounded-xl border transition-all gap-4 group ${
+                          isOverdue
+                            ? 'bg-red-500/5 border-red-500/10 hover:border-red-500/20'
+                            : 'bg-primary/5 border-primary/10 hover:border-primary/20'
+                        }`}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${isOverdue ? 'bg-red-500 text-white' : 'bg-primary text-primary-foreground'}`}>
+                            {isOverdue ? <AlertCircle size={20} /> : <Clock size={20} />}
                           </div>
-                        )}
-                        <motion.div
-                          layout
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: 20, height: 0, marginBottom: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl border transition-all gap-4 ${
-                            isOverdue
-                              ? 'bg-red-500/5 border-red-500/20 hover:border-red-500/40'
-                              : 'bg-amber-500/5 border-amber-500/20 hover:border-amber-500/40'
-                          }`}
+                           <div className="min-w-0">
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <h4 className="font-bold text-sm truncate">{client.name}</h4>
+                              <HealthBadge lastFollowUp={client.lastFollowUp} compact />
+                            </div>
+                            <div className="flex items-center gap-2 text-[10px] opacity-40 font-bold uppercase tracking-wider">
+                              <span className="truncate max-w-[100px]">{client.projectName}</span>
+                              <span>•</span>
+                              <span className={isOverdue ? 'text-red-500' : 'text-primary'}>
+                                {isOverdue ? `${formatDistanceToNow(new Date(client.nextFollowUp))} late` : 'Today'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleMarkDone(client._id)}
+                          className="h-10 px-6 rounded-xl bg-primary text-primary-foreground text-xs font-black hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20 uppercase tracking-widest sm:w-auto"
                         >
-                          <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-lg shrink-0 ${isOverdue ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500'}`}>
-                              {isOverdue ? <AlertCircle size={18} /> : <Clock size={18} />}
-                            </div>
-                             <div>
-                              <div className="flex items-center gap-2">
-                                <h4 className="font-bold text-sm">{client.name}</h4>
-                                <HealthBadge lastFollowUp={client.lastFollowUp} compact />
-                              </div>
-                              <p className="text-xs opacity-60">{client.projectName}</p>
-                              <p className={`text-[11px] font-semibold mt-0.5 ${isOverdue ? 'text-red-500' : 'text-amber-500'}`}>
-                                {isOverdue
-                                  ? `${formatDistanceToNow(new Date(client.nextFollowUp))} overdue`
-                                  : 'Due today'}
-                              </p>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => handleMarkDone(client._id)}
-                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:scale-105 active:scale-95 transition-all shadow-md shadow-indigo-600/20 whitespace-nowrap shrink-0"
-                          >
-                            <CheckCheck size={14} />
-                            Mark Done
-                          </button>
-                        </motion.div>
-                      </div>
+                          Resolve
+                        </button>
+                      </motion.div>
                     );
                   })}
 
                   {hasMore && (
                     <button
                       onClick={() => setShowAll(prev => !prev)}
-                      className="w-full mt-2 py-2.5 text-xs font-bold text-primary hover:bg-primary/5 rounded-xl transition-colors flex items-center justify-center gap-1"
+                      className="w-full mt-2 py-3 text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary/5 rounded-xl transition-colors flex items-center justify-center gap-2"
                     >
-                      {showAll ? 'Show Less' : `View All (${allFollowUps.length})`}
-                      <ArrowRight size={14} className={`transition-transform ${showAll ? 'rotate-90' : ''}`} />
+                      {showAll ? 'Collapse List' : `View All Tasks (${allFollowUps.length})`}
+                      <ArrowRight size={14} className={`transition-transform ${showAll ? '-rotate-90' : ''}`} />
                     </button>
                   )}
                 </>
               )}
             </AnimatePresence>
           </div>
-
-          {allFollowUps.length > 0 && (
-            <div className="mt-4 pt-4 border-t border-[var(--border)]">
-              <Link href="/dashboard/clients" className="text-xs font-bold text-primary hover:underline flex items-center gap-1">
-                Go to Client Management <ArrowRight size={12} />
-              </Link>
-            </div>
-          )}
         </div>
 
         <div className="lg:col-span-1">
           <SmartInsights clients={clients} />
         </div>
       </div>
+
+      <FirstClientCTA />
       
       <ClientModal 
         isOpen={isEditModalOpen} 
