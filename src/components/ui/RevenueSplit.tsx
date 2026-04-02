@@ -18,28 +18,9 @@ interface RevenueSplitProps {
 
 export function RevenueSplit({ shares, onChange, totalAmount }: RevenueSplitProps) {
   const { workspace } = useWorkspaceStore();
-  const [localShares, setLocalShares] = useState<Share[]>(shares || []);
   const [error, setError] = useState<string | null>(null);
 
-  // Initialize if empty
-  useEffect(() => {
-    if (workspace && localShares.length === 0) {
-      // Default to owner 100%
-      const ownerId = (workspace.ownerId as any)._id || workspace.ownerId;
-      const initial = [{ userId: ownerId, percentage: 100 }];
-      setLocalShares(initial);
-      onChange(initial);
-    }
-  }, [workspace]);
-
-  // Sync with prop changes (e.g. after initialData loads)
-  useEffect(() => {
-    if (shares && JSON.stringify(shares) !== JSON.stringify(localShares)) {
-      setLocalShares(shares);
-    }
-  }, [shares]);
-
-  const totalPercentage = localShares.reduce((sum, s) => sum + s.percentage, 0);
+  const totalPercentage = shares.reduce((sum, s) => sum + (s.percentage || 0), 0);
 
   useEffect(() => {
     if (totalPercentage !== 100) {
@@ -51,28 +32,31 @@ export function RevenueSplit({ shares, onChange, totalAmount }: RevenueSplitProp
 
   const handleUpdate = (userId: string, value: string) => {
     const numValue = Math.max(0, Math.min(100, parseInt(value) || 0));
+    
+    // We update by mapping all possible members, preserving existing shares
     const updated = workspace!.members.map(m => {
-      const existing = localShares.find(s => s.userId === m.userId._id);
-      if (m.userId._id === userId) {
+      const mIdString = (m.userId._id || m.userId).toString();
+      const existing = shares.find(s => (s.userId._id || s.userId).toString() === mIdString);
+      
+      if (mIdString === userId) {
         return { userId, percentage: numValue };
       }
-      return existing || { userId: m.userId._id, percentage: 0 };
+      return existing || { userId: mIdString, percentage: 0 };
     });
     
-    // Ensure owner is included if not in members list (should be there normally)
-    const ownerId = (workspace!.ownerId as any)._id || workspace!.ownerId;
-    if (!updated.find(u => u.userId === ownerId)) {
-       const existingOwner = localShares.find(s => s.userId === ownerId);
-       updated.push(userId === ownerId ? { userId: ownerId, percentage: numValue } : (existingOwner || { userId: ownerId, percentage: 0 }));
+    // Ensure owner is included if not in members list (workspace owners are usually in members list)
+    const ownerIdString = ((workspace!.ownerId as any)._id || workspace!.ownerId).toString();
+    if (!updated.find(u => (u.userId._id || u.userId).toString() === ownerIdString)) {
+       const existingOwner = shares.find(s => (s.userId._id || s.userId).toString() === ownerIdString);
+       const finalPercentage = userId === ownerIdString ? numValue : (existingOwner?.percentage || 0);
+       updated.push({ userId: ownerIdString, percentage: finalPercentage });
     }
 
-    setLocalShares(updated);
     onChange(updated);
   };
 
   if (!workspace) return null;
 
-  // Combine owner and members for the list
   const allMembers = workspace.members;
 
   return (
@@ -88,8 +72,8 @@ export function RevenueSplit({ shares, onChange, totalAmount }: RevenueSplitProp
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {allMembers.map((member) => {
-          const uId = member.userId._id;
-          const share = localShares.find(s => s.userId === uId) || { userId: uId, percentage: 0 };
+          const uId = (member.userId._id || member.userId).toString();
+          const share = shares.find(s => (s.userId._id || s.userId).toString() === uId) || { userId: uId, percentage: 0 };
           const amount = (totalAmount * share.percentage) / 100;
 
           return (
@@ -124,8 +108,8 @@ export function RevenueSplit({ shares, onChange, totalAmount }: RevenueSplitProp
         {error && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, height: 'auto', y: 0 }}
+            exit={{ opacity: 0, height: 0, y: -10 }}
             className="flex items-center gap-2 text-[10px] font-bold text-red-500 bg-red-500/5 p-2 rounded-lg"
           >
             <AlertCircle size={12} /> {error}
