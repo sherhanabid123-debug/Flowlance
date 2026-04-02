@@ -16,6 +16,7 @@ export interface MockClient {
   sampleProvided: boolean;
   sampleLink?: string;
   shares: any[];
+  createdAt: string;
 }
 
 const today = new Date();
@@ -34,7 +35,8 @@ export const MOCK_CLIENTS: MockClient[] = [
     notes: 'Needs focus on Dark Mode UI.',
     sampleProvided: true,
     sampleLink: 'https://behance.net/sample1',
-    shares: []
+    shares: [],
+    createdAt: subDays(today, 10).toISOString()
   },
   {
     _id: 'mock-2',
@@ -47,7 +49,8 @@ export const MOCK_CLIENTS: MockClient[] = [
     followUpInterval: 5,
     notes: 'Interested in ranking for "organic skin care".',
     sampleProvided: false,
-    shares: []
+    shares: [],
+    createdAt: subDays(today, 15).toISOString()
   },
   {
     _id: 'mock-3',
@@ -62,7 +65,8 @@ export const MOCK_CLIENTS: MockClient[] = [
     notes: 'Project delivered on time. High-value client.',
     sampleProvided: true,
     sampleLink: 'https://figma.com/zomato-dash',
-    shares: []
+    shares: [],
+    createdAt: subDays(today, 60).toISOString()
   },
   {
     _id: 'mock-4',
@@ -76,7 +80,8 @@ export const MOCK_CLIENTS: MockClient[] = [
     followUpInterval: 5,
     notes: 'Awaiting logo feedback.',
     sampleProvided: false,
-    shares: []
+    shares: [],
+    createdAt: subDays(today, 12).toISOString()
   },
   {
     _id: 'mock-5',
@@ -90,7 +95,8 @@ export const MOCK_CLIENTS: MockClient[] = [
     notes: 'Budget is flexible if design quality is premium.',
     sampleProvided: true,
     sampleLink: 'https://dribbble.com/preview',
-    shares: []
+    shares: [],
+    createdAt: subDays(today, 5).toISOString()
   },
   {
     _id: 'mock-6',
@@ -104,7 +110,8 @@ export const MOCK_CLIENTS: MockClient[] = [
     followUpInterval: 3,
     notes: 'Integration with HubSpot required.',
     sampleProvided: false,
-    shares: []
+    shares: [],
+    createdAt: subDays(today, 20).toISOString()
   },
   {
     _id: 'mock-7',
@@ -118,7 +125,8 @@ export const MOCK_CLIENTS: MockClient[] = [
     followUpInterval: 30,
     notes: 'Recurring monthly work.',
     sampleProvided: true,
-    shares: []
+    shares: [],
+    createdAt: subDays(today, 45).toISOString()
   },
   {
     _id: 'mock-8',
@@ -131,6 +139,7 @@ export const MOCK_CLIENTS: MockClient[] = [
     followUpInterval: 3,
     notes: 'Follow up about Instagram growth strategy.',
     sampleProvided: false,
-    shares: []
+    shares: [],
+    createdAt: subDays(today, 8).toISOString()
   }
 ];
