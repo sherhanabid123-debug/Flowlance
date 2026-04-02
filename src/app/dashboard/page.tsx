@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { useToastStore } from '@/store/useToastStore';
 import { HealthBadge } from '@/components/ui/HealthBadge';
 import { getClientHealthStatus } from '@/lib/clientHealth';
+import { SmartInsights } from '@/components/dashboard/SmartInsights';
 
 interface MonthlyStat {
   name: string;
@@ -314,14 +315,8 @@ export default function DashboardOverview() {
           )}
         </div>
 
-        <div className="glass p-6 rounded-2xl flex flex-col justify-center items-center text-center space-y-4">
-          <div className="p-4 rounded-full bg-primary/10 text-primary">
-            <TrendingUp size={32} />
-          </div>
-          <h4 className="text-lg font-bold">Proactive Growth</h4>
-          <p className="text-sm opacity-60">
-            Following up within 48 hours increases conversion rates by up to 60%. Use your auto-scheduled reminders to stay ahead.
-          </p>
+        <div className="lg:col-span-1">
+          <SmartInsights clients={clients} />
         </div>
       </div>
       
