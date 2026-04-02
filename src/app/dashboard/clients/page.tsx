@@ -275,6 +275,23 @@ function ClientsContent() {
                   <p className="text-sm opacity-70 mb-1">{client.projectName}</p>
                   <p className="text-[10px] font-bold opacity-40 uppercase tracking-tighter mb-2">Joined: {format(new Date(client.createdAt), 'dd/MM/yy')}</p>
                   
+                  {client.shares && client.shares.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {client.shares.filter((s:any) => s.percentage > 0).map((s:any, idx:number) => {
+                        const amount = ((client.status === 'potential' ? client.expectedBudget : client.status === 'confirmed' ? client.totalAmount : client.finalAmount) || 0) * s.percentage / 100;
+                        return (
+                          <div key={idx} className="flex items-center gap-1.5 bg-black/5 dark:bg-white/5 px-2 py-1 rounded-lg border border-transparent hover:border-primary/10 transition-all">
+                            <div className="w-4 h-4 rounded bg-primary/10 text-primary flex items-center justify-center text-[10px] font-bold uppercase">
+                              {(s.userId.name || 'U').charAt(0)}
+                            </div>
+                            <span className="text-[10px] font-bold opacity-60">{s.percentage}%</span>
+                            <span className="text-[10px] font-mono opacity-40">₹{amount.toLocaleString('en-IN')}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
                   {(filter === 'potential' || (filter === 'all' && client.status === 'potential')) && <p className="text-xs font-semibold text-blue-500 mt-1">Budget: ₹{client.expectedBudget}</p>}
                   {(filter === 'confirmed' || (filter === 'all' && client.status === 'confirmed')) && (
                     <div className="flex flex-col gap-1 mt-1">

@@ -28,6 +28,10 @@ export interface IClient extends Document {
   nextFollowUp?: Date;
   followUpInterval?: number;
   emailReminders?: boolean;
+  shares?: {
+    userId: string | mongoose.Types.ObjectId;
+    percentage: number;
+  }[];
   
   createdAt: Date;
   updatedAt: Date;
@@ -84,6 +88,12 @@ const ClientSchema: Schema<IClient> = new Schema(
     lastFollowUp: { type: Date },
     nextFollowUp: { type: Date },
     followUpInterval: { type: Number, default: 3 },
+    shares: [
+      {
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+        percentage: { type: Number, required: true, min: 0, max: 100 },
+      },
+    ],
   },
   {
     timestamps: true,

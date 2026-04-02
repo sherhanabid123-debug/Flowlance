@@ -11,6 +11,7 @@ import { CenteredModal } from './CenteredModal';
 import { useAutosave } from '@/hooks/useAutosave';
 import { SaveStatus } from './SaveStatus';
 import { AlertCircle } from 'lucide-react';
+import { RevenueSplit } from './RevenueSplit';
 
 interface ClientModalProps {
   isOpen: boolean;
@@ -88,6 +89,9 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
   const [sampleProvided, setSampleProvided] = useState(false);
   const [sampleLink, setSampleLink] = useState('');
 
+  // Revenue Split
+  const [shares, setShares] = useState<any[]>([]);
+
   useEffect(() => {
     if (initialData) {
       setName(initialData.name || '');
@@ -107,6 +111,7 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
       setFollowUpInterval(initialData.followUpInterval?.toString() || '3');
       setLastFollowUp(initialData.lastFollowUp ? new Date(initialData.lastFollowUp).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
       setEmailReminders(initialData.emailReminders !== false);
+      setShares(initialData.shares || []);
     } else {
       setName('');
       setContact('');
@@ -125,6 +130,7 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
       setFollowUpInterval('3');
       setLastFollowUp(new Date().toISOString().split('T')[0]);
       setEmailReminders(true);
+      setShares([]);
     }
   }, [initialData, isOpen]);
 
@@ -140,10 +146,12 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
   
   const isSampleValid = !sampleProvided || (sampleLink.trim() !== '' && /^https?:\/\//i.test(sampleLink));
   
+  const isSharesValid = shares.length === 0 || shares.reduce((sum, s) => sum + (s.percentage || 0), 0) === 100;
+  
   const isValid = 
     (type === 'potential' ? isPotentialValid :
     type === 'confirmed' ? isConfirmedValid :
-    isCompletedValid) && isSampleValid;
+    isCompletedValid) && isSampleValid && isSharesValid;
 
   // Autosave logic for editing existing clients
   const saveClientData = async (currentData: any) => {
@@ -171,6 +179,7 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
     followUpInterval: Number(followUpInterval),
     lastFollowUp,
     emailReminders,
+    shares,
     ...(type === 'potential' && { expectedBudget: Number(expectedBudget) }),
     ...(type === 'confirmed' && { advanceAmount: Number(advanceAmount), totalAmount: Number(totalAmount), startDate }),
     ...(type === 'completed' && { finalAmount: Number(finalAmount), totalAmount: Number(totalAmount), completionDate }),
@@ -219,7 +228,8 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
       sampleProvided,
       sampleLink: sampleProvided ? sampleLink : '',
       followUpInterval: Number(followUpInterval),
-      lastFollowUp,
+      emailReminders,
+      shares,
       ...(type === 'potential' && { expectedBudget: Number(expectedBudget) }),
       ...(type === 'confirmed' && { advanceAmount: Number(advanceAmount), totalAmount: Number(totalAmount), startDate }),
       ...(type === 'completed' && { finalAmount: Number(finalAmount), totalAmount: Number(totalAmount), completionDate }),
@@ -409,6 +419,13 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
             </div>
           </motion.div>
         )}
+
+        {/* Revenue Split */}
+        <RevenueSplit 
+          shares={shares} 
+          onChange={setShares} 
+          totalAmount={type === 'potential' ? Number(expectedBudget) : type === 'confirmed' ? Number(totalAmount) : Number(finalAmount)} 
+        />
 
         {/* Notes */}
         <motion.div custom={9} variants={inputStagger} initial="hidden" animate="visible" className="relative w-full mt-2">

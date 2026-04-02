@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useClientStore } from '@/store/useClientStore';
+import { useWorkspaceStore } from '@/store/useWorkspaceStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import { Users, CheckCircle, Wallet, Target, TrendingUp, AlertCircle, Clock, CheckCheck, ArrowRight, Zap, Plus } from 'lucide-react';
 import { ClientModal } from '@/components/ui/ClientModal';
 import { QuickAddModal } from '@/components/ui/QuickAddModal';
@@ -23,6 +25,8 @@ interface MonthlyStat {
 
 export default function DashboardOverview() {
   const { clients, setClients, isLoading, setLoading, markFollowUpDone } = useClientStore();
+  const { workspace } = useWorkspaceStore();
+  const { user } = useAuthStore();
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
   const [showAll, setShowAll] = useState(false);
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
@@ -73,7 +77,8 @@ export default function DashboardOverview() {
   }, [isLoading, clients.length, overdueFollowUps.length, todayFollowUps.length, addToast]);
 
   const metrics = useMemo(() => {
-    let potential = 0, confirmed = 0, completed = 0, potentialRevenue = 0, totalSales = 0;
+    let potential = 0, confirmed = 0, completed = 0, potentialRevenue = 0, totalSales = 0, myEarnings = 0;
+    
     clients.forEach(c => {
       if (c.status === 'potential') {
         potential++;
@@ -83,10 +88,24 @@ export default function DashboardOverview() {
       } else if (c.status === 'completed') {
         completed++;
         totalSales += (c.finalAmount || 0);
+
+        // Calculate personal earnings
+        if (c.shares && c.shares.length > 0) {
+          const myShare = c.shares.find((s: any) => (s.userId._id || s.userId) === user?._id);
+          if (myShare) {
+            myEarnings += (c.finalAmount * myShare.percentage) / 100;
+          }
+        } else {
+          // Default: Owner gets 100% if no shares defined
+          const isOwner = workspace?.ownerId === user?._id || (workspace?.ownerId as any)?._id === user?._id;
+          if (isOwner) {
+            myEarnings += (c.finalAmount || 0);
+          }
+        }
       }
     });
-    return { potential, confirmed, completed, totalSales, potentialRevenue, totalClients: clients.length };
-  }, [clients]);
+    return { potential, confirmed, completed, totalSales, potentialRevenue, myEarnings, totalClients: clients.length };
+  }, [clients, user?._id, workspace?.ownerId]);
 
   const chartData = useMemo(() => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -137,10 +156,10 @@ export default function DashboardOverview() {
 
   const statCards = [
     { title: 'Total Revenue', value: `₹${metrics.totalSales.toLocaleString('en-IN')}`, icon: Wallet, color: 'text-white', bg: 'bg-green-600 shadow-lg shadow-green-600/10', tooltip: 'Total actual income from completed projects' },
-    { title: 'Potential Revenue', value: `₹${metrics.potentialRevenue.toLocaleString('en-IN')}`, icon: TrendingUp, color: 'text-white', bg: 'bg-indigo-600 shadow-lg shadow-indigo-600/10', tooltip: 'Total estimated revenue from potential clients' },
-    { title: 'Total Clients', value: metrics.totalClients, icon: Users, color: 'text-white', bg: 'bg-blue-600 shadow-lg shadow-blue-600/10', tooltip: 'Sum of all clients in your database' },
+    { title: 'My Earnings', value: `₹${metrics.myEarnings.toLocaleString('en-IN')}`, icon: CheckCheck, color: 'text-white', bg: 'bg-indigo-600 shadow-lg shadow-indigo-600/10', tooltip: 'Your personal share of revenue across all completed projects' },
+    { title: 'Potential Revenue', value: `₹${metrics.potentialRevenue.toLocaleString('en-IN')}`, icon: TrendingUp, color: 'text-white', bg: 'bg-blue-600 shadow-lg shadow-blue-600/10', tooltip: 'Total estimated revenue from potential clients' },
+    { title: 'Total Clients', value: metrics.totalClients, icon: Users, color: 'text-white', bg: 'bg-black/40 shadow-lg', tooltip: 'Sum of all clients in your database' },
     { title: 'Active Projects', value: metrics.confirmed, icon: Target, color: 'text-black', bg: 'bg-amber-500 shadow-lg shadow-amber-500/10', tooltip: 'Currently active (confirmed) projects' },
-    { title: 'Completed', value: metrics.completed, icon: CheckCircle, color: 'text-white', bg: 'bg-primary shadow-lg shadow-primary/10', tooltip: 'Successfully archived projects' },
   ];
 
   return (
