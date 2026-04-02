@@ -41,8 +41,8 @@ export function RevenueSplit({ shares, onChange, totalAmount }: RevenueSplitProp
   const handleUpdate = (userId: string, value: string) => {
     const numValue = Math.max(0, Math.min(100, parseInt(value) || 0));
     
-    // We update by mapping all possible members, preserving existing shares
-    const updated = workspace!.members.map(m => {
+    // 1. Calculate all baseline shares including 0% ones for local mapping
+    const allPossible = workspace!.members.map(m => {
       const mIdString = getUID(m.userId);
       const existing = shares.find(s => getUID(s.userId) === mIdString);
       
@@ -52,15 +52,17 @@ export function RevenueSplit({ shares, onChange, totalAmount }: RevenueSplitProp
       return existing ? { userId: getUID(existing.userId), percentage: existing.percentage } : { userId: mIdString, percentage: 0 };
     });
     
-    // Ensure owner is included if not in members list
+    // Ensure owner is included in mapping logic
     const ownerIdString = getUID(workspace!.ownerId);
-    if (!updated.find(u => getUID(u.userId) === ownerIdString)) {
+    if (!allPossible.find(u => getUID(u.userId) === ownerIdString)) {
        const existingOwner = shares.find(s => getUID(s.userId) === ownerIdString);
        const finalPercentage = userId === ownerIdString ? numValue : (existingOwner?.percentage || 0);
-       updated.push({ userId: ownerIdString, percentage: finalPercentage });
+       allPossible.push({ userId: ownerIdString, percentage: finalPercentage });
     }
 
-    onChange(updated);
+    // 2. ONLY emit shares that have a percentage > 0 to keep DB/Payload clean
+    const filtered = allPossible.filter(s => s.percentage > 0);
+    onChange(filtered);
   };
 
   if (!workspace) return null;

@@ -41,7 +41,7 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
     
     const updatedClient = await Client.findOneAndUpdate(
       { _id: params.id, workspaceId: session.workspaceId },
-      data,
+      { ...data, shares: data.shares }, // Force shares field even if it's in spread
       { new: true }
     );
     

@@ -134,9 +134,14 @@ export default function TeamPage() {
       }
     });
 
-    const totalPayouts = Object.values(earningsMap).reduce((sum, e) => sum + e, 0);
+    // Total payouts are distributions to OTHER team members (excluding the current user)
+    const myId = user?._id || '';
+    const totalPayouts = Object.entries(earningsMap).reduce((sum, [uId, amount]) => {
+      return sum + (uId === myId ? 0 : amount);
+    }, 0);
+
     return { totalAgencyRevenue, totalPayouts, earningsMap };
-  }, [clients, validMembers, workspace?.ownerId]);
+  }, [clients, validMembers, workspace?.ownerId, user?._id]);
 
   const stats = [
     { label: 'Agency Revenue', value: `₹${teamFinances.totalAgencyRevenue.toLocaleString('en-IN')}`, icon: Wallet, color: 'text-green-500' },

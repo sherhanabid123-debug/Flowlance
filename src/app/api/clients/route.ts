@@ -42,7 +42,8 @@ export async function POST(req: Request) {
       createdBy: session.userId,
       lastFollowUp: isCompleted ? undefined : lastDate,
       nextFollowUp: isCompleted ? undefined : nextFollowUp,
-      followUpInterval: interval
+      followUpInterval: interval,
+      shares: data.shares || []
     });
     return NextResponse.json({ client: newClient }, { status: 201 });
   } catch (error: any) {
