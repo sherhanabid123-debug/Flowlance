@@ -15,7 +15,9 @@ import { useToastStore } from '@/store/useToastStore';
 import { HealthBadge } from '@/components/ui/HealthBadge';
 import { getClientHealthStatus } from '@/lib/clientHealth';
 import { SmartInsights } from '@/components/dashboard/SmartInsights';
-import { useAuthAction } from '@/hooks/useAuthAction';
+import { useAuthBarrier } from '@/hooks/useAuthBarrier';
+import { MOCK_CLIENTS } from '@/lib/mockClients';
+import { GuestBanner } from '@/components/layout/GuestBanner';
 
 interface MonthlyStat {
   name: string;
@@ -33,11 +35,19 @@ export default function DashboardOverview() {
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<any>(null);
-  const { performAction } = useAuthAction();
+
+  const { runProtected, isAuthenticated } = useAuthBarrier();
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      setClients(MOCK_CLIENTS);
+      setLoading(false);
+      return;
+    }
+    
     const fetchClients = async () => {
       try {
+        setLoading(true);
         const res = await fetch('/api/clients');
         const data = await res.json();
         setClients(data.clients || []);
@@ -48,7 +58,7 @@ export default function DashboardOverview() {
       }
     };
     fetchClients();
-  }, [setClients, setLoading]);
+  }, [setClients, setLoading, isAuthenticated]);
 
   const { overdueFollowUps, todayFollowUps } = useMemo(() => {
     const active = clients.filter(c =>
@@ -146,15 +156,15 @@ export default function DashboardOverview() {
   const visibleFollowUps = showAll ? allFollowUps : allFollowUps.slice(0, LIMIT);
   const hasMore = allFollowUps.length > LIMIT;
 
-  const handleMarkDone = (clientId: string) => {
-    performAction(async () => {
+  const handleMarkDone = async (clientId: string) => {
+    runProtected(async () => {
       setDismissedIds(prev => new Set(prev).add(clientId));
       try {
         await markFollowUpDone(clientId);
       } catch {
         setDismissedIds(prev => { const s = new Set(prev); s.delete(clientId); return s; });
       }
-    }, "Sign in to track follow-ups.");
+    });
   };
 
   if (isLoading) {
@@ -170,12 +180,14 @@ export default function DashboardOverview() {
   ];
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 flex flex-col pt-8 animate-in fade-in">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 flex flex-col pt-12 relative animate-in fade-in">
+      <GuestBanner />
+      
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-3xl font-bold">Overview</h1>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => performAction(() => setIsQuickAddOpen(true), "Sign in to add clients.")}
+            onClick={() => runProtected(() => setIsQuickAddOpen(true))}
             className="flex items-center gap-2 border border-primary text-primary px-4 py-2.5 rounded-xl font-medium hover:bg-primary/5 transition-all whitespace-nowrap text-sm"
           >
             <Zap size={15} /> Quick Add Client

@@ -7,7 +7,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { UserPlus, Trash2, Shield, User, Copy, Check, ChevronDown, AlertTriangle, LogOut, Loader2, Wallet, Users, TrendingUp, PiggyBank, IndianRupee } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { useToastStore } from '@/store/useToastStore';
-import { useAuthAction } from '@/hooks/useAuthAction';
+import { useAuthBarrier } from '@/hooks/useAuthBarrier';
+import { MOCK_CLIENTS } from '@/lib/mockClients';
+import { GuestBanner } from '@/components/layout/GuestBanner';
+import { Lock } from 'lucide-react';
 
 export default function TeamPage() {
   const { workspace, fetchWorkspace, generateInviteLink, removeMember, updateMemberRole, leaveWorkspace, joinWorkspace, isLoading: isWorkspaceLoading } = useWorkspaceStore();
@@ -20,9 +23,15 @@ export default function TeamPage() {
   const [copied, setCopied] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
-  const { performAction } = useAuthAction();
+
+  const { runProtected, isAuthenticated } = useAuthBarrier();
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      setClients(MOCK_CLIENTS);
+      return;
+    }
+    
     fetchWorkspace();
     
     const fetchClients = async () => {
@@ -37,10 +46,10 @@ export default function TeamPage() {
       }
     };
     fetchClients();
-  }, [fetchWorkspace, setClients]);
+  }, [fetchWorkspace, setClients, isAuthenticated]);
 
-  const handleGenerateInvite = () => {
-    performAction(async () => {
+  const handleGenerateInvite = async () => {
+    runProtected(async () => {
       setIsGenerating(true);
       try {
         const link = await generateInviteLink();
@@ -50,7 +59,7 @@ export default function TeamPage() {
       } finally {
         setIsGenerating(false);
       }
-    }, "Sign in to invite team members.");
+    });
   };
 
   const copyToClipboard = () => {
@@ -59,8 +68,8 @@ export default function TeamPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleRemoveMember = (memberId: string) => {
-    performAction(async () => {
+  const handleRemoveMember = async (memberId: string) => {
+    runProtected(async () => {
       if (confirm('Are you sure you want to remove this member?')) {
         try {
           await removeMember(memberId);
@@ -68,23 +77,23 @@ export default function TeamPage() {
           alert(error.message);
         }
       }
-    }, "Sign in to manage members.");
+    });
   };
 
-  const handleRoleChange = (memberId: string, role: WorkspaceRole) => {
-    performAction(async () => {
+  const handleRoleChange = async (memberId: string, role: WorkspaceRole) => {
+    runProtected(async () => {
       try {
         await updateMemberRole(memberId, role);
       } catch (error: any) {
         alert(error.message);
       }
-    }, "Sign in to manage roles.");
+    });
   };
 
   const isOwner = user?._id === workspace?.ownerId?._id;
 
-  const handleLeaveWorkspace = () => {
-    performAction(async () => {
+  const handleLeaveWorkspace = async () => {
+    runProtected(async () => {
       if (!confirm('Are you sure you want to leave this workspace? You will lose access to all shared clients and data.')) return;
       setIsLeaving(true);
       try {
@@ -94,11 +103,11 @@ export default function TeamPage() {
         alert(error.message);
         setIsLeaving(false);
       }
-    }, "Sign in to manage team membership.");
+    });
   };
 
-  const handleJoinWorkspace = () => {
-    performAction(async () => {
+  const handleJoinWorkspace = async () => {
+    runProtected(async () => {
       if (!pastedInvite.trim()) return;
       setIsJoining(true);
       try {
@@ -110,7 +119,7 @@ export default function TeamPage() {
       } finally {
         setIsJoining(false);
       }
-    }, "Sign in to join a team.");
+    });
   };
 
   // Filter out invalid members (those without a populated userId)
@@ -162,7 +171,8 @@ export default function TeamPage() {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 relative pt-12">
+      <GuestBanner />
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Team Management</h1>

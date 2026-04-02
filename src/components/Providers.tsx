@@ -20,6 +20,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
           setUser(data.user);
         } else {
           setUser(null);
+          if (pathname.startsWith('/dashboard')) {
+            router.push('/login');
+          }
         }
       } catch (error) {
         setUser(null);

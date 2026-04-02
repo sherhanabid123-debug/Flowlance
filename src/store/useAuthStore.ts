@@ -5,25 +5,56 @@ interface AuthState {
   user: any;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isInitialized: boolean;
+  isAuthModalOpen: boolean;
+  pendingAction: (() => void) | null;
   setUser: (user: any) => void;
   setLoading: (isLoading: boolean) => void;
   logout: () => void;
-  isInitialized: boolean;
+  openLoginModal: (callback?: () => void) => void;
+  closeLoginModal: () => void;
+  setPendingAction: (action: (() => void) | null) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       isAuthenticated: false,
       isLoading: true,
-      setUser: (user) => set({ user, isAuthenticated: !!user, isLoading: false, isInitialized: true }),
+      isInitialized: false,
+      isAuthModalOpen: false,
+      pendingAction: null,
+      
+      setUser: (user) => {
+        set({ user, isAuthenticated: !!user, isLoading: false, isInitialized: true });
+        // After login, execute any pending action then clear it
+        const pending = get().pendingAction;
+        if (user && pending) {
+          pending();
+          set({ pendingAction: null });
+        }
+      },
+      
       setLoading: (isLoading) => set({ isLoading }),
       logout: () => set({ user: null, isAuthenticated: false, isLoading: false, isInitialized: true }),
-      isInitialized: false,
+      
+      openLoginModal: (callback) => set({ 
+        isAuthModalOpen: true, 
+        pendingAction: callback || null 
+      }),
+      
+      closeLoginModal: () => set({ isAuthModalOpen: false, pendingAction: null }),
+      setPendingAction: (pendingAction) => set({ pendingAction }),
     }),
     {
       name: 'flowlance-auth-storage',
+      // Only persist the non-functional/non-volatile parts
+      partialize: (state) => ({ 
+        user: state.user, 
+        isAuthenticated: state.isAuthenticated, 
+        isInitialized: state.isInitialized 
+      }),
     }
   )
 );

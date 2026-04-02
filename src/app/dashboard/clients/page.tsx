@@ -16,7 +16,9 @@ import { HealthBadge } from '@/components/ui/HealthBadge';
 import { getClientHealthStatus } from '@/lib/clientHealth';
 import { exportClientsToCSV } from '@/lib/exportUtils';
 import { isPast, isToday, format } from 'date-fns';
-import { useAuthAction } from '@/hooks/useAuthAction';
+import { useAuthBarrier } from '@/hooks/useAuthBarrier';
+import { MOCK_CLIENTS } from '@/lib/mockClients';
+import { GuestBanner } from '@/components/layout/GuestBanner';
 
 function ClientsContent() {
   const { clients, setClients, isLoading, setLoading, deleteClient, markFollowUpDone } = useClientStore();
@@ -35,7 +37,6 @@ function ClientsContent() {
   const [editingClient, setEditingClient] = useState<any>(null);
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const { addToast } = useToastStore();
-  const { performAction } = useAuthAction();
   
   // Sync with URL params if they change
   useEffect(() => {
@@ -55,9 +56,18 @@ function ClientsContent() {
   const role = getCurrentRole(user?._id);
   const isOwner = role === 'owner';
 
+  const { runProtected, isAuthenticated } = useAuthBarrier();
+
   useEffect(() => {
+    if (!isAuthenticated) {
+      setClients(MOCK_CLIENTS);
+      setLoading(false);
+      return;
+    }
+
     const fetchClients = async () => {
       try {
+        setLoading(true);
         const res = await fetch('/api/clients');
         const data = await res.json();
         setClients(data.clients || []);
@@ -68,11 +78,11 @@ function ClientsContent() {
       }
     };
     fetchClients();
-  }, [setClients, setLoading]);
+  }, [setClients, setLoading, isAuthenticated]);
 
-  const handleDelete = (id: string) => {
-    performAction(async () => {
-      if (!isOwner) {
+  const handleDelete = async (id: string) => {
+    runProtected(async () => {
+      if (!isOwner && isAuthenticated) {
         addToast('Only owners can delete clients', 'error');
         return;
       }
@@ -85,43 +95,43 @@ function ClientsContent() {
       } catch (e) {
         addToast('Error deleting client', 'error');
       }
-    }, "Sign in to delete clients.");
+    });
   };
 
   const handleEdit = (client: any) => {
-    performAction(() => {
+    runProtected(() => {
       setEditingClient(client);
       setIsModalOpen(true);
-    }, "Sign in to edit clients.");
+    });
   };
 
   const handleUpgradeStatus = (client: any, newStatus: string) => {
-    performAction(() => {
-      if (!isOwner) {
+    runProtected(() => {
+      if (!isOwner && isAuthenticated) {
         addToast('Only owners can move clients between stages', 'error');
         return;
       }
       setEditingClient({ ...client, status: newStatus });
       setIsModalOpen(true);
-    }, "Sign in to manage client stages.");
+    });
   };
 
-  const handleMarkFollowUpDone = (id: string) => {
-    performAction(async () => {
+  const handleMarkFollowUpDone = async (id: string) => {
+    runProtected(async () => {
       try {
         await markFollowUpDone(id);
         addToast('Follow-up scheduled!', 'success');
       } catch (err) {
         addToast('Error updating follow-up', 'error');
       }
-    }, "Sign in to track follow-ups.");
+    });
   };
 
   const handleAddNew = () => {
-    performAction(() => {
+    runProtected(() => {
       setEditingClient(null);
       setIsModalOpen(true);
-    }, "Sign in to create clients.");
+    });
   };
 
   const getWhatsAppLink = (client: any) => {
@@ -166,20 +176,21 @@ function ClientsContent() {
   };
 
   return (
-    <div className="pt-8 text-left">
+    <div className="pt-12 text-left relative">
+      <GuestBanner />
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <h1 className="text-3xl font-bold tracking-tight">Client Management</h1>
         
         <div className="flex items-center gap-3">
           <button
-            onClick={() => performAction(() => setIsQuickAddOpen(true), "Sign in to add clients.")}
+            onClick={() => runProtected(() => setIsQuickAddOpen(true))}
             className="flex items-center gap-2 border border-primary text-primary px-4 py-2.5 rounded-xl font-medium hover:bg-primary/5 transition-all whitespace-nowrap text-sm"
           >
             <Zap size={15} /> Quick Add Client
           </button>
           
           <button 
-            onClick={() => performAction(() => exportClientsToCSV(clients), "Sign in to export data.")}
+            onClick={() => exportClientsToCSV(clients)}
             className="flex items-center gap-2 border border-[var(--border)] px-4 py-2.5 rounded-xl font-medium hover:bg-black/5 dark:hover:bg-white/5 transition-all text-sm"
           >
             <Download size={18} /> Export Data

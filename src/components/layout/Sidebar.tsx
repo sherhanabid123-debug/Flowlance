@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Briefcase, Users, LogOut, UserPlus } from 'lucide-react';
+import { LayoutDashboard, Briefcase, Users, LogOut, UserPlus, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useRouter } from 'next/navigation';
@@ -15,7 +15,7 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { logout, user } = useAuthStore();
+  const { logout, user, isAuthenticated, openLoginModal } = useAuthStore();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -23,6 +23,12 @@ export function Sidebar() {
     logout();
     router.push('/login');
   };
+
+  const navItems = [
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Client management', href: '/dashboard/clients', icon: Briefcase },
+    { name: 'Team', href: '/dashboard/team', icon: Users, locked: !isAuthenticated },
+  ];
 
   return (
     <motion.div 
@@ -32,7 +38,7 @@ export function Sidebar() {
     >
       <div className="flex flex-col mb-10 w-full">
         <div className="text-2xl font-bold text-primary tracking-tight">Flowlance</div>
-        {user?.userType === 'agency' && user?.agencyName && (
+        {isAuthenticated && user?.userType === 'agency' && user?.agencyName && (
           <motion.div 
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
@@ -51,23 +57,40 @@ export function Sidebar() {
             <Link 
               key={item.href} 
               href={item.href}
-              className={`flex items-center space-x-3 w-full p-3 rounded-lg transition-all
+              className={`flex items-center justify-between w-full p-3 rounded-lg transition-all
                 ${isActive ? 'bg-primary text-primary-foreground shadow-md' : 'hover:bg-black/5 dark:hover:bg-white/5'}`}
             >
-              <item.icon size={20} />
-              <span className="font-medium">{item.name}</span>
+              <div className="flex items-center space-x-3">
+                <item.icon size={20} />
+                <span className="font-medium">{item.name}</span>
+              </div>
+              {item.locked && (
+                <div className="bg-white/10 p-1 rounded-md">
+                   <Lock size={12} className="opacity-40" />
+                </div>
+              )}
             </Link>
           )
         })}
       </nav>
 
-      <button 
-        onClick={handleLogout}
-        className="flex items-center space-x-3 w-full p-3 rounded-lg text-destructive hover:bg-destructive/10 transition-colors mt-auto"
-      >
-        <LogOut size={20} />
-        <span className="font-medium">Logout</span>
-      </button>
+      {isAuthenticated ? (
+        <button 
+          onClick={handleLogout}
+          className="flex items-center space-x-3 w-full p-3 rounded-lg text-destructive hover:bg-destructive/10 transition-colors mt-auto"
+        >
+          <LogOut size={20} />
+          <span className="font-medium">Logout</span>
+        </button>
+      ) : (
+        <button 
+          onClick={() => openLoginModal()}
+          className="flex items-center space-x-3 w-full p-3 rounded-lg text-primary hover:bg-primary/10 transition-colors mt-auto font-bold"
+        >
+          <UserPlus size={20} />
+          <span className="font-medium">Sign In</span>
+        </button>
+      )}
     </motion.div>
   );
 }
