@@ -5,10 +5,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <Sidebar />
-      <TopNav />
-      <main className="ml-64 p-8">
-        {children}
-      </main>
+      <div className="flex flex-col min-h-screen">
+        <TopNav />
+        <main className="flex-1 lg:ml-[280px] p-4 sm:p-6 lg:p-8">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

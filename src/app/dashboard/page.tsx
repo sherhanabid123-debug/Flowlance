@@ -185,34 +185,34 @@ export default function DashboardOverview() {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 flex flex-col pt-12 relative animate-in fade-in">
       <GuestBanner />
       
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-3xl font-bold">Overview</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+        <h1 className="text-2xl sm:text-3xl font-bold">Overview</h1>
         <div className="flex items-center gap-3">
           <button
             onClick={() => runProtected(() => setIsQuickAddOpen(true))}
-            className="flex items-center gap-2 border border-primary text-primary px-4 py-2.5 rounded-xl font-medium hover:bg-primary/5 transition-all whitespace-nowrap text-sm"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 border border-primary text-primary px-4 py-2.5 rounded-xl font-medium hover:bg-primary/5 transition-all whitespace-nowrap text-sm"
           >
             <Zap size={15} /> Quick Add Client
           </button>
         </div>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
         {statCards.map((stat, i) => (
           <motion.div
             key={i}
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: i * 0.1 }}
-            className="glass p-6 rounded-2xl flex items-center justify-between group relative h-full"
+            className="glass p-4 sm:p-6 rounded-2xl flex items-center justify-between group relative h-full"
             title={stat.tooltip}
           >
             <div>
-              <p className="text-sm font-medium opacity-70 mb-1">{stat.title}</p>
-              <h3 className="text-2xl font-bold tracking-tight">{stat.value}</h3>
+              <p className="text-xs sm:text-sm font-medium opacity-70 mb-1">{stat.title}</p>
+              <h3 className="text-xl sm:text-2xl font-bold tracking-tight">{stat.value}</h3>
             </div>
-            <div className={`p-4 rounded-xl ${stat.bg} ${stat.color} transition-transform group-hover:scale-110`}>
-              <stat.icon size={24} />
+            <div className={`p-3 sm:p-4 rounded-xl ${stat.bg} ${stat.color} transition-transform group-hover:scale-110`}>
+              <stat.icon size={20} className="sm:size-6" />
             </div>
           </motion.div>
         ))}

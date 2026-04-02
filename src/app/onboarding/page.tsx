@@ -89,14 +89,14 @@ export default function OnboardingPage() {
                 <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6 scale-110">
                   <Sparkles className="text-primary fill-primary/20" size={32} />
                 </div>
-                <h1 className="text-4xl font-extrabold tracking-tight">Let's get started.</h1>
-                <p className="text-[var(--text-muted)] text-lg">First, what should we call you?</p>
+                <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Let's get started.</h1>
+                <p className="text-[var(--text-muted)] text-base sm:text-lg">First, what should we call you?</p>
               </div>
-
-              <div className="glass border rounded-[2rem] p-8 shadow-2xl shadow-primary/5">
+ 
+              <div className="glass border rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 shadow-2xl shadow-primary/5">
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest opacity-40 px-1">Your Full Name</label>
+                    <label className="text-[10px] font-bold uppercase tracking-widest opacity-40 px-1">Your Full Name</label>
                     <input
                       autoFocus
                       type="text"
@@ -104,12 +104,12 @@ export default function OnboardingPage() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleNextStep()}
-                      className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-2xl px-6 py-4 text-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:opacity-30"
+                      className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-xl sm:rounded-2xl px-5 py-3 sm:px-6 sm:py-4 text-base sm:text-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:opacity-30"
                     />
                   </div>
                   <button
                     onClick={handleNextStep}
-                    className="w-full h-16 bg-primary text-white font-bold rounded-2xl flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-primary/20 transition-all active:scale-95 text-lg"
+                    className="w-full h-14 sm:h-16 bg-primary text-white font-bold rounded-xl sm:rounded-2xl flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-primary/20 transition-all active:scale-95 text-base sm:text-lg"
                   >
                     Continue
                     <ArrowRight size={20} />
