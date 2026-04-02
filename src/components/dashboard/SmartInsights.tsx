@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { generateDashboardInsights, Insight } from '@/lib/clientInsights';
 
 interface SmartInsightsProps {
@@ -9,7 +10,27 @@ interface SmartInsightsProps {
 }
 
 export function SmartInsights({ clients }: SmartInsightsProps) {
+  const router = useRouter();
   const insights = useMemo(() => generateDashboardInsights(clients), [clients]);
+
+  const handleInsightClick = (id: string) => {
+    switch (id) {
+      case 'overdue':
+        router.push('/dashboard/clients?followUp=overdue');
+        break;
+      case 'cold':
+        router.push('/dashboard/clients?health=cold');
+        break;
+      case 'high-value':
+        router.push('/dashboard/clients?minBudget=10000&filter=potential');
+        break;
+      case 'sample-followup':
+        router.push('/dashboard/clients?hasSample=true');
+        break;
+      default:
+        router.push('/dashboard/clients');
+    }
+  };
 
   return (
     <div className="glass p-6 rounded-2xl h-full flex flex-col">
@@ -38,7 +59,8 @@ export function SmartInsights({ clients }: SmartInsightsProps) {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ delay: index * 0.1 }}
-                className={`p-4 rounded-xl border border-transparent hover:border-current/10 transition-all group ${insight.bg} ${insight.color}`}
+                onClick={() => handleInsightClick(insight.id)}
+                className={`p-4 rounded-xl border border-transparent hover:border-current/10 transition-all group cursor-pointer active:scale-95 ${insight.bg} ${insight.color}`}
               >
                 <div className="flex gap-3 items-start">
                   <div className={`p-2 rounded-lg ${insight.color.replace('text-', 'bg-')}/10 group-hover:scale-110 transition-transform`}>

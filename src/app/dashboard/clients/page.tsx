@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useClientStore } from '@/store/useClientStore';
 import { useWorkspaceStore } from '@/store/useWorkspaceStore';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -15,18 +16,39 @@ import { HealthBadge } from '@/components/ui/HealthBadge';
 import { getClientHealthStatus } from '@/lib/clientHealth';
 import { isPast, isToday, format } from 'date-fns';
 
-export default function ClientsPage() {
+function ClientsContent() {
   const { clients, setClients, isLoading, setLoading, deleteClient, markFollowUpDone } = useClientStore();
   const { workspace, getCurrentRole } = useWorkspaceStore();
   const { user } = useAuthStore();
-  const [filter, setFilter] = useState('all');
-  const [followUpFilter, setFollowUpFilter] = useState('all');
+  
+  const searchParams = useSearchParams();
+  const [filter, setFilter] = useState(searchParams.get('filter') || 'all');
+  const [followUpFilter, setFollowUpFilter] = useState(searchParams.get('followUp') || 'all');
+  const [healthFilter, setHealthFilter] = useState(searchParams.get('health') || 'all');
+  const [minValue, setMinValue] = useState(Number(searchParams.get('minBudget')) || 0);
+  const [hasSample, setHasSample] = useState(searchParams.get('hasSample') === 'true');
+  
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<any>(null);
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const { addToast } = useToastStore();
   
+  // Sync with URL params if they change
+  useEffect(() => {
+    const f = searchParams.get('filter');
+    const fu = searchParams.get('followUp');
+    const h = searchParams.get('health');
+    const mv = searchParams.get('minBudget');
+    const hs = searchParams.get('hasSample');
+
+    if (f) setFilter(f);
+    if (fu) setFollowUpFilter(fu);
+    if (h) setHealthFilter(h);
+    if (mv) setMinValue(Number(mv));
+    if (hs !== null) setHasSample(hs === 'true');
+  }, [searchParams]);
+
   const role = getCurrentRole(user?._id);
   const isOwner = role === 'owner';
 
@@ -67,7 +89,6 @@ export default function ClientsPage() {
   };
 
   const handleUpgradeStatus = (client: any, newStatus: string) => {
-    // Only owners can change stages for now (confirmed)
     if (!isOwner) {
       addToast('Only owners can move clients between stages', 'error');
       return;
@@ -113,8 +134,23 @@ export default function ClientsPage() {
       matchesFollowUp = false;
     }
 
-    return matchesCategory && matchesSearch && matchesFollowUp;
+    const matchesHealth = healthFilter === 'all' || getClientHealthStatus(c.lastFollowUp).status === healthFilter;
+    const matchesValue = !minValue || (c.expectedBudget || 0) >= minValue;
+    const matchesSample = !hasSample || c.sampleProvided === true;
+
+    return matchesCategory && matchesSearch && matchesFollowUp && matchesHealth && matchesValue && matchesSample;
   });
+
+  const isFiltered = filter !== 'all' || followUpFilter !== 'all' || healthFilter !== 'all' || minValue > 0 || hasSample || search !== '';
+
+  const clearFilters = () => {
+    setFilter('all');
+    setFollowUpFilter('all');
+    setHealthFilter('all');
+    setMinValue(0);
+    setHasSample(false);
+    setSearch('');
+  };
 
   return (
     <div className="pt-8 text-left">
@@ -142,11 +178,8 @@ export default function ClientsPage() {
               onClick={() => setFilter(tab)}
               className={`px-5 py-2.5 rounded-xl font-bold capitalize whitespace-nowrap transition-all ${
                 filter === tab 
-                  ? tab === 'potential' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20 scale-105' 
-                  : tab === 'confirmed' ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20 scale-105' 
-                  : tab === 'completed' ? 'bg-green-600 text-white shadow-lg shadow-green-600/20 scale-105'
-                  : 'bg-primary text-white shadow-lg scale-105'
-                  : 'hover:bg-black/5 dark:hover:bg-white/10 opacity-60 hover:opacity-100'
+                  ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' 
+                  : 'hover:bg-black/5 dark:hover:bg-white/5 opacity-60'
               }`}
             >
               {tab}
@@ -166,8 +199,9 @@ export default function ClientsPage() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-8 bg-black/10 dark:bg-white/5 p-2 rounded-xl border border-[var(--border)] overflow-x-auto">
-        <span className="text-[10px] font-bold uppercase tracking-widest opacity-40 px-2 py-2 w-full md:w-auto">Follow-up Filter:</span>
+      <div className="flex flex-wrap gap-2 mb-8 bg-black/10 dark:bg-white/5 p-2 rounded-xl border border-[var(--border)] overflow-x-auto items-center">
+        <span className="text-[10px] font-bold uppercase tracking-widest opacity-40 px-2 py-2">Filters:</span>
+        
         {['all', 'overdue', 'today', 'upcoming'].map((f) => (
           <button
             key={f}
@@ -183,6 +217,15 @@ export default function ClientsPage() {
             {f}
           </button>
         ))}
+
+        {isFiltered && (
+          <button 
+            onClick={clearFilters}
+            className="px-4 py-1.5 text-xs font-bold text-red-500 hover:bg-red-500/10 rounded-lg transition-all border border-red-500/20"
+          >
+            Clear All
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-4">
@@ -304,19 +347,15 @@ export default function ClientsPage() {
                     <button 
                       onClick={() => handleEdit(client)}
                       className="p-2 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 text-primary transition-colors"
-                      title="Edit Client"
                     >
                       <Edit size={18} />
                     </button>
-                    {isOwner && (
-                      <button 
-                        onClick={() => handleDelete(client._id)} 
-                        className="p-2 rounded-lg hover:bg-red-500/20 text-red-500 transition-colors"
-                        title="Delete Client"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    )}
+                    <button 
+                      onClick={() => handleDelete(client._id)}
+                      className="p-2 rounded-lg hover:bg-red-500/10 text-red-500 transition-colors"
+                    >
+                      <Trash2 size={18} />
+                    </button>
                   </div>
                 </div>
               </motion.div>
@@ -324,7 +363,7 @@ export default function ClientsPage() {
           })}
         </AnimatePresence>
       </div>
-      
+
       <ClientModal 
         isOpen={isModalOpen} 
         onClose={() => {
@@ -333,6 +372,7 @@ export default function ClientsPage() {
         }} 
         initialData={editingClient}
       />
+
       <QuickAddModal
         isOpen={isQuickAddOpen}
         onClose={() => setIsQuickAddOpen(false)}
@@ -342,5 +382,13 @@ export default function ClientsPage() {
         }}
       />
     </div>
+  );
+}
+
+export default function ClientsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center animate-pulse">Loading clients...</div>}>
+      <ClientsContent />
+    </Suspense>
   );
 }
