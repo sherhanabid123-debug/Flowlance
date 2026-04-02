@@ -15,6 +15,7 @@ import { useToastStore } from '@/store/useToastStore';
 import { HealthBadge } from '@/components/ui/HealthBadge';
 import { getClientHealthStatus } from '@/lib/clientHealth';
 import { SmartInsights } from '@/components/dashboard/SmartInsights';
+import { useAuthAction } from '@/hooks/useAuthAction';
 
 interface MonthlyStat {
   name: string;
@@ -32,6 +33,7 @@ export default function DashboardOverview() {
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<any>(null);
+  const { performAction } = useAuthAction();
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -144,13 +146,15 @@ export default function DashboardOverview() {
   const visibleFollowUps = showAll ? allFollowUps : allFollowUps.slice(0, LIMIT);
   const hasMore = allFollowUps.length > LIMIT;
 
-  const handleMarkDone = async (clientId: string) => {
-    setDismissedIds(prev => new Set(prev).add(clientId));
-    try {
-      await markFollowUpDone(clientId);
-    } catch {
-      setDismissedIds(prev => { const s = new Set(prev); s.delete(clientId); return s; });
-    }
+  const handleMarkDone = (clientId: string) => {
+    performAction(async () => {
+      setDismissedIds(prev => new Set(prev).add(clientId));
+      try {
+        await markFollowUpDone(clientId);
+      } catch {
+        setDismissedIds(prev => { const s = new Set(prev); s.delete(clientId); return s; });
+      }
+    }, "Sign in to track follow-ups.");
   };
 
   if (isLoading) {
@@ -171,7 +175,7 @@ export default function DashboardOverview() {
         <h1 className="text-3xl font-bold">Overview</h1>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => setIsQuickAddOpen(true)}
+            onClick={() => performAction(() => setIsQuickAddOpen(true), "Sign in to add clients.")}
             className="flex items-center gap-2 border border-primary text-primary px-4 py-2.5 rounded-xl font-medium hover:bg-primary/5 transition-all whitespace-nowrap text-sm"
           >
             <Zap size={15} /> Quick Add Client

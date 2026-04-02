@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { UserPlus, Trash2, Shield, User, Copy, Check, ChevronDown, AlertTriangle, LogOut, Loader2, Wallet, Users, TrendingUp, PiggyBank, IndianRupee } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { useToastStore } from '@/store/useToastStore';
+import { useAuthAction } from '@/hooks/useAuthAction';
 
 export default function TeamPage() {
   const { workspace, fetchWorkspace, generateInviteLink, removeMember, updateMemberRole, leaveWorkspace, joinWorkspace, isLoading: isWorkspaceLoading } = useWorkspaceStore();
@@ -19,6 +20,7 @@ export default function TeamPage() {
   const [copied, setCopied] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
+  const { performAction } = useAuthAction();
 
   useEffect(() => {
     fetchWorkspace();
@@ -37,16 +39,18 @@ export default function TeamPage() {
     fetchClients();
   }, [fetchWorkspace, setClients]);
 
-  const handleGenerateInvite = async () => {
-    setIsGenerating(true);
-    try {
-      const link = await generateInviteLink();
-      setInviteLink(link);
-    } catch (error) {
-      alert('Failed to generate invite link');
-    } finally {
-      setIsGenerating(false);
-    }
+  const handleGenerateInvite = () => {
+    performAction(async () => {
+      setIsGenerating(true);
+      try {
+        const link = await generateInviteLink();
+        setInviteLink(link);
+      } catch (error) {
+        alert('Failed to generate invite link');
+      } finally {
+        setIsGenerating(false);
+      }
+    }, "Sign in to invite team members.");
   };
 
   const copyToClipboard = () => {
@@ -55,50 +59,58 @@ export default function TeamPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleRemoveMember = async (memberId: string) => {
-    if (confirm('Are you sure you want to remove this member?')) {
+  const handleRemoveMember = (memberId: string) => {
+    performAction(async () => {
+      if (confirm('Are you sure you want to remove this member?')) {
+        try {
+          await removeMember(memberId);
+        } catch (error: any) {
+          alert(error.message);
+        }
+      }
+    }, "Sign in to manage members.");
+  };
+
+  const handleRoleChange = (memberId: string, role: WorkspaceRole) => {
+    performAction(async () => {
       try {
-        await removeMember(memberId);
+        await updateMemberRole(memberId, role);
       } catch (error: any) {
         alert(error.message);
       }
-    }
-  };
-
-  const handleRoleChange = async (memberId: string, role: WorkspaceRole) => {
-    try {
-      await updateMemberRole(memberId, role);
-    } catch (error: any) {
-      alert(error.message);
-    }
+    }, "Sign in to manage roles.");
   };
 
   const isOwner = user?._id === workspace?.ownerId?._id;
 
-  const handleLeaveWorkspace = async () => {
-    if (!confirm('Are you sure you want to leave this workspace? You will lose access to all shared clients and data.')) return;
-    setIsLeaving(true);
-    try {
-      await leaveWorkspace();
-      window.location.href = '/dashboard';
-    } catch (error: any) {
-      alert(error.message);
-      setIsLeaving(false);
-    }
+  const handleLeaveWorkspace = () => {
+    performAction(async () => {
+      if (!confirm('Are you sure you want to leave this workspace? You will lose access to all shared clients and data.')) return;
+      setIsLeaving(true);
+      try {
+        await leaveWorkspace();
+        window.location.href = '/dashboard';
+      } catch (error: any) {
+        alert(error.message);
+        setIsLeaving(false);
+      }
+    }, "Sign in to manage team membership.");
   };
 
-  const handleJoinWorkspace = async () => {
-    if (!pastedInvite.trim()) return;
-    setIsJoining(true);
-    try {
-      const workspaceName = await joinWorkspace(pastedInvite);
-      addToast(`Successfully joined "${workspaceName}" team!`, 'success');
-      setPastedInvite('');
-    } catch (error: any) {
-      addToast(error.message || 'Failed to join workspace', 'error');
-    } finally {
-      setIsJoining(false);
-    }
+  const handleJoinWorkspace = () => {
+    performAction(async () => {
+      if (!pastedInvite.trim()) return;
+      setIsJoining(true);
+      try {
+        const workspaceName = await joinWorkspace(pastedInvite);
+        addToast(`Successfully joined "${workspaceName}" team!`, 'success');
+        setPastedInvite('');
+      } catch (error: any) {
+        addToast(error.message || 'Failed to join workspace', 'error');
+      } finally {
+        setIsJoining(false);
+      }
+    }, "Sign in to join a team.");
   };
 
   // Filter out invalid members (those without a populated userId)

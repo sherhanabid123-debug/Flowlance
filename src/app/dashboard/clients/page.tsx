@@ -16,6 +16,7 @@ import { HealthBadge } from '@/components/ui/HealthBadge';
 import { getClientHealthStatus } from '@/lib/clientHealth';
 import { exportClientsToCSV } from '@/lib/exportUtils';
 import { isPast, isToday, format } from 'date-fns';
+import { useAuthAction } from '@/hooks/useAuthAction';
 
 function ClientsContent() {
   const { clients, setClients, isLoading, setLoading, deleteClient, markFollowUpDone } = useClientStore();
@@ -34,6 +35,7 @@ function ClientsContent() {
   const [editingClient, setEditingClient] = useState<any>(null);
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const { addToast } = useToastStore();
+  const { performAction } = useAuthAction();
   
   // Sync with URL params if they change
   useEffect(() => {
@@ -68,48 +70,58 @@ function ClientsContent() {
     fetchClients();
   }, [setClients, setLoading]);
 
-  const handleDelete = async (id: string) => {
-    if (!isOwner) {
-      addToast('Only owners can delete clients', 'error');
-      return;
-    }
-    if (!confirm('Are you sure you want to delete this client?')) return;
-    try {
-      const res = await fetch(`/api/clients/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Failed to delete');
-      deleteClient(id);
-      addToast('Client deleted successfully', 'info');
-    } catch (e) {
-      addToast('Error deleting client', 'error');
-    }
+  const handleDelete = (id: string) => {
+    performAction(async () => {
+      if (!isOwner) {
+        addToast('Only owners can delete clients', 'error');
+        return;
+      }
+      if (!confirm('Are you sure you want to delete this client?')) return;
+      try {
+        const res = await fetch(`/api/clients/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Failed to delete');
+        deleteClient(id);
+        addToast('Client deleted successfully', 'info');
+      } catch (e) {
+        addToast('Error deleting client', 'error');
+      }
+    }, "Sign in to delete clients.");
   };
 
   const handleEdit = (client: any) => {
-    setEditingClient(client);
-    setIsModalOpen(true);
+    performAction(() => {
+      setEditingClient(client);
+      setIsModalOpen(true);
+    }, "Sign in to edit clients.");
   };
 
   const handleUpgradeStatus = (client: any, newStatus: string) => {
-    if (!isOwner) {
-      addToast('Only owners can move clients between stages', 'error');
-      return;
-    }
-    setEditingClient({ ...client, status: newStatus });
-    setIsModalOpen(true);
+    performAction(() => {
+      if (!isOwner) {
+        addToast('Only owners can move clients between stages', 'error');
+        return;
+      }
+      setEditingClient({ ...client, status: newStatus });
+      setIsModalOpen(true);
+    }, "Sign in to manage client stages.");
   };
 
-  const handleMarkFollowUpDone = async (id: string) => {
-    try {
-      await markFollowUpDone(id);
-      addToast('Follow-up scheduled!', 'success');
-    } catch (err) {
-      addToast('Error updating follow-up', 'error');
-    }
+  const handleMarkFollowUpDone = (id: string) => {
+    performAction(async () => {
+      try {
+        await markFollowUpDone(id);
+        addToast('Follow-up scheduled!', 'success');
+      } catch (err) {
+        addToast('Error updating follow-up', 'error');
+      }
+    }, "Sign in to track follow-ups.");
   };
 
   const handleAddNew = () => {
-    setEditingClient(null);
-    setIsModalOpen(true);
+    performAction(() => {
+      setEditingClient(null);
+      setIsModalOpen(true);
+    }, "Sign in to create clients.");
   };
 
   const getWhatsAppLink = (client: any) => {
@@ -160,14 +172,14 @@ function ClientsContent() {
         
         <div className="flex items-center gap-3">
           <button
-            onClick={() => setIsQuickAddOpen(true)}
+            onClick={() => performAction(() => setIsQuickAddOpen(true), "Sign in to add clients.")}
             className="flex items-center gap-2 border border-primary text-primary px-4 py-2.5 rounded-xl font-medium hover:bg-primary/5 transition-all whitespace-nowrap text-sm"
           >
             <Zap size={15} /> Quick Add Client
           </button>
           
           <button 
-            onClick={() => exportClientsToCSV(clients)}
+            onClick={() => performAction(() => exportClientsToCSV(clients), "Sign in to export data.")}
             className="flex items-center gap-2 border border-[var(--border)] px-4 py-2.5 rounded-xl font-medium hover:bg-black/5 dark:hover:bg-white/5 transition-all text-sm"
           >
             <Download size={18} /> Export Data
