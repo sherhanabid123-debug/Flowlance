@@ -218,7 +218,7 @@ export default function ClientsPage() {
                   <div className="flex flex-wrap items-center gap-2 mb-1">
                     <h3 className="font-semibold text-lg">{client.name}</h3>
                     {filter === 'all' && <StatusBadge status={client.status as any} />}
-                    <HealthBadge lastFollowUp={client.lastFollowUp} />
+                    {client.status !== 'completed' && <HealthBadge lastFollowUp={client.lastFollowUp} />}
                   </div>
                   <p className="text-sm opacity-70 mb-1">{client.projectName}</p>
                   <p className="text-[10px] font-bold opacity-40 uppercase tracking-tighter mb-2">Joined: {format(new Date(client.createdAt), 'dd/MM/yy')}</p>
