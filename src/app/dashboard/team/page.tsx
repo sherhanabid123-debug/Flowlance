@@ -1,14 +1,14 @@
-'use client';
-
 import { useWorkspaceStore, WorkspaceRole } from '@/store/useWorkspaceStore';
 import { useAuthStore } from '@/store/useAuthStore';
-import { motion } from 'framer-motion';
-import { UserPlus, Trash2, Shield, User, Copy, Check, ChevronDown, AlertTriangle, LogOut, Loader2 } from 'lucide-react';
+import { useClientStore } from '@/store/useClientStore';
+import { motion, AnimatePresence } from 'framer-motion';
+import { UserPlus, Trash2, Shield, User, Copy, Check, ChevronDown, AlertTriangle, LogOut, Loader2, Wallet, Users, TrendingUp, PiggyBank, IndianRupee } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { useToastStore } from '@/store/useToastStore';
 
 export default function TeamPage() {
-  const { workspace, fetchWorkspace, generateInviteLink, removeMember, updateMemberRole, leaveWorkspace, joinWorkspace, isLoading } = useWorkspaceStore();
+  const { workspace, fetchWorkspace, generateInviteLink, removeMember, updateMemberRole, leaveWorkspace, joinWorkspace, isLoading: isWorkspaceLoading } = useWorkspaceStore();
+  const { clients, setClients, isLoading: isClientsLoading } = useClientStore();
   const [isLeaving, setIsLeaving] = useState(false);
   const { user } = useAuthStore();
   const { addToast } = useToastStore();
@@ -20,7 +20,20 @@ export default function TeamPage() {
 
   useEffect(() => {
     fetchWorkspace();
-  }, [fetchWorkspace]);
+    
+    const fetchClients = async () => {
+      try {
+        const res = await fetch('/api/clients');
+        if (res.ok) {
+          const data = await res.json();
+          setClients(data.clients);
+        }
+      } catch (error) {
+        console.error('Failed to fetch clients:', error);
+      }
+    };
+    fetchClients();
+  }, [fetchWorkspace, setClients]);
 
   const handleGenerateInvite = async () => {
     setIsGenerating(true);
@@ -93,6 +106,42 @@ export default function TeamPage() {
 
   const ghostMemberCount = (workspace?.members?.length || 0) - validMembers.length;
 
+  // Finance Analytics
+  const teamFinances = useMemo(() => {
+    const completedClients = clients.filter(c => c.status === 'completed');
+    const totalAgencyRevenue = completedClients.reduce((sum, c) => sum + (c.finalAmount || 0), 0);
+    
+    // Earnings per member
+    const earningsMap: Record<string, number> = {};
+    validMembers.forEach(m => earningsMap[m.userId._id] = 0);
+
+    completedClients.forEach(c => {
+      if (c.shares && c.shares.length > 0) {
+        c.shares.forEach((s: any) => {
+          const uId = (s.userId._id || s.userId).toString();
+          if (earningsMap[uId] !== undefined) {
+             earningsMap[uId] += (c.finalAmount * s.percentage) / 100;
+          }
+        });
+      } else if (workspace?.ownerId) {
+        // Default to owner if no shares defined
+        const oId = (workspace.ownerId as any)._id || workspace.ownerId;
+        if (earningsMap[oId] !== undefined) {
+          earningsMap[oId] += (c.finalAmount || 0);
+        }
+      }
+    });
+
+    const totalPayouts = Object.values(earningsMap).reduce((sum, e) => sum + e, 0);
+    return { totalAgencyRevenue, totalPayouts, earningsMap };
+  }, [clients, validMembers, workspace?.ownerId]);
+
+  const stats = [
+    { label: 'Agency Revenue', value: `₹${teamFinances.totalAgencyRevenue.toLocaleString('en-IN')}`, icon: Wallet, color: 'text-green-500' },
+    { label: 'Team Payouts', value: `₹${teamFinances.totalPayouts.toLocaleString('en-IN')}`, icon: TrendingUp, color: 'text-blue-500' },
+    { label: 'Your Share', value: `₹${(teamFinances.earningsMap[user?._id || ''] || 0).toLocaleString('en-IN')}`, icon: PiggyBank, color: 'text-indigo-500' },
+  ];
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -112,6 +161,29 @@ export default function TeamPage() {
         )}
       </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {stats.map((stat, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className="glass border rounded-3xl p-6 flex items-center gap-4 relative overflow-hidden group hover:border-primary/30 transition-all"
+          >
+            <div className={`p-4 rounded-2xl bg-black/5 dark:bg-white/5 ${stat.color}`}>
+              <stat.icon size={24} />
+            </div>
+            <div>
+              <p className="text-xs font-bold opacity-40 uppercase tracking-widest">{stat.label}</p>
+              <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
+            </div>
+            <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
+              <stat.icon size={100} />
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Members List */}
         <div className="lg:col-span-2 space-y-4">
@@ -126,7 +198,7 @@ export default function TeamPage() {
           
           <div className="glass border rounded-2xl overflow-hidden">
             <div className="divide-y divide-[var(--border)]">
-              {validMembers.map((member) => (
+              {validMembers.map((member: any) => (
                 <div key={member.userId._id} className="p-4 flex items-center justify-between hover:bg-primary/5 transition-colors">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center overflow-hidden">
@@ -143,7 +215,14 @@ export default function TeamPage() {
                           <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-md border border-primary/20 uppercase font-bold tracking-tighter">You</span>
                         )}
                       </div>
-                      <div className="text-xs text-[var(--text-muted)]">{member.userId.email || 'No Email'}</div>
+                      <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+                        {member.userId.email || 'No Email'}
+                        <span className="opacity-30">•</span>
+                        <div className="flex items-center gap-1 text-primary font-bold">
+                           <IndianRupee size={10} />
+                           {teamFinances.earningsMap[member.userId._id]?.toLocaleString('en-IN') || 0}
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -177,7 +256,7 @@ export default function TeamPage() {
                 </div>
               ))}
               
-              {validMembers.length === 0 && !isLoading && (
+              {validMembers.length === 0 && !isWorkspaceLoading && (
                 <div className="p-12 text-center opacity-40 italic text-sm">
                    No team members found.
                 </div>
