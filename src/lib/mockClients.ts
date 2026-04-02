@@ -17,6 +17,7 @@ export interface MockClient {
   sampleLink?: string;
   shares: any[];
   createdAt: string;
+  completionDate?: string;
 }
 
 const today = new Date();
@@ -66,7 +67,8 @@ export const MOCK_CLIENTS: MockClient[] = [
     sampleProvided: true,
     sampleLink: 'https://figma.com/zomato-dash',
     shares: [],
-    createdAt: subDays(today, 60).toISOString()
+    createdAt: subDays(today, 60).toISOString(),
+    completionDate: subDays(today, 2).toISOString()
   },
   {
     _id: 'mock-4',
@@ -118,15 +120,16 @@ export const MOCK_CLIENTS: MockClient[] = [
     name: 'Karan Mehra',
     projectName: 'YouTube Thumbnail Design',
     status: 'completed',
-    totalAmount: 5000,
-    finalAmount: 5000,
+    totalAmount: 154000,
+    finalAmount: 154000,
     lastFollowUp: subDays(today, 15).toISOString(),
     nextFollowUp: addDays(today, 15).toISOString(),
     followUpInterval: 30,
     notes: 'Recurring monthly work.',
     sampleProvided: true,
     shares: [],
-    createdAt: subDays(today, 45).toISOString()
+    createdAt: subDays(today, 45).toISOString(),
+    completionDate: subDays(today, 28).toISOString()
   },
   {
     _id: 'mock-8',
