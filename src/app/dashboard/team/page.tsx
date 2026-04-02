@@ -8,12 +8,11 @@ import { UserPlus, Trash2, Shield, User, Copy, Check, ChevronDown, AlertTriangle
 import { useState, useEffect, useMemo } from 'react';
 import { useToastStore } from '@/store/useToastStore';
 import { useAuthBarrier } from '@/hooks/useAuthBarrier';
-import { MOCK_CLIENTS } from '@/lib/mockClients';
+import { MOCK_CLIENTS, MOCK_WORKSPACE } from '@/lib/mockClients';
 import { GuestBanner } from '@/components/layout/GuestBanner';
-import { Lock } from 'lucide-react';
 
 export default function TeamPage() {
-  const { workspace, fetchWorkspace, generateInviteLink, removeMember, updateMemberRole, leaveWorkspace, joinWorkspace, isLoading: isWorkspaceLoading } = useWorkspaceStore();
+  const { workspace: realWorkspace, fetchWorkspace, generateInviteLink, removeMember, updateMemberRole, leaveWorkspace, joinWorkspace, isLoading: isWorkspaceLoading } = useWorkspaceStore();
   const { clients, setClients, isLoading: isClientsLoading } = useClientStore();
   const [isLeaving, setIsLeaving] = useState(false);
   const { user } = useAuthStore();
@@ -25,6 +24,9 @@ export default function TeamPage() {
   const [isJoining, setIsJoining] = useState(false);
 
   const { runProtected, isAuthenticated } = useAuthBarrier();
+
+  // Determine which workspace data to use
+  const workspace = isAuthenticated ? realWorkspace : MOCK_WORKSPACE;
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -90,8 +92,6 @@ export default function TeamPage() {
     });
   };
 
-  const isOwner = user?._id === workspace?.ownerId?._id;
-
   const handleLeaveWorkspace = async () => {
     runProtected(async () => {
       if (!confirm('Are you sure you want to leave this workspace? You will lose access to all shared clients and data.')) return;
@@ -105,7 +105,6 @@ export default function TeamPage() {
       }
     });
   };
-
   const handleJoinWorkspace = async () => {
     runProtected(async () => {
       if (!pastedInvite.trim()) return;
@@ -128,6 +127,8 @@ export default function TeamPage() {
   }, [workspace?.members]);
 
   const ghostMemberCount = (workspace?.members?.length || 0) - validMembers.length;
+  
+  const isOwner = isAuthenticated ? (user?._id === workspace?.ownerId?._id) : false;
 
   // Finance Analytics
   const teamFinances = useMemo(() => {

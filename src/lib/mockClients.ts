@@ -146,3 +146,42 @@ export const MOCK_CLIENTS: MockClient[] = [
     createdAt: subDays(today, 8).toISOString()
   }
 ];
+
+export const MOCK_WORKSPACE = {
+  _id: 'mock-ws-1',
+  name: 'Flowlance Demo Agency',
+  ownerId: {
+    _id: 'mock-owner',
+    name: 'Sarah Anderson',
+    email: 'sarah@demo.agency'
+  },
+  members: [
+    {
+      userId: {
+        _id: 'mock-owner',
+        name: 'Sarah Anderson',
+        email: 'sarah@demo.agency',
+        userType: 'agency'
+      },
+      role: 'owner' as const
+    },
+    {
+      userId: {
+        _id: 'mock-member-1',
+        name: 'John Doe',
+        email: 'john@demo.agency',
+        userType: 'agency'
+      },
+      role: 'member' as const
+    },
+    {
+      userId: {
+        _id: 'mock-member-2',
+        name: 'Emma Wilson',
+        email: 'emma@demo.agency',
+        userType: 'agency'
+      },
+      role: 'member' as const
+    }
+  ]
+};
