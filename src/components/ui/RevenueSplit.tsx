@@ -32,6 +32,13 @@ export function RevenueSplit({ shares, onChange, totalAmount }: RevenueSplitProp
     }
   }, [workspace]);
 
+  // Sync with prop changes (e.g. after initialData loads)
+  useEffect(() => {
+    if (shares && JSON.stringify(shares) !== JSON.stringify(localShares)) {
+      setLocalShares(shares);
+    }
+  }, [shares]);
+
   const totalPercentage = localShares.reduce((sum, s) => sum + s.percentage, 0);
 
   useEffect(() => {

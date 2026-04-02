@@ -222,18 +222,6 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
     }
     
     setIsSubmitting(true);
-    
-    const payload = {
-      name, contact, phoneNumber, projectName, status: type, notes,
-      sampleProvided,
-      sampleLink: sampleProvided ? sampleLink : '',
-      followUpInterval: Number(followUpInterval),
-      emailReminders,
-      shares,
-      ...(type === 'potential' && { expectedBudget: Number(expectedBudget) }),
-      ...(type === 'confirmed' && { advanceAmount: Number(advanceAmount), totalAmount: Number(totalAmount), startDate }),
-      ...(type === 'completed' && { finalAmount: Number(finalAmount), totalAmount: Number(totalAmount), completionDate }),
-    };
 
     try {
       const url = initialData ? `/api/clients/${initialData._id}` : '/api/clients';
@@ -444,6 +432,27 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
           </label>
         </motion.div>
 
+        {/* Validation Warning */}
+        <AnimatePresence>
+          {!isValid && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="flex items-center gap-2 text-xs font-bold text-red-500 bg-red-500/5 p-3 rounded-xl border border-red-500/20"
+            >
+              <AlertCircle size={14} className="shrink-0" />
+              <span>
+                {!isSharesValid 
+                  ? "Revenue Split total must equal 100% before saving." 
+                  : !isSampleValid 
+                  ? "Please provide a valid website/sample link (starting with http:// or https://)."
+                  : "Please fill in all required fields marked with *."}
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Actions */}
         <div className="flex items-center justify-between mt-4 pt-4 border-t border-[var(--border)]">
           <div className="flex-1">
@@ -461,17 +470,15 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
               {initialData ? 'Close' : 'Cancel'}
             </button>
             
-            {!initialData && (
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className={`px-5 py-2.5 rounded-xl font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${shake ? 'animate-shake' : ''}`}
-              >
-                {isSubmitting ? (
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                ) : 'Save Client'}
-              </button>
-            )}
+            <button
+              type="submit"
+              disabled={isSubmitting || !isValid}
+              className={`px-5 py-2.5 rounded-xl font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${shake ? 'animate-shake' : ''}`}
+            >
+              {isSubmitting ? (
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+              ) : initialData ? 'Save Changes' : 'Save Client'}
+            </button>
           </div>
         </div>
       </form>
