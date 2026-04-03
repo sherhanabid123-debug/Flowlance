@@ -36,7 +36,7 @@ export const sendResetPasswordEmail = async (email: string, token: string) => {
             </p>
           </div>
           <div style="background: #f3f4f6; padding: 20px; text-align: center; color: #9ca3af; font-size: 12px;">
-            &copy; ${new Date().getFullYear()} Flowlance CRM. Built for freelancers.
+            &copy; ${new Date().getFullYear()} Flowlance. Built for freelancers.
           </div>
         </div>
       </div>
@@ -101,7 +101,7 @@ export const sendDailyReminderEmail = async (email: string, clients: any[]) => {
             </div>
           </div>
           <div style="background: #f3f4f6; padding: 20px; text-align: center; color: #9ca3af; font-size: 12px;">
-            &copy; ${new Date().getFullYear()} Flowlance CRM. <br/>
+            &copy; ${new Date().getFullYear()} Flowlance. <br/>
             You received this because Email Reminders are ON in your profile.
           </div>
         </div>
@@ -141,7 +141,7 @@ export const sendTeamInviteEmail = async (email: string, inviterName: string, wo
           </div>
           <div style="padding: 40px 30px;">
             <p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
-              Hello! <b>${inviterName}</b> has invited you to join the team for <b>"${workspaceName}"</b> on Flowlance CRM.
+              Hello! <b>${inviterName}</b> has invited you to join the team for <b>"${workspaceName}"</b> on Flowlance.
             </p>
             <p style="color: #6b7280; font-size: 14px; margin-bottom: 30px;">
               Once you join, you'll be able to collaborate on clients, track project progress, and manage share-based earnings together.
@@ -156,8 +156,8 @@ export const sendTeamInviteEmail = async (email: string, inviterName: string, wo
             </p>
           </div>
           <div style="background: #f3f4f6; padding: 20px; text-align: center; color: #9ca3af; font-size: 12px;">
-            &copy; ${new Date().getFullYear()} Flowlance CRM. <br/>
-            The minimalist CRM for freelancers and agencies.
+            &copy; ${new Date().getFullYear()} Flowlance. <br/>
+            The minimalist tool for freelancers and agencies.
           </div>
         </div>
       </div>

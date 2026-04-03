@@ -34,7 +34,7 @@ export default function DashboardOverview() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const invitationProcessed = useRef(false);
-  const { user } = useAuthStore();
+  const { user, refreshUser } = useAuthStore();
   const { addToast } = useToastStore();
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
   const [showAll, setShowAll] = useState(false);
@@ -80,8 +80,9 @@ export default function DashboardOverview() {
           const workspaceName = await joinWorkspace(token);
           addToast(`Success! You've joined the "${workspaceName}" team.`, 'success');
           
-          // Re-fetch all data to ensure immediate UI update
+          // Re-fetch all data to ensure immediate UI update across all components
           await Promise.all([
+            refreshUser(),
             fetchWorkspace(),
             (async () => {
               const res = await fetch('/api/clients');
@@ -210,6 +211,10 @@ export default function DashboardOverview() {
       setDismissedIds(prev => new Set(prev).add(clientId));
       try {
         await markFollowUpDone(clientId, data);
+        await refreshUser();
+        const res = await fetch('/api/clients');
+        const clientData = await res.json();
+        setClients(clientData.clients || []);
         addToast('Outcome recorded and follow-up scheduled!', 'success');
       } catch {
         setDismissedIds(prev => { const s = new Set(prev); s.delete(clientId); return s; });

@@ -14,6 +14,7 @@ interface AuthState {
   openLoginModal: (callback?: () => void) => void;
   closeLoginModal: () => void;
   setPendingAction: (action: (() => void) | null) => void;
+  refreshUser: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -46,6 +47,17 @@ export const useAuthStore = create<AuthState>()(
       
       closeLoginModal: () => set({ isAuthModalOpen: false, pendingAction: null }),
       setPendingAction: (pendingAction) => set({ pendingAction }),
+      refreshUser: async () => {
+        try {
+          const res = await fetch('/api/auth/me');
+          if (res.ok) {
+            const data = await res.json();
+            set({ user: data.user, isAuthenticated: true });
+          }
+        } catch (error) {
+          console.error('Failed to refresh user:', error);
+        }
+      },
     }),
     {
       name: 'flowlance-auth-storage',
