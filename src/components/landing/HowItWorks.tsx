@@ -10,7 +10,7 @@ export function HowItWorks() {
   ];
 
   return (
-    <section className="py-24 bg-black/5 dark:bg-white/5 border-y">
+    <section className="py-24 bg-black/5 dark:bg-white/5">
       <div className="max-w-5xl mx-auto px-6">
         <div className="text-center mb-16 space-y-4">
            <h2 className="text-xs font-bold text-primary uppercase tracking-widest">The Process</h2>

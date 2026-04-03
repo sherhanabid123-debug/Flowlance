@@ -10,7 +10,7 @@ export function ProblemSection() {
   ];
 
   return (
-    <section className="py-24 bg-black/5 dark:bg-white/5 border-y relative overflow-hidden">
+    <section className="py-24 bg-black/5 dark:bg-white/5 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16 space-y-4">
            <h2 className="text-xs font-bold text-rose-500 uppercase tracking-widest">The Problem</h2>

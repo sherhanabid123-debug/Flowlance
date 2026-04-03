@@ -27,7 +27,7 @@ export default function Home() {
            style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '40px 40px' }} 
       />
 
-      <footer className="py-12 border-t relative z-10 flex flex-col items-center gap-6 glass sm:flex-row sm:justify-between sm:px-20">
+      <footer className="py-12 relative z-10 flex flex-col items-center gap-6 glass sm:flex-row sm:justify-between sm:px-20">
          <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-xs">F</div>
             <span className="font-bold tracking-tight opacity-70">Flowlance</span>
