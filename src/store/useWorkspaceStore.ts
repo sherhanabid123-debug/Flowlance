@@ -32,6 +32,7 @@ interface WorkspaceState {
   updateMemberRole: (memberId: string, role: WorkspaceRole) => Promise<void>;
   leaveWorkspace: () => Promise<void>;
   joinWorkspace: (tokenOrLink: string) => Promise<string>;
+  sendEmailInvite: (email: string) => Promise<void>;
   getCurrentRole: (userId: string | undefined) => WorkspaceRole;
 }
 
@@ -130,6 +131,20 @@ export const useWorkspaceStore = create<WorkspaceState>()(
           
           await get().fetchWorkspace();
           return data.workspaceName;
+        } catch (error) {
+          console.error(error);
+          throw error;
+        }
+      },
+      sendEmailInvite: async (email: string) => {
+        try {
+          const res = await fetch('/api/workspaces/invite/email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed to send invitation');
         } catch (error) {
           console.error(error);
           throw error;

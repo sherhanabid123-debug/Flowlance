@@ -122,3 +122,59 @@ export const sendDailyReminderEmail = async (email: string, clients: any[]) => {
     return false;
   }
 };
+
+export const sendTeamInviteEmail = async (email: string, inviterName: string, workspaceName: string, token: string) => {
+  const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard?token=${token}`;
+
+  const mailOptions = {
+    from: '"Flowlance Teams" <no-reply@flowlance.com>',
+    to: email,
+    subject: `⚡ ${inviterName} invited you to join "${workspaceName}" team`,
+    html: `
+      <div style="font-family: 'Inter', system-ui, sans-serif; background-color: #f9fafb; padding: 40px 20px;">
+        <div style="max-width: 500px; margin: 0 auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+          <div style="background: #4f46e5; padding: 30px; text-align: center;">
+            <div style="background: rgba(255,255,255,0.2); width: 60px; height: 60px; border-radius: 15px; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: bold;">
+              ${workspaceName.charAt(0).toUpperCase()}
+            </div>
+            <h1 style="color: white; margin: 0; font-size: 22px;">Join Your Team</h1>
+          </div>
+          <div style="padding: 40px 30px;">
+            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+              Hello! <b>${inviterName}</b> has invited you to join the team for <b>"${workspaceName}"</b> on Flowlance CRM.
+            </p>
+            <p style="color: #6b7280; font-size: 14px; margin-bottom: 30px;">
+              Once you join, you'll be able to collaborate on clients, track project progress, and manage share-based earnings together.
+            </p>
+            <div style="text-align: center; margin: 35px 0;">
+              <a href="${inviteUrl}" style="background: #4f46e5; color: white; padding: 16px 32px; border-radius: 12px; font-weight: bold; text-decoration: none; display: inline-block; box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);">
+                Accept Invitation
+              </a>
+            </div>
+            <p style="color: #9ca3af; font-size: 12px; text-align: center;">
+              This invitation link will expire in 7 days.
+            </p>
+          </div>
+          <div style="background: #f3f4f6; padding: 20px; text-align: center; color: #9ca3af; font-size: 12px;">
+            &copy; ${new Date().getFullYear()} Flowlance CRM. <br/>
+            The minimalist CRM for freelancers and agencies.
+          </div>
+        </div>
+      </div>
+    `,
+  };
+
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.log('\x1b[33m%s\x1b[0m', `⚠️ SMTP not configured. Team invite link for ${email}:`);
+    console.log('\x1b[36m%s\x1b[0m', inviteUrl);
+    return true; 
+  }
+
+  try {
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error('Team invite email failed:', error);
+    return false;
+  }
+};

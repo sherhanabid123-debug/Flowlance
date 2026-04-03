@@ -4,13 +4,13 @@ import { useWorkspaceStore, WorkspaceRole } from '@/store/useWorkspaceStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useClientStore } from '@/store/useClientStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { UserPlus, Trash2, Shield, User, Copy, Check, ChevronDown, AlertTriangle, LogOut, Loader2, Wallet, Users, TrendingUp, PiggyBank, IndianRupee, Lock } from 'lucide-react';
+import { UserPlus, Trash2, Shield, User, Copy, Check, ChevronDown, AlertTriangle, LogOut, Loader2, Wallet, Users, TrendingUp, PiggyBank, IndianRupee, Lock, Mail, Send } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { useToastStore } from '@/store/useToastStore';
 import { useAuthBarrier } from '@/hooks/useAuthBarrier';
 
 export default function TeamPage() {
-  const { workspace: realWorkspace, fetchWorkspace, generateInviteLink, removeMember, updateMemberRole, leaveWorkspace, joinWorkspace, isLoading: isWorkspaceLoading } = useWorkspaceStore();
+  const { workspace: realWorkspace, fetchWorkspace, generateInviteLink, sendEmailInvite, removeMember, updateMemberRole, leaveWorkspace, joinWorkspace, isLoading: isWorkspaceLoading } = useWorkspaceStore();
   const { clients, setClients, isLoading: isClientsLoading } = useClientStore();
   const [isLeaving, setIsLeaving] = useState(false);
   const { user, openLoginModal } = useAuthStore();
@@ -20,6 +20,8 @@ export default function TeamPage() {
   const [copied, setCopied] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [isInviting, setIsInviting] = useState(false);
 
   const { runProtected, isAuthenticated } = useAuthBarrier();
 
@@ -101,6 +103,7 @@ export default function TeamPage() {
       }
     });
   };
+
   const handleJoinWorkspace = async () => {
     runProtected(async () => {
       if (!pastedInvite.trim()) return;
@@ -113,6 +116,25 @@ export default function TeamPage() {
         addToast(error.message || 'Failed to join workspace', 'error');
       } finally {
         setIsJoining(false);
+      }
+    });
+  };
+ 
+  const handleEmailInvite = async () => {
+    runProtected(async () => {
+      if (!inviteEmail.trim() || !inviteEmail.includes('@')) {
+        addToast('Please enter a valid email address', 'error');
+        return;
+      }
+      setIsInviting(true);
+      try {
+        await sendEmailInvite(inviteEmail);
+        addToast(`Invitation sent to ${inviteEmail}`, 'success');
+        setInviteEmail('');
+      } catch (error: any) {
+        addToast(error.message || 'Failed to send invitation', 'error');
+      } finally {
+        setIsInviting(false);
       }
     });
   };
@@ -333,7 +355,7 @@ export default function TeamPage() {
                     type="text"
                     readOnly
                     value={inviteLink}
-                    className="w-full h-12 bg-[var(--background)]/50 border border-[var(--border)] rounded-2xl px-4 text-xs font-mono pr-12 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                    className="w-full h-12 bg-[var(--background)]/50 border border-[var(--border)] rounded-2xl px-4 text-xs font-mono pr-12 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-primary"
                   />
                   <button
                     onClick={copyToClipboard}
@@ -342,17 +364,52 @@ export default function TeamPage() {
                     {copied ? <Check size={18} /> : <Copy size={18} />}
                   </button>
                 </div>
-                <p className="text-[10px] text-center text-amber-500 font-medium italic">
+                <p className="text-[10px] text-center text-amber-500 font-bold italic">
                   Link expires in 7 days. Only share with people you trust.
                 </p>
                 <button
                    onClick={() => setInviteLink('')}
-                   className="w-full text-xs font-bold text-primary hover:underline"
+                   className="w-full text-xs font-bold text-primary hover:underline uppercase tracking-widest"
                 >
                   Clear Link
                 </button>
               </div>
             )}
+
+            <div className="pt-6 border-t border-[var(--border)]">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-1 h-4 bg-primary rounded-full" />
+                  <h4 className="text-[10px] font-bold uppercase tracking-widest opacity-60">Professional Invite</h4>
+                </div>
+                
+                <div className="relative group">
+                  <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${inviteEmail ? 'text-primary' : 'opacity-30'}`} size={18} />
+                  <input
+                    type="email"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    placeholder="teammate@example.com"
+                    className="w-full h-12 bg-black/5 dark:bg-white/5 border border-[var(--border)] rounded-2xl pl-12 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                  />
+                </div>
+
+                <button
+                  onClick={handleEmailInvite}
+                  disabled={isInviting || !inviteEmail.trim() || !isOwner}
+                  className="w-full h-12 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 disabled:opacity-50 disabled:grayscale disabled:scale-100 flex items-center justify-center gap-2"
+                >
+                  {isInviting ? (
+                    <Loader2 size={18} className="animate-spin" />
+                  ) : (
+                    <>
+                      <Send size={16} />
+                      Send Email Invitation
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
 
             {!isOwner && (
               <p className="text-[10px] text-red-500 italic text-center font-medium">
