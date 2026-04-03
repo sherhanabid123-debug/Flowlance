@@ -1,3 +1,4 @@
+'use client';
 import { useUIStore } from '@/store/useUIStore';
 import { X, LayoutDashboard, Briefcase, Users, LogOut, UserPlus, Lock } from 'lucide-react';
 import Link from 'next/link';
