@@ -17,8 +17,6 @@ import { HealthBadge } from '@/components/ui/HealthBadge';
 import { getClientHealthStatus } from '@/lib/clientHealth';
 import { SmartInsights } from '@/components/dashboard/SmartInsights';
 import { useAuthBarrier } from '@/hooks/useAuthBarrier';
-import { MOCK_CLIENTS } from '@/lib/mockClients';
-import { GuestBanner } from '@/components/layout/GuestBanner';
 
 interface MonthlyStat {
   name: string;
@@ -44,11 +42,7 @@ export default function DashboardOverview() {
   const { runProtected, isAuthenticated } = useAuthBarrier();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      setClients(MOCK_CLIENTS);
-      setLoading(false);
-      return;
-    }
+    if (!isAuthenticated) return;
     
     const fetchClients = async () => {
       try {
@@ -205,7 +199,6 @@ export default function DashboardOverview() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 flex flex-col pt-12 relative animate-in fade-in">
-      <GuestBanner />
       
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
         <h1 className="text-2xl sm:text-3xl font-bold">Overview</h1>

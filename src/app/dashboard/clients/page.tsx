@@ -18,8 +18,6 @@ import { getClientHealthStatus } from '@/lib/clientHealth';
 import { exportClientsToCSV } from '@/lib/exportUtils';
 import { isPast, isToday, format } from 'date-fns';
 import { useAuthBarrier } from '@/hooks/useAuthBarrier';
-import { MOCK_CLIENTS } from '@/lib/mockClients';
-import { GuestBanner } from '@/components/layout/GuestBanner';
 
 function ClientsContent() {
   const { clients, setClients, isLoading, setLoading, deleteClient, markFollowUpDone } = useClientStore();
@@ -62,11 +60,7 @@ function ClientsContent() {
   const { runProtected, isAuthenticated } = useAuthBarrier();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      setClients(MOCK_CLIENTS);
-      setLoading(false);
-      return;
-    }
+    if (!isAuthenticated) return;
 
     const fetchClients = async () => {
       try {
@@ -186,7 +180,6 @@ function ClientsContent() {
 
   return (
     <div className="pt-12 text-left relative">
-      <GuestBanner />
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Client Management</h1>
         

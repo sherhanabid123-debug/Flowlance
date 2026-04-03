@@ -8,8 +8,6 @@ import { UserPlus, Trash2, Shield, User, Copy, Check, ChevronDown, AlertTriangle
 import { useState, useEffect, useMemo } from 'react';
 import { useToastStore } from '@/store/useToastStore';
 import { useAuthBarrier } from '@/hooks/useAuthBarrier';
-import { MOCK_CLIENTS, MOCK_WORKSPACE } from '@/lib/mockClients';
-import { GuestBanner } from '@/components/layout/GuestBanner';
 
 export default function TeamPage() {
   const { workspace: realWorkspace, fetchWorkspace, generateInviteLink, removeMember, updateMemberRole, leaveWorkspace, joinWorkspace, isLoading: isWorkspaceLoading } = useWorkspaceStore();
@@ -25,14 +23,11 @@ export default function TeamPage() {
 
   const { runProtected, isAuthenticated } = useAuthBarrier();
 
-  // Determine which workspace data to use
-  const workspace = isAuthenticated ? realWorkspace : MOCK_WORKSPACE;
+  // Use the real workspace data
+  const workspace = realWorkspace;
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      setClients(MOCK_CLIENTS);
-      return;
-    }
+    if (!isAuthenticated) return;
     
     fetchWorkspace();
     
@@ -173,7 +168,6 @@ export default function TeamPage() {
 
   return (
     <div className="space-y-8 relative pt-12">
-      <GuestBanner />
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Team Management</h1>
