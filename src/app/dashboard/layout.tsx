@@ -3,7 +3,7 @@ import { TopNav } from '@/components/layout/TopNav';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div className="min-h-screen bg-[var(--background)] overflow-x-hidden">
       <Sidebar />
       <div className="flex flex-col min-h-screen">
         <TopNav />

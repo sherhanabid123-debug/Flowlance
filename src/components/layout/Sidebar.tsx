@@ -4,12 +4,23 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useState, useEffect } from 'react';
 
 export function Sidebar() {
   const pathname = usePathname();
   const { logout, user, isAuthenticated, openLoginModal } = useAuthStore();
   const { isSidebarOpen, closeSidebar } = useUIStore();
   const router = useRouter();
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const checkIsDesktop = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    checkIsDesktop();
+    window.addEventListener('resize', checkIsDesktop);
+    return () => window.removeEventListener('resize', checkIsDesktop);
+  }, []);
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -28,13 +39,13 @@ export function Sidebar() {
     <>
       {/* Mobile Backdrop */}
       <AnimatePresence>
-        {isSidebarOpen && (
+        {!isDesktop && isSidebarOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={closeSidebar}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[45] lg:hidden"
+            className="fixed inset-0 bg-black/60 backdrop-blur-md z-[45] lg:hidden"
           />
         )}
       </AnimatePresence>
@@ -42,10 +53,11 @@ export function Sidebar() {
       <motion.div 
         initial={false}
         animate={{ 
-          x: isSidebarOpen ? 0 : -280,
+          x: isDesktop || isSidebarOpen ? 0 : -280,
           transition: { type: 'spring', damping: 25, stiffness: 200 }
         }}
-        className={`w-[280px] h-screen fixed left-0 top-0 glass border-r z-50 flex flex-col items-start p-6 lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
+        className={`w-[280px] h-screen fixed left-0 top-0 glass border-r z-50 flex flex-col items-start p-6 
+          ${isDesktop ? 'translate-x-0' : isSidebarOpen ? 'translate-x-0' : '-translate-x-full pointer-events-none'}`}
       >
         <div className="flex items-center justify-between mb-10 w-full">
           <div className="flex flex-col">
@@ -60,7 +72,7 @@ export function Sidebar() {
               </motion.div>
             )}
           </div>
-          <button onClick={closeSidebar} className="lg:hidden p-2 hover:bg-black/5 rounded-full">
+          <button onClick={closeSidebar} className="lg:hidden p-2 hover:bg-black/10 rounded-full transition-colors">
             <X size={20} />
           </button>
         </div>
@@ -73,7 +85,7 @@ export function Sidebar() {
               <Link 
                 key={item.href} 
                 href={item.href}
-                onClick={closeSidebar}
+                onClick={() => !isDesktop && closeSidebar()}
                 className={`flex items-center justify-between w-full p-3 rounded-lg transition-all
                   ${isActive ? 'bg-primary text-primary-foreground shadow-md' : 'hover:bg-black/5 dark:hover:bg-white/5'}`}
               >
