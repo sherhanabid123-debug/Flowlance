@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState, useRef } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useClientStore } from '@/store/useClientStore';
 import { useWorkspaceStore } from '@/store/useWorkspaceStore';
@@ -29,8 +30,12 @@ import { FirstClientCTA } from '@/components/dashboard/FirstClientCTA';
 
 export default function DashboardOverview() {
   const { clients, setClients, isLoading, setLoading, markFollowUpDone } = useClientStore();
-  const { workspace } = useWorkspaceStore();
+  const { workspace, joinWorkspace, isLoading: isWorkspaceLoading } = useWorkspaceStore();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const invitationProcessed = useRef(false);
   const { user } = useAuthStore();
+  const { addToast } = useToastStore();
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
   const [showAll, setShowAll] = useState(false);
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
@@ -62,6 +67,29 @@ export default function DashboardOverview() {
     fetchClients();
   }, [setClients, setLoading, isAuthenticated]);
 
+  // Handle Invitation Token
+  useEffect(() => {
+    const token = searchParams.get('token');
+    if (token && isAuthenticated && !isWorkspaceLoading && !invitationProcessed.current) {
+      invitationProcessed.current = true;
+      
+      const processInvite = async () => {
+        try {
+          const workspaceName = await joinWorkspace(token);
+          addToast(`Success! You've joined the "${workspaceName}" team.`, 'success');
+          // Clean up the URL
+          const newParams = new URLSearchParams(searchParams.toString());
+          newParams.delete('token');
+          router.replace(`/dashboard${newParams.toString() ? `?${newParams.toString()}` : ''}`);
+        } catch (error: any) {
+          addToast(error.message || 'Failed to join team. The link might be expired.', 'error');
+        }
+      };
+      
+      processInvite();
+    }
+  }, [searchParams, isAuthenticated, isWorkspaceLoading, joinWorkspace, addToast, router]);
+
   const { overdueFollowUps, todayFollowUps } = useMemo(() => {
     const active = clients.filter(c =>
       c.nextFollowUp &&
@@ -77,7 +105,6 @@ export default function DashboardOverview() {
     return { overdueFollowUps: overdue, todayFollowUps: today };
   }, [clients, dismissedIds]);
 
-  const { addToast } = useToastStore();
   const alertTriggered = useRef(false);
 
   useEffect(() => {
