@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { User, Mail, Loader2 } from 'lucide-react';
+import { User, Mail, Loader2, AlertTriangle, Trash2 } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useToastStore } from '@/store/useToastStore';
 import { CenteredModal } from '@/components/ui/CenteredModal';
@@ -25,6 +25,9 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
   const [emailReminders, setEmailReminders] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteInput, setDeleteInput] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const focusRef = useRef<HTMLInputElement>(null);
 
@@ -133,6 +136,26 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
       return;
     }
     onClose();
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteInput !== 'DELETE') return;
+    
+    setIsDeleting(true);
+    try {
+      const res = await fetch('/api/user/delete', { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to delete account');
+      }
+      
+      addToast('Account deleted. We are sorry to see you go.', 'info');
+      // Redirect to home/login
+      window.location.href = '/';
+    } catch (err: any) {
+      addToast(err.message, 'error');
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -247,6 +270,70 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 />
               </button>
+            </div>
+          </div>
+
+          <div className="pt-6 border-t border-destructive/20 mt-4">
+            <div className="p-4 rounded-xl border border-destructive/20 bg-destructive/[0.03] space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-destructive/10 rounded-lg text-destructive mt-1">
+                  <AlertTriangle size={18} />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-sm font-bold text-destructive">Danger Zone</h4>
+                  <p className="text-[11px] opacity-60 leading-relaxed">
+                    Once you delete your account, there is no going back. All your workspaces, clients, and team history will be permanently erased.
+                  </p>
+                </div>
+              </div>
+
+              {!showDeleteConfirm ? (
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="w-full py-2.5 rounded-xl border border-destructive/30 text-destructive text-xs font-bold hover:bg-destructive/10 transition-all uppercase tracking-wider"
+                >
+                  Delete My Account
+                </button>
+              ) : (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-4"
+                >
+                  <div className="p-3 bg-destructive/5 rounded-lg border border-destructive/10">
+                    <p className="text-[10px] font-bold text-destructive uppercase tracking-widest mb-2">Confirm by typing 'DELETE'</p>
+                    <input
+                      type="text"
+                      value={deleteInput}
+                      onChange={(e) => setDeleteInput(e.target.value.toUpperCase())}
+                      placeholder="Type DELETE..."
+                      className="w-full px-3 py-2 rounded-lg bg-background border border-destructive/30 outline-none focus:ring-1 focus:ring-destructive transition-all text-xs font-mono"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={handleDeleteAccount}
+                      disabled={deleteInput !== 'DELETE' || isDeleting}
+                      className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-destructive text-white text-xs font-bold hover:opacity-90 transition-all disabled:opacity-50 disabled:grayscale"
+                    >
+                      {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                      Confirm Deletion
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowDeleteConfirm(false);
+                        setDeleteInput('');
+                      }}
+                      className="px-4 py-2.5 rounded-xl border border-[var(--border)] text-xs font-bold hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </motion.div>
+              )}
             </div>
           </div>
         </div>
