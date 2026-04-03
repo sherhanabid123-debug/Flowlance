@@ -30,7 +30,7 @@ export function FinalCTA() {
            
            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
               <button 
-                onClick={() => openLoginModal()}
+                onClick={() => window.location.href = 'https://flowlance-one.vercel.app/dashboard'}
                 className="w-full sm:w-auto h-16 px-12 bg-primary text-white font-bold rounded-2xl hover:opacity-90 transition-all shadow-xl shadow-primary/30 active:scale-95 flex items-center justify-center gap-2 text-lg"
               >
                  Get Started Free

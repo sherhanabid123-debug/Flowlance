@@ -33,7 +33,7 @@ export function LandingNavbar() {
               Sign In
             </button>
             <button 
-              onClick={() => openLoginModal()} 
+              onClick={() => window.location.href = 'https://flowlance-one.vercel.app/dashboard'} 
               className="px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-2xl hover:opacity-90 transition-all shadow-lg shadow-primary/20"
             >
               Get Started Free

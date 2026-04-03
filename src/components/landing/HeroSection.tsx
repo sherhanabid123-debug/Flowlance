@@ -47,13 +47,14 @@ export function HeroSection() {
           className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
         >
           <button 
-            onClick={() => openLoginModal()}
+            onClick={() => window.location.href = 'https://flowlance-one.vercel.app/dashboard'}
             className="w-full sm:w-auto h-14 px-10 bg-primary text-white font-bold rounded-2xl hover:opacity-90 transition-all shadow-xl shadow-primary/30 active:scale-95 flex items-center justify-center gap-2"
           >
             Get Started Free
             <Zap size={18} />
           </button>
           <button 
+             onClick={() => window.location.href = 'https://flowlance-one.vercel.app/dashboard'}
             className="w-full sm:w-auto h-14 px-10 glass border font-bold rounded-2xl hover:bg-black/5 dark:hover:bg-white/5 transition-all active:scale-95 flex items-center justify-center gap-2"
           >
             Try Demo

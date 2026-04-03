@@ -9,7 +9,7 @@ import { FinalCTA } from '@/components/landing/FinalCTA';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background relative selection:bg-primary selection:text-white">
+    <div className="min-h-screen bg-[#050505] text-white relative selection:bg-primary selection:text-white dark">
       <LandingNavbar />
       
       <main className="relative z-10 flex flex-col">
@@ -23,8 +23,8 @@ export default function Home() {
       </main>
 
       {/* Modern Grid Background */}
-      <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.03] dark:opacity-[0.05]" 
-           style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, var(--foreground) 1px, transparent 0)', backgroundSize: '40px 40px' }} 
+      <div className="fixed inset-0 pointer-events-none z-0 opacity-10" 
+           style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '40px 40px' }} 
       />
 
       <footer className="py-12 border-t relative z-10 flex flex-col items-center gap-6 glass sm:flex-row sm:justify-between sm:px-20">
