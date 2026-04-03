@@ -5,7 +5,7 @@ import { Star } from 'lucide-react';
 export function SocialProof() {
   const testimonials = [
     { name: "Anish Gupta", role: "Creative Director", body: "Finally stopped losing leads to my messy inbox. Flowlance is a game-changer for my agency." },
-    { name: "Sarah Miller", role: "Brand Strategy", body: "The visual pipeline is everything. I can see my whole revenue month in two seconds." },
+    { name: "Rahul", role: "Brand Strategy", body: "The visual pipeline is everything. I can see my whole revenue month in two seconds." },
     { name: "Rohan V.", role: "Web Developer", body: "The WhatsApp shortcut saves me 10 minutes per client per day. Simple and effective." },
   ];
 
