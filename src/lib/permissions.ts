@@ -19,15 +19,36 @@ export async function getServerSession(req: Request): Promise<UserSession | null
   await dbConnect();
   
   const user = await User.findById(decoded.userId).select('currentWorkspace');
-  if (!user || !user.currentWorkspace) return null;
+  if (!user) return null;
 
+  // If user has no workspace, return a basic session without workspace details
+  if (!user.currentWorkspace) {
+    return {
+      userId: decoded.userId,
+      workspaceId: '',
+      role: 'member' // Dummy role
+    };
+  }
+ 
   const workspace = await Workspace.findById(user.currentWorkspace);
-  if (!workspace) return null;
-
-  // Find the user's role in this workspace
+  // If workspace disappeared or user was removed from it, return basic session
+  if (!workspace) {
+     return {
+      userId: decoded.userId,
+      workspaceId: '',
+      role: 'member'
+    };
+  }
+ 
   const member = workspace.members.find(m => m.userId.toString() === decoded.userId);
-  if (!member) return null;
-
+  if (!member) {
+     return {
+      userId: decoded.userId,
+      workspaceId: '',
+      role: 'member'
+    };
+  }
+ 
   return {
     userId: decoded.userId,
     workspaceId: user.currentWorkspace.toString(),

@@ -21,7 +21,7 @@ export async function GET(req: Request) {
     // 1. Get user and verify they have a current workspace
     const user = await User.findById(userId);
     if (!user || !user.currentWorkspace) {
-      return NextResponse.json({ error: 'No workspace found' }, { status: 404 });
+      return NextResponse.json({ workspace: null }, { status: 200 });
     }
 
     // 2. Fetch workspace and populate members correctly

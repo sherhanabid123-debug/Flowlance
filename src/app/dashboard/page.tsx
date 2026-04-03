@@ -230,6 +230,44 @@ export default function DashboardOverview() {
     { title: 'Active Projects', value: metrics.confirmed, icon: Target, color: 'text-black', bg: 'bg-amber-500 shadow-lg shadow-amber-500/10', tooltip: 'Currently active (confirmed) projects' },
   ];
 
+  if (isAuthenticated && !workspace && !isWorkspaceLoading) {
+    return (
+      <div className="min-h-[80vh] flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-700">
+        <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center text-primary mb-8 animate-bounce">
+          <Users size={40} />
+        </div>
+        <h1 className="text-3xl font-bold mb-4 tracking-tight">Ready to start your agency?</h1>
+        <p className="text-[var(--text-muted)] max-w-md mb-10 leading-relaxed">
+          You aren't currently part of a workspace. Create your own team or join an existing one to start managing clients.
+        </p>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg">
+          <Link 
+            href="/dashboard/team" 
+            className="flex flex-col items-center p-8 rounded-3xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all group scale-100 hover:scale-[1.02]"
+          >
+            <div className="p-3 bg-primary/20 rounded-2xl text-primary mb-4 group-hover:bg-primary group-hover:text-white transition-all">
+              <Plus size={24} />
+            </div>
+            <h3 className="font-bold mb-2">Create Workspace</h3>
+            <p className="text-[10px] opacity-60">Start from scratch and invite your team</p>
+          </Link>
+
+          <Link 
+            href="/dashboard/team" 
+            className="flex flex-col items-center p-8 rounded-3xl border border-[var(--border)] bg-gray-500/5 hover:bg-black/5 transition-all group scale-100 hover:scale-[1.02]"
+          >
+            <div className="p-3 bg-black/10 rounded-2xl opacity-40 mb-4 group-hover:opacity-100 transition-all">
+              <Zap size={24} />
+            </div>
+            <h3 className="font-bold mb-2">Join Team</h3>
+            <p className="text-[10px] opacity-60">Paste an invite token to join a workspace</p>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 flex flex-col pt-12 relative animate-in fade-in">
       
