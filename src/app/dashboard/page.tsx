@@ -8,6 +8,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { Users, CheckCircle, Wallet, Target, TrendingUp, AlertCircle, Clock, CheckCheck, ArrowRight, Zap, Plus } from 'lucide-react';
 import { ClientModal } from '@/components/ui/ClientModal';
 import { QuickAddModal } from '@/components/ui/QuickAddModal';
+import { FollowUpOutcomeModal } from '@/components/ui/FollowUpOutcomeModal';
 import { LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { formatDistanceToNow, isPast, isToday } from 'date-fns';
 import Link from 'next/link';
@@ -37,6 +38,8 @@ export default function DashboardOverview() {
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<any>(null);
+  const [isOutcomeModalOpen, setIsOutcomeModalOpen] = useState(false);
+  const [activeClient, setActiveClient] = useState<any>(null);
 
   const { runProtected, isAuthenticated } = useAuthBarrier();
 
@@ -158,13 +161,22 @@ export default function DashboardOverview() {
   const visibleFollowUps = showAll ? allFollowUps : allFollowUps.slice(0, LIMIT);
   const hasMore = allFollowUps.length > LIMIT;
 
-  const handleMarkDone = async (clientId: string) => {
+  const handleMarkDone = (client: any) => {
+    setActiveClient(client);
+    setIsOutcomeModalOpen(true);
+  };
+
+  const handleOutcomeSubmit = async (data: any) => {
     runProtected(async () => {
+      if (!activeClient) return;
+      const clientId = activeClient._id;
       setDismissedIds(prev => new Set(prev).add(clientId));
       try {
-        await markFollowUpDone(clientId);
+        await markFollowUpDone(clientId, data);
+        addToast('Outcome recorded and follow-up scheduled!', 'success');
       } catch {
         setDismissedIds(prev => { const s = new Set(prev); s.delete(clientId); return s; });
+        addToast('Error updating follow-up', 'error');
       }
     });
   };
@@ -321,7 +333,7 @@ export default function DashboardOverview() {
                             </div>
                           </div>
                           <button
-                            onClick={() => handleMarkDone(client._id)}
+                            onClick={() => handleMarkDone(client)}
                             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:scale-105 active:scale-95 transition-all shadow-md shadow-indigo-600/20 whitespace-nowrap shrink-0"
                           >
                             <CheckCheck size={14} />
@@ -381,6 +393,16 @@ export default function DashboardOverview() {
       <FirstClientCTA 
         isVisible={isAuthenticated && !isLoading && clients.length === 0}
         onOpenQuickAdd={() => setIsQuickAddOpen(true)}
+      />
+
+      <FollowUpOutcomeModal
+        isOpen={isOutcomeModalOpen}
+        onClose={() => {
+          setIsOutcomeModalOpen(false);
+          setActiveClient(null);
+        }}
+        onSubmit={handleOutcomeSubmit}
+        clientName={activeClient?.name || ''}
       />
     </motion.div>
   );

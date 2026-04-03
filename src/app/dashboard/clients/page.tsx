@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Plus, Trash2, Edit, Link as LinkIcon, CheckCheck, MessageCircle, Zap, Download } from 'lucide-react';
 import { ClientModal } from '@/components/ui/ClientModal';
 import { QuickAddModal } from '@/components/ui/QuickAddModal';
+import { FollowUpOutcomeModal } from '@/components/ui/FollowUpOutcomeModal';
 import { useToastStore } from '@/store/useToastStore';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { FollowUpBadge } from '@/components/ui/FollowUpBadge';
@@ -36,6 +37,8 @@ function ClientsContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<any>(null);
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+  const [isOutcomeModalOpen, setIsOutcomeModalOpen] = useState(false);
+  const [activeClient, setActiveClient] = useState<any>(null);
   const { addToast } = useToastStore();
   
   // Sync with URL params if they change
@@ -116,13 +119,19 @@ function ClientsContent() {
     });
   };
 
-  const handleMarkFollowUpDone = async (id: string) => {
+  const handleMarkFollowUpDone = async (client: any) => {
+    setActiveClient(client);
+    setIsOutcomeModalOpen(true);
+  };
+
+  const handleOutcomeSubmit = async (data: any) => {
     runProtected(async () => {
+      if (!activeClient) return;
       try {
-        await markFollowUpDone(id);
-        addToast('Follow-up scheduled!', 'success');
+        await markFollowUpDone(activeClient._id, data);
+        addToast('Outcome recorded and follow-up scheduled!', 'success');
       } catch (err) {
-        addToast('Error updating follow-up', 'error');
+        addToast('Error updating outcome', 'error');
       }
     });
   };
@@ -161,7 +170,7 @@ function ClientsContent() {
     const matchesValue = !minValue || (c.expectedBudget || 0) >= minValue;
     const matchesSample = !hasSample || c.sampleProvided === true;
 
-    return matchesCategory && matchesSearch && matchesFollowUp && matchesHealth && matchesValue && matchesSample;
+    return matchesCategory && matchesSearch && matchesFollowUp && matchesHealth && matchesValue && matchesSample && c.isActive !== false;
   });
 
   const isFiltered = filter !== 'all' || followUpFilter !== 'all' || healthFilter !== 'all' || minValue > 0 || hasSample || search !== '';
@@ -294,6 +303,11 @@ function ClientsContent() {
                     <h3 className="font-semibold text-lg">{client.name}</h3>
                     {filter === 'all' && <StatusBadge status={client.status as any} />}
                     {client.status !== 'completed' && <HealthBadge lastFollowUp={client.lastFollowUp} />}
+                    {client.lastFollowUpOutcome && (
+                      <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-lg border border-primary/20 shadow-sm animate-in fade-in zoom-in duration-300">
+                        Last: {client.lastFollowUpOutcome}
+                      </span>
+                    )}
                   </div>
                   <p className="text-sm opacity-70 mb-1">{client.projectName}</p>
                   <p className="text-[10px] font-bold opacity-40 uppercase tracking-tighter mb-2">Joined: {format(new Date(client.createdAt), 'dd/MM/yy')}</p>
@@ -368,7 +382,7 @@ function ClientsContent() {
  
                     {client.status !== 'completed' && (
                       <button 
-                        onClick={() => handleMarkFollowUpDone(client._id)}
+                        onClick={() => handleMarkFollowUpDone(client)}
                         className="flex-1 sm:flex-none flex items-center justify-center gap-2 group text-[10px] sm:text-xs font-bold px-3 py-2 bg-indigo-600 text-white rounded-xl hover:scale-105 active:scale-95 transition-all shadow-md shadow-indigo-600/10 whitespace-nowrap"
                         title="Mark latest follow-up as completed"
                       >
@@ -431,6 +445,16 @@ function ClientsContent() {
           setEditingClient(client);
           setIsModalOpen(true);
         }}
+      />
+
+      <FollowUpOutcomeModal
+        isOpen={isOutcomeModalOpen}
+        onClose={() => {
+          setIsOutcomeModalOpen(false);
+          setActiveClient(null);
+        }}
+        onSubmit={handleOutcomeSubmit}
+        clientName={activeClient?.name || ''}
       />
     </div>
   );

@@ -28,6 +28,13 @@ export interface IClient extends Document {
   nextFollowUp?: Date;
   followUpInterval?: number;
   emailReminders?: boolean;
+  lastFollowUpOutcome?: string;
+  followUpHistory?: {
+    outcome: string;
+    date: Date;
+    notes?: string;
+  }[];
+  isActive?: boolean;
   shares?: {
     userId: string | mongoose.Types.ObjectId;
     percentage: number;
@@ -88,6 +95,15 @@ const ClientSchema: Schema<IClient> = new Schema(
     lastFollowUp: { type: Date },
     nextFollowUp: { type: Date },
     followUpInterval: { type: Number, default: 3 },
+    lastFollowUpOutcome: { type: String },
+    followUpHistory: [
+      {
+        outcome: { type: String, required: true },
+        date: { type: Date, default: Date.now },
+        notes: { type: String },
+      },
+    ],
+    isActive: { type: Boolean, default: true },
     shares: [
       {
         userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
