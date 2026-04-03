@@ -20,7 +20,7 @@ import { isPast, isToday, format } from 'date-fns';
 import { useAuthBarrier } from '@/hooks/useAuthBarrier';
 
 function ClientsContent() {
-  const { clients, setClients, isLoading, setLoading, deleteClient, markFollowUpDone } = useClientStore();
+  const { clients, fetchClients, isLoading, setLoading, deleteClient, markFollowUpDone } = useClientStore();
   const { workspace, getCurrentRole } = useWorkspaceStore();
   const { user } = useAuthStore();
   
@@ -63,21 +63,8 @@ function ClientsContent() {
 
   useEffect(() => {
     if (!isAuthenticated) return;
-
-    const fetchClients = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch('/api/clients');
-        const data = await res.json();
-        setClients(data.clients || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchClients();
-  }, [setClients, setLoading, isAuthenticated]);
+  }, [isAuthenticated, fetchClients]);
 
   const handleDelete = async (id: string) => {
     runProtected(async () => {

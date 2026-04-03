@@ -19,7 +19,7 @@ export function TopNav() {
     if (isAuthenticated) {
       fetchWorkspace();
     }
-  }, [fetchWorkspace, isAuthenticated]);
+  }, [isAuthenticated, fetchWorkspace]);
   
   return (
     <motion.header 
