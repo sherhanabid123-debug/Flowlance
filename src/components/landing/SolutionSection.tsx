@@ -49,7 +49,7 @@ export function SolutionSection() {
               <div className="glass border rounded-[40px] p-2 sm:p-4 rotate-1 hover:rotate-0 transition-transform duration-700 shadow-2xl bg-indigo-600/10 dark:bg-primary/5">
                  <div className="glass border-2 border-white/20 rounded-[30px] overflow-hidden shadow-inner relative aspect-[16/10]">
                     <img 
-                      src="/dashboard-preview.png" 
+                      src="/Dashboard-preview.png" 
                       alt="Flowlance Dashboard Preview" 
                       className="w-full h-full object-cover"
                     />
