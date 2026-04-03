@@ -18,7 +18,7 @@ export function HeroSection() {
            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-4"
         >
           <Zap size={14} className="fill-current" />
-          The New Standard for Freelance CRM
+          The New Standard for High-Growth Teams
         </motion.div>
         
         <motion.h1 
@@ -37,7 +37,7 @@ export function HeroSection() {
           transition={{ delay: 0.2 }}
           className="text-sm sm:text-lg lg:text-xl text-[var(--text-muted)] max-w-2xl mx-auto leading-relaxed"
         >
-          Track leads, manage projects, and grow your freelance business — all in one place. Built for independent creators and modern agencies.
+          Track leads, manage projects, and grow your revenue — all in one place. Built for modern agencies, lean teams, and independent professionals.
         </motion.p>
         
         <motion.div 

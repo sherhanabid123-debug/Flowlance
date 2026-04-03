@@ -14,7 +14,7 @@ export function ProblemSection() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16 space-y-4">
            <h2 className="text-xs font-bold text-rose-500 uppercase tracking-widest">The Problem</h2>
-           <h3 className="text-3xl sm:text-4xl font-bold tracking-tight">Freelancing shouldn't feel this <span className="underline decoration-rose-500 decoration-3 underline-offset-4">exhausting</span>.</h3>
+           <h3 className="text-3xl sm:text-4xl font-bold tracking-tight">Managing a business shouldn't feel this <span className="underline decoration-rose-500 decoration-3 underline-offset-4">exhausting</span>.</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

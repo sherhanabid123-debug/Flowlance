@@ -14,7 +14,7 @@ export function SocialProof() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16 space-y-4">
            <h2 className="text-xs font-bold text-indigo-500 uppercase tracking-widest">Testimonials</h2>
-           <h3 className="text-4xl font-bold tracking-tight">Built for freelancers, by freelancers.</h3>
+           <h3 className="text-4xl font-bold tracking-tight">Built for businesses that prioritize growth.</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

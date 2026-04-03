@@ -25,7 +25,7 @@ export function FinalCTA() {
 
            <div className="space-y-4 max-w-2xl mx-auto">
               <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">Start managing your clients <span className="text-primary italic">today</span>.</h2>
-              <p className="text-lg opacity-70">Focus on your craft, not the follow-ups. Join 200+ freelancers growing their business with Flowlance.</p>
+              <p className="text-lg opacity-70">Focus on your craft, not the follow-ups. Join 200+ businesses growing their revenue with Flowlance.</p>
            </div>
            
            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
