@@ -46,15 +46,12 @@ export function SolutionSection() {
              viewport={{ once: true }}
              className="flex-1 w-full"
            >
-              <div className="glass border rounded-[40px] p-2 sm:p-4 rotate-1 hover:rotate-0 transition-transform duration-700 shadow-2xl bg-indigo-600/10 dark:bg-primary/5">
-                 <div className="glass border-2 border-white/20 rounded-[30px] overflow-hidden shadow-inner relative">
+              <div className="rounded-[40px] overflow-hidden shadow-2xl relative">
                     <img 
                       src="/Dashboard-preview.png" 
                       alt="Flowlance Dashboard Preview" 
-                      className="w-full h-auto display-block"
+                      className="w-full h-auto"
                     />
-                    <div className="absolute inset-0 ring-1 ring-inset ring-white/10 pointer-events-none" />
-                 </div>
               </div>
            </motion.div>
         </div>
