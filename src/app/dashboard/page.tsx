@@ -30,7 +30,7 @@ import { FirstClientCTA } from '@/components/dashboard/FirstClientCTA';
 
 export default function DashboardOverview() {
   const { clients, setClients, isLoading, setLoading, markFollowUpDone } = useClientStore();
-  const { workspace, joinWorkspace, isLoading: isWorkspaceLoading } = useWorkspaceStore();
+  const { workspace, fetchWorkspace, joinWorkspace, isLoading: isWorkspaceLoading } = useWorkspaceStore();
   const searchParams = useSearchParams();
   const router = useRouter();
   const invitationProcessed = useRef(false);
@@ -64,8 +64,10 @@ export default function DashboardOverview() {
         setLoading(false);
       }
     };
+    
+    fetchWorkspace();
     fetchClients();
-  }, [setClients, setLoading, isAuthenticated]);
+  }, [setClients, setLoading, isAuthenticated, fetchWorkspace]);
 
   // Handle Invitation Token
   useEffect(() => {
@@ -77,6 +79,17 @@ export default function DashboardOverview() {
         try {
           const workspaceName = await joinWorkspace(token);
           addToast(`Success! You've joined the "${workspaceName}" team.`, 'success');
+          
+          // Re-fetch all data to ensure immediate UI update
+          await Promise.all([
+            fetchWorkspace(),
+            (async () => {
+              const res = await fetch('/api/clients');
+              const data = await res.json();
+              setClients(data.clients || []);
+            })()
+          ]);
+
           // Clean up the URL
           const newParams = new URLSearchParams(searchParams.toString());
           newParams.delete('token');
