@@ -13,7 +13,7 @@ export function HowItWorks() {
     <section className="py-24 bg-black/5 dark:bg-white/5 border-y">
       <div className="max-w-5xl mx-auto px-6">
         <div className="text-center mb-16 space-y-4">
-           <h2 className="text-xs font-bold text-amber-500 uppercase tracking-widest">The Process</h2>
+           <h2 className="text-xs font-bold text-primary uppercase tracking-widest">The Process</h2>
            <h3 className="text-4xl font-bold tracking-tight">Three steps to clarity.</h3>
         </div>
 
@@ -30,7 +30,7 @@ export function HowItWorks() {
                 transition={{ delay: i * 0.2 }}
                 className="relative z-10 flex flex-col items-center bg-white dark:bg-black/90 border p-8 rounded-3xl w-full max-w-sm text-center shadow-xl space-y-4"
               >
-                 <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center animate-pulse">
+                 <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center animate-pulse">
                     <s.icon size={28} />
                  </div>
                  <div className="space-y-1">
