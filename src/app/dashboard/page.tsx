@@ -42,7 +42,10 @@ export default function DashboardOverview() {
   const { runProtected, isAuthenticated } = useAuthBarrier();
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
     
     const fetchClients = async () => {
       try {

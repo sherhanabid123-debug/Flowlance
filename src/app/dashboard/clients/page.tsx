@@ -62,7 +62,10 @@ function ClientsContent() {
   const displayClients = isAuthenticated ? clients : [];
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
 
     const fetchClients = async () => {
       try {
