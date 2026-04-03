@@ -182,7 +182,17 @@ export default function DashboardOverview() {
   };
 
   if (isLoading) {
-    return <div className="flex h-64 items-center justify-center animate-pulse text-primary font-bold">Loading metrics...</div>;
+    return (
+      <div className="space-y-6 pt-12 animate-pulse">
+        <div className="h-10 w-48 bg-black/10 dark:bg-white/10 rounded-xl mb-4" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="glass p-6 rounded-2xl h-24 bg-black/5 dark:bg-white/5 border-transparent" />
+          ))}
+        </div>
+        <div className="glass p-6 rounded-2xl h-80 bg-black/5 dark:bg-white/5 border-transparent" />
+      </div>
+    );
   }
 
   const statCards = [

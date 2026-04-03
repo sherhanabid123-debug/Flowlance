@@ -271,7 +271,22 @@ function ClientsContent() {
 
       <div className="grid grid-cols-1 gap-4">
         <AnimatePresence>
-          {isLoading && <p className="text-center opacity-70 p-8">Loading clients...</p>}
+          {isLoading && (
+            <div className="space-y-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="glass p-5 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 animate-pulse border-transparent">
+                  <div className="space-y-2 w-full md:w-64">
+                    <div className="h-6 w-3/4 bg-black/10 dark:bg-white/10 rounded-lg" />
+                    <div className="h-4 w-1/2 bg-black/10 dark:bg-white/10 rounded-lg" />
+                  </div>
+                  <div className="flex gap-2 w-full md:w-auto">
+                    <div className="h-10 w-24 bg-black/10 dark:bg-white/10 rounded-xl" />
+                    <div className="h-10 w-24 bg-black/10 dark:bg-white/10 rounded-xl" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
           {!isLoading && filteredClients.length === 0 && (
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center opacity-70 p-8 w-full">
               No clients found in this category.
