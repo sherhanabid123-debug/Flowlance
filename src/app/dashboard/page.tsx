@@ -175,6 +175,9 @@ export default function DashboardOverview() {
     });
   };
 
+  // Strictly gate the clients data for authentication
+  const displayClients = isAuthenticated ? clients : [];
+
   if (isLoading) {
     return (
       <div className="space-y-6 pt-12 animate-pulse">

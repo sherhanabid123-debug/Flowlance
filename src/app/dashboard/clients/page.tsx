@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useClientStore } from '@/store/useClientStore';
 import { useWorkspaceStore } from '@/store/useWorkspaceStore';
@@ -58,6 +58,8 @@ function ClientsContent() {
   const isOwner = role === 'owner';
 
   const { runProtected, isAuthenticated } = useAuthBarrier();
+
+  const displayClients = isAuthenticated ? clients : [];
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -145,27 +147,35 @@ function ClientsContent() {
     return `https://wa.me/${cleaned}?text=${message}`;
   };
 
-  const filteredClients = clients.filter(c => {
-    const matchesCategory = filter === 'all' || c.status === filter;
-    const matchesSearch = c.name.toLowerCase().includes(search.toLowerCase()) || 
-                         c.projectName.toLowerCase().includes(search.toLowerCase());
-    
-    let matchesFollowUp = true;
-    if (c.nextFollowUp) {
-      const next = new Date(c.nextFollowUp);
-      if (followUpFilter === 'overdue') matchesFollowUp = isPast(next) && !isToday(next);
-      if (followUpFilter === 'today') matchesFollowUp = isToday(next);
-      if (followUpFilter === 'upcoming') matchesFollowUp = !isPast(next) && !isToday(next);
-    } else if (followUpFilter !== 'all') {
-      matchesFollowUp = false;
-    }
+  const filteredClients = useMemo(() => {
+    return [...displayClients]
+      .filter(c => {
+        const matchesCategory = filter === 'all' || c.status === filter;
+        const matchesSearch = c.name.toLowerCase().includes(search.toLowerCase()) || 
+                             c.projectName.toLowerCase().includes(search.toLowerCase());
+        
+        let matchesFollowUp = true;
+        if (c.nextFollowUp) {
+          const next = new Date(c.nextFollowUp);
+          if (followUpFilter === 'overdue') matchesFollowUp = isPast(next) && !isToday(next);
+          if (followUpFilter === 'today') matchesFollowUp = isToday(next);
+          if (followUpFilter === 'upcoming') matchesFollowUp = !isPast(next) && !isToday(next);
+        } else if (followUpFilter !== 'all') {
+          matchesFollowUp = false;
+        }
 
-    const matchesHealth = healthFilter === 'all' || getClientHealthStatus(c.lastFollowUp).status === healthFilter;
-    const matchesValue = !minValue || (c.expectedBudget || 0) >= minValue;
-    const matchesSample = !hasSample || c.sampleProvided === true;
+        const matchesHealth = healthFilter === 'all' || getClientHealthStatus(c.lastFollowUp).status === healthFilter;
+        const matchesValue = !minValue || (c.expectedBudget || 0) >= minValue;
+        const matchesSample = !hasSample || c.sampleProvided === true;
 
-    return matchesCategory && matchesSearch && matchesFollowUp && matchesHealth && matchesValue && matchesSample && c.isActive !== false;
-  });
+        return matchesCategory && matchesSearch && matchesFollowUp && matchesHealth && matchesValue && matchesSample && c.isActive !== false;
+      })
+      .sort((a, b) => {
+        const aDate = a.nextFollowUp ? new Date(a.nextFollowUp).getTime() : 8640000000000000;
+        const bDate = b.nextFollowUp ? new Date(b.nextFollowUp).getTime() : 8640000000000000;
+        return aDate - bDate;
+      });
+  }, [displayClients, filter, search, followUpFilter, healthFilter, minValue, hasSample]);
 
   const isFiltered = filter !== 'all' || followUpFilter !== 'all' || healthFilter !== 'all' || minValue > 0 || hasSample || search !== '';
 

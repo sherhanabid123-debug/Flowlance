@@ -4,7 +4,7 @@ import { useWorkspaceStore, WorkspaceRole } from '@/store/useWorkspaceStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useClientStore } from '@/store/useClientStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { UserPlus, Trash2, Shield, User, Copy, Check, ChevronDown, AlertTriangle, LogOut, Loader2, Wallet, Users, TrendingUp, PiggyBank, IndianRupee } from 'lucide-react';
+import { UserPlus, Trash2, Shield, User, Copy, Check, ChevronDown, AlertTriangle, LogOut, Loader2, Wallet, Users, TrendingUp, PiggyBank, IndianRupee, Lock } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { useToastStore } from '@/store/useToastStore';
 import { useAuthBarrier } from '@/hooks/useAuthBarrier';
@@ -13,7 +13,7 @@ export default function TeamPage() {
   const { workspace: realWorkspace, fetchWorkspace, generateInviteLink, removeMember, updateMemberRole, leaveWorkspace, joinWorkspace, isLoading: isWorkspaceLoading } = useWorkspaceStore();
   const { clients, setClients, isLoading: isClientsLoading } = useClientStore();
   const [isLeaving, setIsLeaving] = useState(false);
-  const { user } = useAuthStore();
+  const { user, openLoginModal } = useAuthStore();
   const { addToast } = useToastStore();
   const [inviteLink, setInviteLink] = useState('');
   const [pastedInvite, setPastedInvite] = useState('');
@@ -23,8 +23,9 @@ export default function TeamPage() {
 
   const { runProtected, isAuthenticated } = useAuthBarrier();
 
-  // Use the real workspace data
-  const workspace = realWorkspace;
+  // Strictly gate the workspace data for authentication
+  const workspace = isAuthenticated ? realWorkspace : null;
+  const displayClients = isAuthenticated ? clients : [];
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -127,14 +128,14 @@ export default function TeamPage() {
 
   // Finance Analytics
   const teamFinances = useMemo(() => {
-    const completedClients = clients.filter(c => c.status === 'completed');
+    const completedClients = displayClients.filter(c => c.status === 'completed');
     const totalAgencyRevenue = completedClients.reduce((sum, c) => sum + (c.finalAmount || 0), 0);
     
     // Earnings per member
     const earningsMap: Record<string, number> = {};
     validMembers.forEach(m => earningsMap[m.userId._id] = 0);
 
-    completedClients.forEach(c => {
+    displayClients.forEach(c => {
       if (c.shares && c.shares.length > 0) {
         c.shares.forEach((s: any) => {
           const uId = (s.userId._id || s.userId).toString();
@@ -159,6 +160,17 @@ export default function TeamPage() {
 
     return { totalAgencyRevenue, totalPayouts, earningsMap };
   }, [clients, validMembers, workspace?.ownerId, user?._id]);
+
+  if (!isAuthenticated && !isWorkspaceLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center p-12 text-center space-y-4">
+        <Lock className="text-primary opacity-20" size={60} />
+        <h2 className="text-2xl font-bold">Sign in to view team</h2>
+        <p className="text-sm opacity-50 max-w-xs">You must be logged in to manage your team and agency revenue.</p>
+        <button onClick={() => openLoginModal()} className="bg-primary text-white px-8 py-3 rounded-2xl font-bold hover:scale-105 transition-all">Sign In Now</button>
+      </div>
+    );
+  }
 
   const stats = [
     { label: 'Agency Revenue', value: `₹${teamFinances.totalAgencyRevenue.toLocaleString('en-IN')}`, icon: Wallet, color: 'text-green-500' },
