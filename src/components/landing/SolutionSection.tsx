@@ -46,21 +46,14 @@ export function SolutionSection() {
              viewport={{ once: true }}
              className="flex-1 w-full"
            >
-              <div className="glass border rounded-[40px] p-2 sm:p-4 rotate-3 hover:rotate-0 transition-transform duration-700 shadow-2xl bg-indigo-600/10 dark:bg-primary/5">
-                 <div className="glass border-2 border-white/20 rounded-[30px] p-6 sm:p-10 space-y-8 bg-black/5 dark:bg-black/60 shadow-inner">
-                    <div className="flex items-center gap-4">
-                       <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white font-bold">FL</div>
-                       <div className="space-y-2">
-                          <div className="h-2 w-24 bg-primary/40 rounded-full" />
-                          <div className="h-2 w-32 bg-white/10 rounded-full" />
-                       </div>
-                    </div>
-                    <div className="h-40 w-full bg-primary/5 border border-primary/10 rounded-2xl flex items-center justify-center">
-                       <PieChart size={60} className="text-primary opacity-40 animate-pulse" />
-                    </div>
-                    <div className="grid grid-cols-3 gap-3">
-                       {[...Array(3)].map((_, i) => <div key={i} className="h-10 bg-white/5 rounded-xl border border-white/10" />)}
-                    </div>
+              <div className="glass border rounded-[40px] p-2 sm:p-4 rotate-1 hover:rotate-0 transition-transform duration-700 shadow-2xl bg-indigo-600/10 dark:bg-primary/5">
+                 <div className="glass border-2 border-white/20 rounded-[30px] overflow-hidden shadow-inner relative aspect-[16/10]">
+                    <img 
+                      src="/dashboard-preview.png" 
+                      alt="Flowlance Dashboard Preview" 
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 ring-1 ring-inset ring-white/10" />
                  </div>
               </div>
            </motion.div>
