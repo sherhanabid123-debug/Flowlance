@@ -35,7 +35,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     };
 
     fetchUser();
-  }, [setUser, setLoading]);
+  }, [setUser, setLoading, pathname, router]);
 
   if (!mounted) {
     return null;

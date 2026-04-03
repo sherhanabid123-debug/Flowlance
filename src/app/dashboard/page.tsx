@@ -28,7 +28,7 @@ interface MonthlyStat {
 import { FirstClientCTA } from '@/components/dashboard/FirstClientCTA';
 
 export default function DashboardOverview() {
-  const { clients, fetchClients, isLoading, setLoading, markFollowUpDone } = useClientStore();
+  const { clients, setClients, isLoading, setLoading, markFollowUpDone } = useClientStore();
   const { workspace } = useWorkspaceStore();
   const { user } = useAuthStore();
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
@@ -43,8 +43,21 @@ export default function DashboardOverview() {
 
   useEffect(() => {
     if (!isAuthenticated) return;
+    
+    const fetchClients = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch('/api/clients');
+        const data = await res.json();
+        setClients(data.clients || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchClients();
-  }, [isAuthenticated, fetchClients]);
+  }, [setClients, setLoading, isAuthenticated]);
 
   const { overdueFollowUps, todayFollowUps } = useMemo(() => {
     const active = clients.filter(c =>

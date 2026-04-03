@@ -26,8 +26,7 @@ interface WorkspaceState {
     members: WorkspaceMember[];
   } | null;
   isLoading: boolean;
-  isHydrated: boolean;
-  fetchWorkspace: (force?: boolean) => Promise<void>;
+  fetchWorkspace: () => Promise<void>;
   generateInviteLink: () => Promise<string>;
   removeMember: (memberId: string) => Promise<void>;
   updateMemberRole: (memberId: string, role: WorkspaceRole) => Promise<void>;
@@ -41,15 +40,13 @@ export const useWorkspaceStore = create<WorkspaceState>()(
     (set, get) => ({
       workspace: null,
       isLoading: false,
-      isHydrated: false,
-      fetchWorkspace: async (force = false) => {
-        if (get().isHydrated && !force) return;
+      fetchWorkspace: async () => {
         set({ isLoading: true });
         try {
           const res = await fetch('/api/workspaces');
           if (res.ok) {
             const data = await res.json();
-            set({ workspace: data.workspace, isHydrated: true });
+            set({ workspace: data.workspace });
           }
         } catch (error) {
           console.error('Failed to fetch workspace:', error);
