@@ -176,14 +176,14 @@ export default function TeamPage() {
       <GuestBanner />
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Team Management</h1>
-          <p className="text-[var(--text-muted)]">Manage your agency members, roles, and invitations.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Team Management</h1>
+          <p className="text-xs sm:text-sm text-[var(--text-muted)]">Manage your agency members, roles, and invitations.</p>
         </div>
         {!isOwner && (
           <button
             onClick={handleLeaveWorkspace}
             disabled={isLeaving}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm text-red-500 border border-red-500/30 hover:bg-red-500/10 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm text-red-500 border border-red-500/30 hover:bg-red-500/10 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
           >
             <LogOut size={16} />
             {isLeaving ? 'Leaving...' : 'Leave Team'}
@@ -191,24 +191,24 @@ export default function TeamPage() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {stats.map((stat, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="glass border rounded-3xl p-6 flex items-center gap-4 relative overflow-hidden group hover:border-primary/30 transition-all"
+            className="glass border rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex items-center gap-4 relative overflow-hidden group hover:border-primary/30 transition-all"
           >
-            <div className={`p-4 rounded-2xl bg-black/5 dark:bg-white/5 ${stat.color}`}>
-              <stat.icon size={24} />
+            <div className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 ${stat.color}`}>
+              <stat.icon size={20} className="sm:size-6" />
             </div>
             <div>
-              <p className="text-xs font-bold opacity-40 uppercase tracking-widest">{stat.label}</p>
-              <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
+              <p className="text-[10px] font-bold opacity-40 uppercase tracking-widest">{stat.label}</p>
+              <p className="text-xl sm:text-2xl font-bold tracking-tight">{stat.value}</p>
             </div>
             <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
-              <stat.icon size={100} />
+              <stat.icon size={80} className="sm:size-[100px]" />
             </div>
           </motion.div>
         ))}
@@ -256,14 +256,14 @@ export default function TeamPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
                     {/* Role Selector */}
-                    <div className="relative group">
+                    <div className="relative group w-full sm:w-auto">
                       <select
                         value={member.role}
                         disabled={!isOwner || member.userId._id === user?._id}
                         onChange={(e) => handleRoleChange(member.userId._id, e.target.value as WorkspaceRole)}
-                        className={`appearance-none bg-primary/10 text-primary text-[11px] font-bold px-3 py-1.5 rounded-lg border border-primary/20 pr-8 focus:outline-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-80 transition-all ${
+                        className={`w-full appearance-none bg-primary/10 text-primary text-[11px] font-bold px-3 py-2 sm:py-1.5 rounded-lg border border-primary/20 pr-8 focus:outline-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-80 transition-all ${
                           member.role === 'owner' ? 'bg-amber-500/10 text-amber-600 border-amber-500/20' : ''
                         }`}
                       >
@@ -272,14 +272,15 @@ export default function TeamPage() {
                       </select>
                       <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none opacity-50" />
                     </div>
-
+ 
                     {isOwner && member.userId._id !== user?._id && (
                       <button
                         onClick={() => handleRemoveMember(member.userId._id)}
-                        className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors"
+                        className="flex items-center justify-center gap-2 w-full sm:w-auto p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors border border-red-500/10 sm:border-none"
                         title="Remove Member"
                       >
                         <Trash2 size={18} />
+                        <span className="sm:hidden text-xs font-bold uppercase">Remove</span>
                       </button>
                     )}
                   </div>

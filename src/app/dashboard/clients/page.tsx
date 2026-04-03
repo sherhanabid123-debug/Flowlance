@@ -178,37 +178,37 @@ function ClientsContent() {
   return (
     <div className="pt-12 text-left relative">
       <GuestBanner />
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <h1 className="text-3xl font-bold tracking-tight">Client Management</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Client Management</h1>
         
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <button
             onClick={() => runProtected(() => setIsQuickAddOpen(true))}
-            className="flex items-center gap-2 border border-primary text-primary px-4 py-2.5 rounded-xl font-medium hover:bg-primary/5 transition-all whitespace-nowrap text-sm"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 border border-primary text-primary px-3 sm:px-4 py-2 rounded-xl font-medium hover:bg-primary/5 transition-all whitespace-nowrap text-xs sm:text-sm"
           >
-            <Zap size={15} /> Quick Add Client
+            <Zap size={14} /> Quick Add
           </button>
           
           <button 
             onClick={() => exportClientsToCSV(clients)}
-            className="flex items-center gap-2 border border-[var(--border)] px-4 py-2.5 rounded-xl font-medium hover:bg-black/5 dark:hover:bg-white/5 transition-all text-sm"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 border border-[var(--border)] px-3 sm:px-4 py-2 rounded-xl font-medium hover:bg-black/5 dark:hover:bg-white/5 transition-all text-xs sm:text-sm"
           >
-            <Download size={18} /> Export Data
+            <Download size={16} /> Export
           </button>
-
-          <button onClick={handleAddNew} className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-medium hover:opacity-90 transition-opacity whitespace-nowrap">
+ 
+          <button onClick={handleAddNew} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-bold hover:opacity-90 transition-opacity whitespace-nowrap text-sm sm:text-base shadow-lg shadow-primary/20">
             <Plus size={18} /> New Client
           </button>
         </div>
       </div>
 
-      <div className="glass rounded-2xl p-4 md:p-6 mb-8 flex flex-col md:flex-row gap-4 justify-between items-center z-10 sticky top-[68px]">
-        <div className="flex space-x-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+      <div className="glass rounded-2xl p-3 md:p-6 mb-8 flex flex-col md:flex-row gap-4 justify-between items-center z-10 sticky top-20">
+        <div className="flex space-x-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 no-scrollbar">
           {['all', 'potential', 'confirmed', 'completed'].map((tab) => (
             <button
               key={tab}
               onClick={() => setFilter(tab)}
-              className={`px-5 py-2.5 rounded-xl font-bold capitalize whitespace-nowrap transition-all ${
+              className={`px-4 py-2 rounded-xl font-bold capitalize whitespace-nowrap transition-all text-sm ${
                 filter === tab 
                   ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' 
                   : 'hover:bg-black/5 dark:hover:bg-white/5 opacity-60'
@@ -220,13 +220,13 @@ function ClientsContent() {
         </div>
         
         <div className="relative w-full md:w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30" size={16} />
           <input
             type="text"
             placeholder="Search clients..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-xl bg-background border outline-none focus:ring-2 focus:ring-primary transition-all"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-background/50 border border-[var(--border)] outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm"
           />
         </div>
       </div>
@@ -347,36 +347,38 @@ function ClientsContent() {
                   )}
                 </div>
                 
-                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
-                  {client.status === 'potential' && isOwner && (
-                    <button 
-                      onClick={() => handleUpgradeStatus(client, 'confirmed')}
-                      className="text-xs font-bold px-4 py-2 bg-amber-500 text-black rounded-xl hover:scale-105 active:scale-95 transition-all shadow-md shadow-amber-500/10"
-                    >
-                      Confirm Project
-                    </button>
-                  )}
-                  {client.status === 'confirmed' && isOwner && (
-                    <button 
-                      onClick={() => handleUpgradeStatus(client, 'completed')}
-                      className="text-xs font-bold px-4 py-2 bg-green-600 text-white rounded-xl hover:scale-105 active:scale-95 transition-all shadow-md shadow-green-600/10"
-                    >
-                      Mark Completed
-                    </button>
-                  )}
-
-                  {client.status !== 'completed' && (
-                    <button 
-                      onClick={() => handleMarkFollowUpDone(client._id)}
-                      className="flex items-center gap-2 group text-xs font-bold px-4 py-2 bg-indigo-600 text-white rounded-xl hover:scale-105 active:scale-95 transition-all shadow-md shadow-indigo-600/10"
-                      title="Mark latest follow-up as completed"
-                    >
-                      <CheckCheck size={14} className="group-hover:scale-125 transition-transform" />
-                      <span className="inline">Follow-up Done</span>
-                    </button>
-                  )}
-
-                  <div className="flex items-center bg-black/5 dark:bg-white/5 p-1 rounded-xl">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full md:w-auto justify-end mt-2 md:mt-0 pt-4 md:pt-0 border-t md:border-none border-[var(--border)]">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {client.status === 'potential' && isOwner && (
+                      <button 
+                        onClick={() => handleUpgradeStatus(client, 'confirmed')}
+                        className="flex-1 sm:flex-none text-[10px] sm:text-xs font-bold px-3 py-2 bg-amber-500 text-black rounded-xl hover:scale-105 active:scale-95 transition-all shadow-md shadow-amber-500/10 whitespace-nowrap"
+                      >
+                        Confirm Project
+                      </button>
+                    )}
+                    {client.status === 'confirmed' && isOwner && (
+                      <button 
+                        onClick={() => handleUpgradeStatus(client, 'completed')}
+                        className="flex-1 sm:flex-none text-[10px] sm:text-xs font-bold px-3 py-2 bg-green-600 text-white rounded-xl hover:scale-105 active:scale-95 transition-all shadow-md shadow-green-600/10 whitespace-nowrap"
+                      >
+                        Mark Completed
+                      </button>
+                    )}
+ 
+                    {client.status !== 'completed' && (
+                      <button 
+                        onClick={() => handleMarkFollowUpDone(client._id)}
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 group text-[10px] sm:text-xs font-bold px-3 py-2 bg-indigo-600 text-white rounded-xl hover:scale-105 active:scale-95 transition-all shadow-md shadow-indigo-600/10 whitespace-nowrap"
+                        title="Mark latest follow-up as completed"
+                      >
+                        <CheckCheck size={14} className="group-hover:scale-110 transition-transform" />
+                        <span>Done</span>
+                      </button>
+                    )}
+                  </div>
+ 
+                  <div className="flex items-center justify-end bg-black/5 dark:bg-white/5 p-1 rounded-xl w-fit self-end sm:self-auto">
                     {(() => {
                       const waLink = getWhatsAppLink(client);
                       return (
