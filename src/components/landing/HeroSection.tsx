@@ -28,7 +28,7 @@ export function HeroSection() {
           className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]"
         >
           Never miss a client <br />
-          <span className="text-primary italic">follow-up</span> again
+          <span className="text-primary italic">follow up</span> again
         </motion.h1>
         
         <motion.p 
