@@ -50,7 +50,7 @@ export function HeroSection() {
             onClick={() => window.location.href = 'https://flowlance-one.vercel.app/dashboard'}
             className="w-full sm:w-auto h-12 sm:h-14 px-8 sm:px-10 bg-primary text-white font-bold rounded-xl sm:rounded-2xl hover:opacity-90 transition-all shadow-xl shadow-primary/30 active:scale-95 flex items-center justify-center gap-2"
           >
-            Get Started Free
+            Get Started
             <Zap size={18} />
           </button>
           <button 

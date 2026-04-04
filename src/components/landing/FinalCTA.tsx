@@ -28,7 +28,7 @@ export function FinalCTA() {
                 onClick={() => window.location.href = 'https://flowlance-one.vercel.app/dashboard'}
                 className="w-full sm:w-auto h-14 sm:h-16 px-10 sm:px-12 bg-primary text-white font-bold rounded-2xl hover:opacity-90 transition-all shadow-xl shadow-primary/30 active:scale-95 flex items-center justify-center gap-2 text-base sm:text-lg"
               >
-                 Get Started Free
+                 Get Started
                  <ArrowRight size={20} />
               </button>
            </div>
