@@ -10,14 +10,14 @@ export function SocialProof() {
   ];
 
   return (
-    <section className="py-24 overflow-hidden relative">
+    <section className="py-20 sm:py-24 overflow-hidden relative">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16 space-y-4">
+        <div className="text-center mb-12 sm:mb-16 space-y-4 px-4 sm:px-0">
            <h2 className="text-xs font-bold text-indigo-500 uppercase tracking-widest">Testimonials</h2>
-           <h3 className="text-4xl font-bold tracking-tight">Built for businesses that prioritize growth.</h3>
+           <h3 className="text-3xl sm:text-4xl font-bold tracking-tight">Built for businesses that prioritize growth.</h3>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+ 
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
            {testimonials.map((t, i) => (
              <motion.div
                key={i}
@@ -25,17 +25,17 @@ export function SocialProof() {
                whileInView={{ opacity: 1, scale: 1 }}
                viewport={{ once: true }}
                transition={{ delay: i * 0.1 }}
-               className="p-8 rounded-3xl glass border border-transparent bg-indigo-600/5 hover:border-indigo-600/20 transition-all flex flex-col items-start gap-4"
+               className="p-6 sm:p-8 rounded-3xl glass border border-transparent bg-indigo-600/5 hover:border-indigo-600/20 transition-all flex flex-col items-start gap-4"
              >
                 <div className="flex gap-1 text-indigo-500">
                    {[...Array(5)].map((_, i) => <Star key={i} size={14} className="fill-current" />)}
                 </div>
-                <p className="text-lg leading-relaxed font-medium italic opacity-80">
+                <p className="text-base sm:text-lg leading-relaxed font-medium italic opacity-80">
                   "{t.body}"
                 </p>
-                <div className="mt-4">
-                   <p className="font-bold">{t.name}</p>
-                   <p className="text-xs opacity-50 uppercase tracking-widest">{t.role}</p>
+                <div className="mt-2 sm:mt-4">
+                   <p className="font-bold text-sm sm:text-base">{t.name}</p>
+                   <p className="text-[10px] sm:text-xs opacity-50 uppercase tracking-widest">{t.role}</p>
                 </div>
              </motion.div>
            ))}
