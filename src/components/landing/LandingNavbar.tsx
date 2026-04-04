@@ -16,7 +16,10 @@ export function LandingNavbar() {
         <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-lg">
           F
         </div>
-        <span className="font-bold text-xl tracking-tight hidden sm:block">Flowlance</span>
+        <div className="flex flex-col -space-y-1">
+          <span className="font-bold text-xl tracking-tight hidden sm:block leading-tight">Flowlance</span>
+          <span className="text-[10px] font-bold opacity-30 tracking-wider uppercase hidden sm:block">by Scalera</span>
+        </div>
       </div>
 
       <div className="flex items-center gap-4">
