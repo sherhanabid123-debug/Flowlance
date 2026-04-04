@@ -13,12 +13,7 @@ export function FinalCTA() {
       <div className="absolute inset-0 bg-primary/10 dark:bg-primary/5 -mt-20 blur-[100px] pointer-events-none" />
       
       <div className="max-w-5xl mx-auto px-6 relative z-10">
-        <motion.div 
-           initial={{ opacity: 0, scale: 0.95 }}
-           whileInView={{ opacity: 1, scale: 1 }}
-           viewport={{ once: true }}
-           className="glass p-8 sm:p-20 rounded-[32px] sm:rounded-[48px] bg-gradient-to-br from-primary/20 to-indigo-600/20 border-primary/20 text-center space-y-8 sm:space-y-10 relative overflow-hidden"
-        >
+        <div className="glass p-8 sm:p-20 rounded-[32px] sm:rounded-[48px] bg-gradient-to-br from-primary/20 to-indigo-600/20 border-primary/20 text-center space-y-8 sm:space-y-10 relative overflow-hidden">
            <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12 hidden sm:block">
               <Zap size={120} className="text-white fill-current" />
            </div>
@@ -46,7 +41,7 @@ export function FinalCTA() {
                  </div>
               ))}
            </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

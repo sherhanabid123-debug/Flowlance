@@ -19,12 +19,8 @@ export function HowItWorks() {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
            {steps.map((s, i) => (
-              <motion.div
+              <div
                 key={i}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
                 className="p-8 rounded-[32px] bg-white dark:bg-black/40 border border-transparent hover:border-primary/20 transition-all group"
               >
                  <div className="w-14 h-14 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-primary mb-6 transition-transform group-hover:rotate-6">
@@ -36,8 +32,8 @@ export function HowItWorks() {
                        {s.desc}
                     </p>
                  </div>
-              </motion.div>
-           ))}
+              </div>
+            ))}
         </div>
       </div>
     </section>

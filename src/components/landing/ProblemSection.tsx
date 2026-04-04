@@ -19,12 +19,8 @@ export function ProblemSection() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
            {problems.map((p, i) => (
-             <motion.div
+             <div
                key={i}
-               initial={{ opacity: 0, scale: 0.9 }}
-               whileInView={{ opacity: 1, scale: 1 }}
-               viewport={{ once: true }}
-               transition={{ delay: i * 0.1 }}
                className="p-8 rounded-3xl bg-white dark:bg-black/40 border border-transparent hover:border-rose-500/20 transition-all group"
              >
                 <div className={`p-4 rounded-2xl bg-black/5 dark:bg-white/5 w-fit mb-6 ${p.color} transition-transform group-hover:rotate-12`}>
@@ -34,7 +30,7 @@ export function ProblemSection() {
                 <p className="text-sm text-[var(--text-muted)] leading-relaxed">
                    {p.desc}
                 </p>
-             </motion.div>
+             </div>
            ))}
         </div>
       </div>

@@ -13,12 +13,7 @@ export function SolutionSection() {
     <section className="py-20 sm:py-24 relative">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-           <motion.div 
-             initial={{ opacity: 0, x: -30 }}
-             whileInView={{ opacity: 1, x: 0 }}
-             viewport={{ once: true }}
-             className="flex-1 space-y-6 sm:space-y-8"
-           >
+           <div className="flex-1 space-y-6 sm:space-y-8">
               <h2 className="text-xs font-bold text-emerald-500 uppercase tracking-widest">The Solution</h2>
               <h3 className="text-3xl sm:text-5xl font-bold tracking-tight">The antidote to chaos.</h3>
               <p className="text-base sm:text-lg text-[var(--text-muted)] leading-relaxed">
@@ -38,14 +33,9 @@ export function SolutionSection() {
                     </div>
                  ))}
               </div>
-           </motion.div>
+           </div>
            
-           <motion.div 
-             initial={{ opacity: 0, scale: 0.95 }}
-             whileInView={{ opacity: 1, scale: 1 }}
-             viewport={{ once: true }}
-             className="flex-1 w-full"
-           >
+           <div className="flex-1 w-full">
               <div className="rounded-3xl sm:rounded-[40px] overflow-hidden shadow-2xl relative">
                     <img 
                       src="/Dashboard-preview.png" 
@@ -53,7 +43,7 @@ export function SolutionSection() {
                       className="w-full h-auto"
                     />
               </div>
-           </motion.div>
+           </div>
         </div>
       </div>
     </section>

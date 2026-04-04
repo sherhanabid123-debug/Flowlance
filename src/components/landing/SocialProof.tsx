@@ -19,12 +19,8 @@ export function SocialProof() {
  
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
            {testimonials.map((t, i) => (
-             <motion.div
+             <div
                key={i}
-               initial={{ opacity: 0, scale: 0.95 }}
-               whileInView={{ opacity: 1, scale: 1 }}
-               viewport={{ once: true }}
-               transition={{ delay: i * 0.1 }}
                className="p-6 sm:p-8 rounded-3xl glass border border-transparent bg-indigo-600/5 hover:border-indigo-600/20 transition-all flex flex-col items-start gap-4"
              >
                 <div className="flex gap-1 text-indigo-500">
@@ -37,7 +33,7 @@ export function SocialProof() {
                    <p className="font-bold text-sm sm:text-base">{t.name}</p>
                    <p className="text-[10px] sm:text-xs opacity-50 uppercase tracking-widest">{t.role}</p>
                 </div>
-             </motion.div>
+             </div>
            ))}
         </div>
       </div>
