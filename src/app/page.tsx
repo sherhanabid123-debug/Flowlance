@@ -1,5 +1,6 @@
 'use client';
 import { LandingNavbar } from '@/components/landing/LandingNavbar';
+import Link from 'next/link';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { ProblemSection } from '@/components/landing/ProblemSection';
 import { SolutionSection } from '@/components/landing/SolutionSection';
@@ -38,9 +39,8 @@ export default function Home() {
          </div>
          <p className="text-xs opacity-40 font-medium">© {new Date().getFullYear()} Flowlance. Built for the future of work.</p>
          <div className="flex items-center gap-6 text-xs font-bold opacity-40">
-            <button className="hover:opacity-100 transition-opacity">Privacy</button>
-            <button className="hover:opacity-100 transition-opacity">Terms</button>
-            <button className="hover:opacity-100 transition-opacity">Twitter</button>
+            <Link href="/privacy" className="hover:opacity-100 transition-opacity">Privacy</Link>
+            <Link href="/terms" className="hover:opacity-100 transition-opacity">Terms</Link>
          </div>
       </footer>
     </div>
