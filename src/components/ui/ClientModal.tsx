@@ -329,7 +329,12 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
                 key={t}
                 type="button"
                 disabled={!isOwner && !!initialData}
-                onClick={() => setType(t)}
+                onClick={() => {
+                  setType(t);
+                  if (t === 'completed' && !completionDate) {
+                    setCompletionDate(new Date().toISOString().split('T')[0]);
+                  }
+                }}
                 className={`flex-1 py-1.5 px-3 text-[11px] font-bold rounded-lg capitalize transition-all ${
                   type === t 
                     ? t === 'potential' ? 'bg-blue-600 text-white shadow-lg' 
