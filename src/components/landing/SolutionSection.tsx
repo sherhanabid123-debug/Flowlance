@@ -6,7 +6,7 @@ export function SolutionSection() {
   const solutions = [
     { title: "Visual Pipeline", desc: "See exactly which stage every lead is in at a single glance.", icon: PieChart },
     { title: "Smart Reminders", desc: "Automated prompts so you never forget to send that proposal.", icon: BellRing },
-    { title: "Direct Contact", desc: "One-click WhatsApp or email triggers directly from the dashboard.", icon: MessageCircle },
+    { title: "Direct Contact", desc: "One click WhatsApp or email triggers directly from the dashboard.", icon: MessageCircle },
   ];
 
   return (

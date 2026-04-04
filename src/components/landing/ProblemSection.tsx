@@ -6,7 +6,7 @@ export function ProblemSection() {
   const problems = [
     { title: "Ghosted Leads", desc: "You forget to follow up, and the project goes to someone else. Forever.", icon: Ghost, color: "text-rose-500" },
     { title: "Messy Pipelines", desc: "Sticky notes and spreadsheets are where client details go to die.", icon: XOctagon, color: "text-amber-500" },
-    { title: "Lost Revenue", desc: "Missing one follow-up per month costs you thousands in yearly growth.", icon: AlertCircle, color: "text-indigo-500" },
+    { title: "Lost Revenue", desc: "Missing one follow up per month costs you thousands in yearly growth.", icon: AlertCircle, color: "text-indigo-500" },
   ];
 
   return (

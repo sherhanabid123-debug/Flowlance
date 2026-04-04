@@ -18,7 +18,7 @@ export function HeroSection() {
            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-4"
         >
           <Zap size={14} className="fill-current" />
-          The New Standard for High-Growth Teams
+          The New Standard for High Growth Teams
         </motion.div>
         
         <motion.h1 
