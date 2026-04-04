@@ -52,7 +52,15 @@ export function Sidebar() {
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="w-[280px] h-screen fixed left-0 top-0 glass border-r z-50 flex flex-col items-start p-6 lg:hidden"
             >
-              <SidebarContent closeSidebar={closeSidebar} pathname={pathname} user={user} isAuthenticated={isAuthenticated} openLoginModal={openLoginModal} handleLogout={handleLogout} />
+              <SidebarContent 
+                closeSidebar={closeSidebar} 
+                pathname={pathname} 
+                user={user} 
+                isAuthenticated={isAuthenticated} 
+                openLoginModal={openLoginModal} 
+                handleLogout={handleLogout} 
+                router={router} 
+              />
             </motion.div>
           </>
         )}
@@ -61,14 +69,22 @@ export function Sidebar() {
       {/* Desktop Sidebar (Static) */}
       {isDesktop && (
         <div className="w-[280px] h-screen fixed left-0 top-0 glass border-r z-50 hidden lg:flex flex-col items-start p-6">
-          <SidebarContent closeSidebar={closeSidebar} pathname={pathname} user={user} isAuthenticated={isAuthenticated} openLoginModal={openLoginModal} handleLogout={handleLogout} />
+          <SidebarContent 
+            closeSidebar={closeSidebar} 
+            pathname={pathname} 
+            user={user} 
+            isAuthenticated={isAuthenticated} 
+            openLoginModal={openLoginModal} 
+            handleLogout={handleLogout} 
+            router={router} 
+          />
         </div>
       )}
     </>
   );
 }
 
-function SidebarContent({ closeSidebar, pathname, user, isAuthenticated, openLoginModal, handleLogout }: any) {
+function SidebarContent({ closeSidebar, pathname, user, isAuthenticated, openLoginModal, handleLogout, router }: any) {
   const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Client management', href: '/dashboard/clients', icon: Briefcase },
@@ -79,12 +95,20 @@ function SidebarContent({ closeSidebar, pathname, user, isAuthenticated, openLog
     <>
       <div className="flex items-center justify-between mb-10 w-full text-left">
         <div className="flex flex-col">
-          <div className="text-2xl font-bold text-primary tracking-tight">Flowlance</div>
+          <div 
+            className="text-2xl font-bold text-primary tracking-tight leading-none cursor-pointer hover:opacity-80 transition-opacity" 
+            onClick={() => router.push('/')}
+          >
+            Flowlance
+          </div>
+          <div className="text-[10px] font-medium opacity-30 tracking-wider uppercase mt-1 pl-0.5 whitespace-nowrap">
+            by Scalera
+          </div>
           {isAuthenticated && user?.userType === 'agency' && user?.agencyName && (
             <motion.div 
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              className="text-[10px] uppercase font-bold tracking-[0.2em] opacity-40 mt-1 pl-1 truncate"
+              className="text-[10px] uppercase font-bold tracking-[0.2em] opacity-40 mt-3 pl-2 truncate border-l border-primary/20"
             >
               {user.agencyName}
             </motion.div>
