@@ -408,7 +408,7 @@ function ClientsContent() {
                         title="Mark latest follow-up as completed"
                       >
                         <CheckCheck size={14} className="group-hover:scale-110 transition-transform" />
-                        <span>Done</span>
+                        <span>Follow up done</span>
                       </button>
                     )}
                   </div>
