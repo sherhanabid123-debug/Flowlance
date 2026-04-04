@@ -243,7 +243,7 @@ export default function DashboardOverview() {
   const statCards = [
     { title: 'Total Revenue', value: `₹${metrics.totalSales.toLocaleString('en-IN')}`, icon: Wallet, color: 'text-white', bg: 'bg-green-600 shadow-lg shadow-green-600/10', tooltip: 'Total actual income from completed projects' },
     { title: 'My Earnings', value: `₹${metrics.myEarnings.toLocaleString('en-IN')}`, icon: CheckCheck, color: 'text-white', bg: 'bg-indigo-600 shadow-lg shadow-indigo-600/10', tooltip: 'Your personal share of revenue across all completed projects' },
-    { title: 'Followups Due today', value: todayFollowUps.length, icon: Clock, color: 'text-white', bg: 'bg-violet-600 shadow-lg shadow-violet-600/10', tooltip: 'Number of client follow-ups scheduled for today' },
+    { title: 'Followups Due today', value: todayFollowUps.length, icon: Clock, color: 'text-white', bg: 'bg-rose-500 shadow-lg shadow-rose-500/10', tooltip: 'Number of client follow-ups scheduled for today' },
     { title: 'Total Clients', value: metrics.totalClients, icon: Users, color: 'text-white', bg: 'bg-black/40 shadow-lg', tooltip: 'Sum of all clients in your database' },
     { title: 'Active Projects', value: metrics.confirmed, icon: Target, color: 'text-black', bg: 'bg-amber-500 shadow-lg shadow-amber-500/10', tooltip: 'Currently active (confirmed) projects' },
   ];
