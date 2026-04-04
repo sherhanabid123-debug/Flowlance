@@ -29,7 +29,7 @@ export function GuestIndicators() {
            Preview Mode
         </div>
         <div className="h-3 w-px bg-primary/20" />
-        <p className="text-[10px] sm:text-xs font-medium opacity-60">You are viewing a sample workspace. Some features may be restricted.</p>
+        <p className="text-[10px] sm:text-xs font-medium opacity-60 px-2 text-center">You are viewing a sample workspace. <span className="font-bold underline cursor-pointer hover:opacity-100 transition-opacity ml-1" onClick={() => openLoginModal()}>Sign in to have full experience</span></p>
       </motion.div>
 
       {/* Bottom Corner Reminder */}
