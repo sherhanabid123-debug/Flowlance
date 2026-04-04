@@ -29,10 +29,10 @@ export default function Home() {
 
       <footer className="py-12 relative z-10 flex flex-col items-center gap-6 glass sm:flex-row sm:justify-between sm:px-20">
          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-xs">F</div>
-            <div className="flex flex-col -space-y-1">
-              <span className="font-bold tracking-tight opacity-70 leading-tight">Flowlance</span>
-              <span className="text-[8px] font-bold opacity-30 tracking-wider uppercase">by Scalera</span>
+            <div className="w-6 h-6 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-xs cursor-pointer" onClick={() => window.location.href = '/'}>F</div>
+            <div className="flex flex-col leading-tight">
+               <span className="font-bold tracking-tight opacity-70 leading-none">Flowlance</span>
+               <span className="text-[8px] font-medium opacity-30 tracking-wider uppercase">by Scalera</span>
             </div>
          </div>
          <p className="text-xs opacity-40 font-medium">© {new Date().getFullYear()} Flowlance. Built for the future of work.</p>
