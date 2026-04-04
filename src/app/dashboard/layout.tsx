@@ -1,9 +1,11 @@
 import { Sidebar } from '@/components/layout/Sidebar';
 import { TopNav } from '@/components/layout/TopNav';
+import { GuestIndicators } from '@/components/dashboard/GuestIndicators';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[var(--background)] overflow-x-hidden">
+    <div className="min-h-screen bg-[var(--background)] overflow-x-hidden pt-10 sm:pt-12 md:pt-0">
+      <GuestIndicators />
       <Sidebar />
       <div className="flex flex-col min-h-screen">
         <TopNav />
