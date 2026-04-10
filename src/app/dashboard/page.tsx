@@ -418,7 +418,7 @@ export default function DashboardOverview() {
                              <div>
                               <div className="flex items-center gap-2">
                                 <h4 className="font-bold text-sm">{client.name}</h4>
-                                <HealthBadge lastFollowUp={client.lastFollowUp} compact />
+                                <HealthBadge lastFollowUp={client.lastFollowUp} lastOutcome={client.lastFollowUpOutcome} compact />
                               </div>
                               <p className="text-xs opacity-60">{client.projectName}</p>
                               <p className={`text-[11px] font-semibold mt-0.5 ${isOverdue ? 'text-red-500' : 'text-amber-500'}`}>

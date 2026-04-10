@@ -167,7 +167,7 @@ function ClientsContent() {
           matchesFollowUp = false;
         }
 
-        const matchesHealth = healthFilter === 'all' || getClientHealthStatus(c.lastFollowUp).status === healthFilter;
+        const matchesHealth = healthFilter === 'all' || getClientHealthStatus(c.lastFollowUp, c.lastFollowUpOutcome).status === healthFilter;
         const matchesValue = !minValue || (c.expectedBudget || 0) >= minValue;
         const matchesSample = !hasSample || c.sampleProvided === true;
 
@@ -323,7 +323,7 @@ function ClientsContent() {
                   <div className="flex flex-wrap items-center gap-2 mb-1">
                     <h3 className="font-semibold text-lg">{client.name}</h3>
                     {filter === 'all' && <StatusBadge status={client.status as any} />}
-                    {client.status !== 'completed' && <HealthBadge lastFollowUp={client.lastFollowUp} />}
+                    {client.status !== 'completed' && <HealthBadge lastFollowUp={client.lastFollowUp} lastOutcome={client.lastFollowUpOutcome} />}
                     {client.lastFollowUpOutcome && (
                       <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-lg border border-primary/20 shadow-sm animate-in fade-in zoom-in duration-300">
                         Last: {client.lastFollowUpOutcome}

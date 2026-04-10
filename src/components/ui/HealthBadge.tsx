@@ -6,12 +6,13 @@ import { getClientHealthStatus } from '@/lib/clientHealth';
 
 interface HealthBadgeProps {
   lastFollowUp?: string | Date;
+  lastOutcome?: string;
   compact?: boolean;
   className?: string;
 }
 
-export function HealthBadge({ lastFollowUp, compact = false, className = '' }: HealthBadgeProps) {
-  const health = getClientHealthStatus(lastFollowUp);
+export function HealthBadge({ lastFollowUp, lastOutcome, compact = false, className = '' }: HealthBadgeProps) {
+  const health = getClientHealthStatus(lastFollowUp, lastOutcome);
   const Icon = health.icon;
 
   if (compact) {

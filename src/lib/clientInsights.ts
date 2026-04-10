@@ -40,7 +40,7 @@ export function generateDashboardInsights(clients: any[]): Insight[] {
   // 2. Cold Leads (Warning)
   const cold = clients.filter(c => 
     c.status !== 'completed' && 
-    getClientHealthStatus(c.lastFollowUp).status === 'cold'
+    getClientHealthStatus(c.lastFollowUp, c.lastFollowUpOutcome).status === 'cold'
   );
   if (cold.length > 0) {
     insights.push({

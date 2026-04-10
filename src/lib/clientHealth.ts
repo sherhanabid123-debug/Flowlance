@@ -12,7 +12,22 @@ export interface HealthInfo {
   description: string;
 }
 
-export function getClientHealthStatus(lastFollowUp: string | Date | undefined): HealthInfo {
+export function getClientHealthStatus(
+  lastFollowUp: string | Date | undefined, 
+  lastOutcome?: string
+): HealthInfo {
+  // If the last call was not answered, it's immediately cold regardless of date
+  if (lastOutcome === 'Call not answered') {
+    return {
+      status: 'cold',
+      label: 'Cold',
+      color: 'text-red-500',
+      bg: 'bg-red-500/10',
+      icon: Snowflake,
+      description: 'Last call was not answered. Target is disengaged.'
+    };
+  }
+
   if (!lastFollowUp) {
     return {
       status: 'cold',
