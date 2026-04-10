@@ -10,8 +10,9 @@ import { useToastStore } from '@/store/useToastStore';
 import { CenteredModal } from './CenteredModal';
 import { useAutosave } from '@/hooks/useAutosave';
 import { SaveStatus } from './SaveStatus';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, History, Settings2 } from 'lucide-react';
 import { RevenueSplit } from './RevenueSplit';
+import { FollowUpHistory } from './FollowUpHistory';
 
 interface ClientModalProps {
   isOpen: boolean;
@@ -89,6 +90,8 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
   const [sampleProvided, setSampleProvided] = useState(false);
   const [sampleLink, setSampleLink] = useState('');
 
+  const [activeTab, setActiveTab] = useState<'details' | 'history'>('details');
+
   // Revenue Split
   const [shares, setShares] = useState<any[]>([]);
   const hasInitialized = useRef<string | null>(null);
@@ -164,6 +167,7 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
     } else {
       // Reset synchronization flag when modal closes
       hasInitialized.current = null;
+      setActiveTab('details');
     }
   }, [initialData, isOpen, workspace?.ownerId]);
 
@@ -307,7 +311,48 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
       title={initialData ? 'Edit Client' : 'Add New Client'}
       maxWidth="max-w-2xl"
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {initialData && (
+        <div className="flex gap-2 mb-6 p-1 bg-black/5 dark:bg-white/5 rounded-2xl w-fit">
+          <button
+            type="button"
+            onClick={() => setActiveTab('details')}
+            className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeTab === 'details' 
+                ? 'bg-white dark:bg-zinc-900 shadow-sm text-primary' 
+                : 'opacity-50 hover:opacity-100'
+            }`}
+          >
+            <Settings2 size={14} /> Details
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('history')}
+            className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeTab === 'history' 
+                ? 'bg-white dark:bg-zinc-900 shadow-sm text-primary' 
+                : 'opacity-50 hover:opacity-100'
+            }`}
+          >
+            <History size={14} /> History
+            {initialData?.followUpHistory?.length > 0 && (
+              <span className="bg-primary/10 text-primary px-1.5 py-0.5 rounded text-[10px]">
+                {initialData.followUpHistory.length}
+              </span>
+            )}
+          </button>
+        </div>
+      )}
+
+      <AnimatePresence mode="wait">
+        {activeTab === 'details' ? (
+          <motion.form 
+            key="details"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            onSubmit={handleSubmit} 
+            className="flex flex-col gap-4"
+          >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <InputField ref={focusRef} index={1} label="Client Name" value={name} onChange={(e:any) => setName(e.target.value)} required disabled={!isOwner && !!initialData} />
           <InputField index={2} label="Contact Info (Email)" value={contact} onChange={(e:any) => setContact(e.target.value)} disabled={!isOwner && !!initialData} />
@@ -519,7 +564,29 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
             </button>
           </div>
         </div>
-      </form>
+      </motion.form>
+    ) : (
+      <motion.div
+        key="history"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        className="pb-6"
+      >
+        <FollowUpHistory history={initialData?.followUpHistory || []} />
+        
+        <div className="flex justify-end mt-8 pt-6 border-t border-[var(--border)]">
+          <button
+            type="button"
+            onClick={handleClose}
+            className="px-6 py-2.5 rounded-xl font-bold bg-primary text-white shadow-lg shadow-primary/20 hover:opacity-90 active:scale-95 transition-all text-sm"
+          >
+            Done
+          </button>
+        </div>
+      </motion.div>
+    )}
+    </AnimatePresence>
     </CenteredModal>
   );
 }
