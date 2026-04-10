@@ -18,6 +18,7 @@ interface ClientModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialData?: any;
+  initialTab?: 'details' | 'history';
 }
 
 const inputStagger = {
@@ -56,7 +57,7 @@ const InputField = forwardRef<HTMLInputElement, any>(({ label, value, onChange, 
 
 InputField.displayName = 'InputField';
 
-export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) {
+export function ClientModal({ isOpen, onClose, initialData, initialTab = 'details' }: ClientModalProps) {
   const { addClient, updateClient } = useClientStore();
   const { workspace, getCurrentRole } = useWorkspaceStore();
   const { user } = useAuthStore();
@@ -90,7 +91,7 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
   const [sampleProvided, setSampleProvided] = useState(false);
   const [sampleLink, setSampleLink] = useState('');
 
-  const [activeTab, setActiveTab] = useState<'details' | 'history'>('details');
+  const [activeTab, setActiveTab] = useState<'details' | 'history'>(initialTab);
 
   // Revenue Split
   const [shares, setShares] = useState<any[]>([]);
@@ -164,12 +165,13 @@ export function ClientModal({ isOpen, onClose, initialData }: ClientModalProps) 
           hasInitialized.current = clientId;
         }
       }
+      setActiveTab(initialTab);
     } else {
       // Reset synchronization flag when modal closes
       hasInitialized.current = null;
       setActiveTab('details');
     }
-  }, [initialData, isOpen, workspace?.ownerId]);
+  }, [initialData, isOpen, initialTab, workspace?.ownerId]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [shake, setShake] = useState(false);

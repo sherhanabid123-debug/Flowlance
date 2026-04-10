@@ -499,6 +499,7 @@ export default function DashboardOverview() {
         }}
         onSubmit={handleOutcomeSubmit}
         clientName={activeClient?.name || ''}
+        history={activeClient?.followUpHistory}
       />
     </motion.div>
   );

@@ -6,7 +6,7 @@ import { useClientStore } from '@/store/useClientStore';
 import { useWorkspaceStore } from '@/store/useWorkspaceStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Plus, Trash2, Edit, Link as LinkIcon, CheckCheck, MessageCircle, Zap, Download } from 'lucide-react';
+import { Search, Plus, Trash2, Edit, Link as LinkIcon, CheckCheck, MessageCircle, Zap, Download, History } from 'lucide-react';
 import { ClientModal } from '@/components/ui/ClientModal';
 import { QuickAddModal } from '@/components/ui/QuickAddModal';
 import { FollowUpOutcomeModal } from '@/components/ui/FollowUpOutcomeModal';
@@ -37,6 +37,7 @@ function ClientsContent() {
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [isOutcomeModalOpen, setIsOutcomeModalOpen] = useState(false);
   const [activeClient, setActiveClient] = useState<any>(null);
+  const [modalTab, setModalTab] = useState<'details' | 'history'>('details');
   const { addToast } = useToastStore();
   
   // Sync with URL params if they change
@@ -100,8 +101,9 @@ function ClientsContent() {
     });
   };
 
-  const handleEdit = (client: any) => {
+  const handleEdit = (client: any, tab: 'details' | 'history' = 'details') => {
     runProtected(() => {
+      setModalTab(tab);
       setEditingClient(client);
       setIsModalOpen(true);
     });
@@ -431,7 +433,15 @@ function ClientsContent() {
                       );
                     })()}
                     <button 
-                      onClick={() => handleEdit(client)}
+                      onClick={() => handleEdit(client, 'history')}
+                      title="View Follow-up History"
+                      className="p-2 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 text-indigo-500 transition-colors"
+                    >
+                      <History size={18} />
+                    </button>
+                    <button 
+                      onClick={() => handleEdit(client, 'details')}
+                      title="Edit Client Details"
                       className="p-2 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 text-primary transition-colors"
                     >
                       <Edit size={18} />
@@ -457,6 +467,7 @@ function ClientsContent() {
           setEditingClient(null);
         }} 
         initialData={editingClient}
+        initialTab={modalTab}
       />
 
       <QuickAddModal
@@ -476,6 +487,7 @@ function ClientsContent() {
         }}
         onSubmit={handleOutcomeSubmit}
         clientName={activeClient?.name || ''}
+        history={activeClient?.followUpHistory}
       />
     </div>
   );
