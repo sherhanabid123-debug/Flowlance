@@ -19,6 +19,7 @@ export default function OnboardingPage() {
   const [name, setName] = useState('');
   const [type, setType] = useState<'freelancer' | 'agency' | null>(null);
   const [companyName, setCompanyName] = useState('');
+  const [website, setWebsite] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Redirect if already has workspace (only on initial load)
@@ -51,7 +52,7 @@ export default function OnboardingPage() {
       const res = await fetch('/api/onboarding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, type, companyName }),
+        body: JSON.stringify({ name, type, companyName, website }),
       });
 
       const data = await res.json();
@@ -191,6 +192,17 @@ export default function OnboardingPage() {
                       onChange={(e) => setCompanyName(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleNextStep()}
                       className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-2xl px-6 py-4 text-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-widest opacity-40 px-1">Agency Website (or Portfolio)</label>
+                    <input
+                      type="url"
+                      placeholder="https://youragency.com"
+                      value={website}
+                      onChange={(e) => setWebsite(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleNextStep()}
+                      className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-2xl px-6 py-4 text-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:opacity-30"
                     />
                   </div>
                   <div className="flex gap-4">

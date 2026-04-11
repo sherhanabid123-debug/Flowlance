@@ -14,7 +14,8 @@ export async function POST(req: Request) {
     const decoded = verifyToken(token);
     if (!decoded) return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
 
-    const { name, type, companyName } = await req.json();
+    const data = await req.json();
+    const { name, type, companyName, website } = data;
 
     if (!name || !type) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -40,6 +41,7 @@ export async function POST(req: Request) {
     user.userType = type;
     if (type === 'agency' && companyName) {
       user.agencyName = companyName;
+      if (website) user.agencyWebsite = website;
     }
     user.currentWorkspace = workspace._id as any;
     await user.save();
@@ -50,6 +52,8 @@ export async function POST(req: Request) {
       user: {
         name: user.name,
         userType: user.userType,
+        agencyName: user.agencyName,
+        agencyWebsite: user.agencyWebsite,
         currentWorkspace: user.currentWorkspace
       }
     }, { status: 200 });

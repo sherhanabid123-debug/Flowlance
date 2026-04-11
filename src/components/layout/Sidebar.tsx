@@ -125,9 +125,12 @@ function SidebarContent({ closeSidebar, pathname, user, isAuthenticated, openLog
             <motion.div 
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              className="text-[10px] uppercase font-bold tracking-[0.2em] opacity-40 mt-3 pl-2 truncate border-l border-primary/20"
+              onClick={() => user.agencyWebsite && window.open(user.agencyWebsite.startsWith('http') ? user.agencyWebsite : `https://${user.agencyWebsite}`, '_blank')}
+              className={`text-[10px] uppercase font-bold tracking-[0.2em] opacity-40 mt-3 pl-2 truncate border-l border-primary/20 flex items-center gap-1.5 transition-all
+                ${user.agencyWebsite ? 'cursor-pointer hover:opacity-100 hover:text-primary' : ''}`}
             >
               {user.agencyName}
+              {user.agencyWebsite && <span className="text-[8px] opacity-30">↗</span>}
             </motion.div>
           )}
         </div>

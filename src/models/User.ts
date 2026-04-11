@@ -11,6 +11,7 @@ export interface IUser extends Document {
   googleId?: string;
   avatar?: string;
   emailReminders?: boolean;
+  agencyWebsite?: string;
   currentWorkspace?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -35,6 +36,10 @@ const UserSchema: Schema<IUser> = new Schema(
       default: 'freelancer',
     },
     agencyName: {
+      type: String,
+      trim: true,
+    },
+    agencyWebsite: {
       type: String,
       trim: true,
     },
