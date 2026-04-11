@@ -266,81 +266,81 @@ function ClientsContent() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-8 bg-black/10 dark:bg-white/5 p-2 rounded-xl border border-[var(--border)] overflow-x-auto items-center">
-        <span className="text-[10px] font-bold uppercase tracking-widest opacity-40 px-2 py-2">Filters:</span>
-        
-        {['all', 'overdue', 'today', 'upcoming'].map((f) => (
-          <div 
-            key={f}
-            className="relative"
-            onMouseDown={() => {
-              isFilterMouseDownRef.current = true;
-              setIsFilterMouseDown(true);
-              setHoveredFilter(f);
-            }}
-            onMouseEnter={() => {
-              if (isFilterMouseDownRef.current) {
+      {isFiltered && (
+        <div className="flex flex-wrap gap-2 mb-8 bg-black/10 dark:bg-white/5 p-2 rounded-xl border border-[var(--border)] overflow-x-auto items-center">
+          <span className="text-[10px] font-bold uppercase tracking-widest opacity-40 px-2 py-2">Active Filters:</span>
+          
+          {['all', 'overdue', 'today', 'upcoming'].map((f) => (
+            <div 
+              key={f}
+              className="relative"
+              onMouseDown={() => {
+                isFilterMouseDownRef.current = true;
+                setIsFilterMouseDown(true);
                 setHoveredFilter(f);
-              }
-            }}
-            onMouseUp={() => {
-              if (isFilterMouseDownRef.current) {
-                isFilterMouseDownRef.current = false;
-                setIsFilterMouseDown(false);
-                if (followUpFilter !== f) {
-                  setFollowUpFilter(f);
-                }
-              }
-            }}
-          >
-            <button
-              onClick={() => {
-                if (!isFilterMouseDownRef.current) {
-                  setFollowUpFilter(f);
+              }}
+              onMouseEnter={() => {
+                if (isFilterMouseDownRef.current) {
+                  setHoveredFilter(f);
                 }
               }}
-              draggable="false"
-              onDragStart={(e) => e.preventDefault()}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all relative z-10 select-none ${
-                hoveredFilter === f 
-                  ? 'text-white' 
-                  : (followUpFilter === f && !isFilterMouseDown) 
-                    ? f === 'overdue' ? 'text-white' 
-                    : f === 'today' ? 'text-black' 
-                    : 'text-white'
-                    : 'text-foreground/60 hover:text-foreground'
-              }`}
+              onMouseUp={() => {
+                if (isFilterMouseDownRef.current) {
+                  isFilterMouseDownRef.current = false;
+                  setIsFilterMouseDown(false);
+                  if (followUpFilter !== f) {
+                    setFollowUpFilter(f);
+                  }
+                }
+              }}
             >
-              {f}
-            </button>
-            
-            {hoveredFilter === f && (
-              <motion.div
-                layoutId="filter-hover"
-                className={`absolute inset-0 rounded-lg shadow-md -z-0 ${
-                  f === 'overdue' ? 'bg-red-600' : 
-                  f === 'today' ? 'bg-amber-500' : 
-                  'bg-indigo-600'
-                }`}
-                transition={{
-                  type: "spring",
-                  stiffness: 400,
-                  damping: 30
+              <button
+                onClick={() => {
+                  if (!isFilterMouseDownRef.current) {
+                    setFollowUpFilter(f);
+                  }
                 }}
-              />
-            )}
-          </div>
-        ))}
+                draggable="false"
+                onDragStart={(e) => e.preventDefault()}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all relative z-10 select-none ${
+                  hoveredFilter === f 
+                    ? 'text-white' 
+                    : (followUpFilter === f && !isFilterMouseDown) 
+                      ? f === 'overdue' ? 'text-white' 
+                      : f === 'today' ? 'text-black' 
+                      : 'text-white'
+                      : 'text-foreground/60 hover:text-foreground'
+                }`}
+              >
+                {f}
+              </button>
+              
+              {hoveredFilter === f && (
+                <motion.div
+                  layoutId="filter-hover"
+                  className={`absolute inset-0 rounded-lg shadow-md -z-0 ${
+                    f === 'overdue' ? 'bg-red-600' : 
+                    f === 'today' ? 'bg-amber-500' : 
+                    'bg-indigo-600'
+                  }`}
+                  transition={{
+                    type: "spring",
+                    stiffness: 400,
+                    damping: 30
+                  }}
+                />
+              )}
+            </div>
+          ))}
 
-        {isFiltered && (
           <button 
             onClick={clearFilters}
-            className="px-4 py-1.5 text-xs font-bold text-red-500 hover:bg-red-500/10 rounded-lg transition-all border border-red-500/20"
+            className="ml-auto px-4 py-1.5 text-xs font-bold text-red-500 hover:bg-red-500/10 rounded-lg transition-all border border-red-500/20"
           >
             Clear All
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-4">
         <AnimatePresence>
