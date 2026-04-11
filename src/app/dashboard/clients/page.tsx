@@ -173,12 +173,20 @@ function ClientsContent() {
         const matchesValue = !minValue || (c.expectedBudget || 0) >= minValue;
         const matchesSample = !hasSample || c.sampleProvided === true;
 
-        return matchesCategory && matchesSearch && matchesFollowUp && matchesHealth && matchesValue && matchesSample && c.isActive !== false;
+        return matchesCategory && matchesSearch && matchesFollowUp && matchesHealth && matchesValue && matchesSample;
       })
       .sort((a, b) => {
-        const aDate = a.nextFollowUp ? new Date(a.nextFollowUp).getTime() : 8640000000000000;
-        const bDate = b.nextFollowUp ? new Date(b.nextFollowUp).getTime() : 8640000000000000;
-        return aDate - bDate;
+        // If sorting by follow-up specifically, keep the date sort
+        if (followUpFilter !== 'all') {
+          const aDate = a.nextFollowUp ? new Date(a.nextFollowUp).getTime() : 8640000000000000;
+          const bDate = b.nextFollowUp ? new Date(b.nextFollowUp).getTime() : 8640000000000000;
+          return aDate - bDate;
+        }
+        
+        // Otherwise, sort by most recently created/updated
+        const aCreated = new Date(a.createdAt).getTime();
+        const bCreated = new Date(b.createdAt).getTime();
+        return bCreated - aCreated;
       });
   }, [displayClients, filter, search, followUpFilter, healthFilter, minValue, hasSample]);
 
