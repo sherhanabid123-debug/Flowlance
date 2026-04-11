@@ -144,7 +144,7 @@ function SidebarContent({ closeSidebar, pathname, user, isAuthenticated, openLog
           return (
             <motion.div
               key={item.href}
-              className="relative"
+              className="relative select-none"
               onMouseDown={() => {
                 setIsMouseDown(true);
                 setHoveredPath(item.href);
@@ -166,6 +166,8 @@ function SidebarContent({ closeSidebar, pathname, user, isAuthenticated, openLog
             >
               <Link 
                 href={item.href}
+                draggable="false"
+                onDragStart={(e) => e.preventDefault()}
                 onClick={(e) => {
                   // Prevent default link behavior to handle it via our custom drag/up logic
                   // but allow if it's a simple click (not a drag)
@@ -174,7 +176,7 @@ function SidebarContent({ closeSidebar, pathname, user, isAuthenticated, openLog
                   }
                   if (!isDesktop) closeSidebar();
                 }}
-                className={`flex items-center justify-between w-full p-3 rounded-lg transition-all relative z-10
+                className={`flex items-center justify-between w-full p-3 rounded-lg transition-all relative z-10 select-none
                   ${isActive ? 'text-primary-foreground' : 'hover:bg-black/5 dark:hover:bg-white/5'}`}
               >
                 <div className="flex items-center space-x-3">
