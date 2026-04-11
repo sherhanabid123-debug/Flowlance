@@ -195,7 +195,7 @@ export default function OnboardingPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest opacity-40 px-1">Agency Website (or Portfolio)</label>
+                    <label className="text-xs font-bold uppercase tracking-widest opacity-40 px-1">Agency Website (Optional)</label>
                     <input
                       type="url"
                       placeholder="https://youragency.com"

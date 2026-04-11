@@ -12,6 +12,7 @@ export interface IUser extends Document {
   avatar?: string;
   emailReminders?: boolean;
   agencyWebsite?: string;
+  skippedWebsitePrompt?: boolean;
   currentWorkspace?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -42,6 +43,10 @@ const UserSchema: Schema<IUser> = new Schema(
     agencyWebsite: {
       type: String,
       trim: true,
+    },
+    skippedWebsitePrompt: {
+      type: Boolean,
+      default: false,
     },
     emailReminders: {
       type: Boolean,
