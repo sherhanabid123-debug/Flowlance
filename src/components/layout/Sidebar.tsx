@@ -177,7 +177,7 @@ function SidebarContent({ closeSidebar, pathname, user, isAuthenticated, openLog
                   if (!isDesktop) closeSidebar();
                 }}
                 className={`flex items-center justify-between w-full p-3 rounded-lg transition-all relative z-10 select-none
-                  ${isActive ? 'text-primary-foreground' : 'hover:bg-black/5 dark:hover:bg-white/5'}`}
+                  ${isHovered ? 'text-primary-foreground' : 'text-foreground hover:bg-black/5 dark:hover:bg-white/5'}`}
               >
                 <div className="flex items-center space-x-3">
                   <item.icon size={20} />
