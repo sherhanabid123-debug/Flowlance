@@ -176,17 +176,9 @@ function ClientsContent() {
         return matchesCategory && matchesSearch && matchesFollowUp && matchesHealth && matchesValue && matchesSample;
       })
       .sort((a, b) => {
-        // If sorting by follow-up specifically, keep the date sort
-        if (followUpFilter !== 'all') {
-          const aDate = a.nextFollowUp ? new Date(a.nextFollowUp).getTime() : 8640000000000000;
-          const bDate = b.nextFollowUp ? new Date(b.nextFollowUp).getTime() : 8640000000000000;
-          return aDate - bDate;
-        }
-        
-        // Otherwise, sort by most recently created/updated
-        const aCreated = new Date(a.createdAt).getTime();
-        const bCreated = new Date(b.createdAt).getTime();
-        return bCreated - aCreated;
+        const aDate = a.nextFollowUp ? new Date(a.nextFollowUp).getTime() : 8640000000000000;
+        const bDate = b.nextFollowUp ? new Date(b.nextFollowUp).getTime() : 8640000000000000;
+        return aDate - bDate;
       });
   }, [displayClients, filter, search, followUpFilter, healthFilter, minValue, hasSample]);
 
