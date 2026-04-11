@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -86,14 +86,18 @@ export function Sidebar() {
 
 function SidebarContent({ closeSidebar, pathname, user, isAuthenticated, openLoginModal, handleLogout, router }: any) {
   const [hoveredPath, setHoveredPath] = useState(pathname);
-  const [isMouseDown, setIsMouseDown] = useState(false);
+  const [isMouseDownUI, setIsMouseDownUI] = useState(false);
+  const isMouseDownRef = useRef(false);
 
   useEffect(() => {
     setHoveredPath(pathname);
   }, [pathname]);
 
   useEffect(() => {
-    const handleGlobalMouseUp = () => setIsMouseDown(false);
+    const handleGlobalMouseUp = () => {
+      isMouseDownRef.current = false;
+      setIsMouseDownUI(false);
+    };
     window.addEventListener('mouseup', handleGlobalMouseUp);
     return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
   }, []);
@@ -134,7 +138,7 @@ function SidebarContent({ closeSidebar, pathname, user, isAuthenticated, openLog
       
       <nav 
         className="w-full flex-1 space-y-2 relative"
-        onMouseLeave={() => !isMouseDown && setHoveredPath(pathname)}
+        onMouseLeave={() => !isMouseDownRef.current && setHoveredPath(pathname)}
       >
         {navItems.map((item) => {
           const isActive = pathname === item.href;
@@ -146,17 +150,20 @@ function SidebarContent({ closeSidebar, pathname, user, isAuthenticated, openLog
               key={item.href}
               className="relative select-none"
               onMouseDown={() => {
-                setIsMouseDown(true);
+                isMouseDownRef.current = true;
+                setIsMouseDownUI(true);
                 setHoveredPath(item.href);
               }}
               onMouseEnter={() => {
-                if (isMouseDown || !isDesktop) {
+                if (isMouseDownRef.current || !isDesktop) {
                   setHoveredPath(item.href);
                 }
               }}
-              onMouseUp={() => {
-                if (isMouseDown) {
-                  setIsMouseDown(false);
+              onMouseUp={(e) => {
+                if (isMouseDownRef.current) {
+                  isMouseDownRef.current = false;
+                  setIsMouseDownUI(false);
+                  
                   if (item.href !== pathname && !item.locked) {
                     router.push(item.href);
                     if (!isDesktop) closeSidebar();
@@ -171,7 +178,7 @@ function SidebarContent({ closeSidebar, pathname, user, isAuthenticated, openLog
                 onClick={(e) => {
                   // Prevent default link behavior to handle it via our custom drag/up logic
                   // but allow if it's a simple click (not a drag)
-                  if (hoveredPath !== item.href && isMouseDown) {
+                  if (hoveredPath !== item.href && isMouseDownRef.current) {
                     e.preventDefault();
                   }
                   if (!isDesktop) closeSidebar();
