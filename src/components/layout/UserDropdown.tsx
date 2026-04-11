@@ -147,7 +147,7 @@ export function UserDropdown() {
             </div>
             
             <div className="p-3 bg-black/[0.02] dark:bg-white/[0.02] border-t border-[var(--border)]">
-              <p className="text-[10px] text-center opacity-30 font-bold uppercase tracking-widest">Flowlance v1.1</p>
+              <p className="text-[10px] text-center opacity-30 font-bold uppercase tracking-widest">Flowlance v1.2</p>
             </div>
           </motion.div>
         )}
