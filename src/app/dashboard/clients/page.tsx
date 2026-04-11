@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, Suspense } from 'react';
+import { useState, useEffect, useMemo, Suspense, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useClientStore } from '@/store/useClientStore';
 import { useWorkspaceStore } from '@/store/useWorkspaceStore';
@@ -39,6 +39,24 @@ function ClientsContent() {
   const [activeClient, setActiveClient] = useState<any>(null);
   const [modalTab, setModalTab] = useState<'details' | 'history'>('details');
   const { addToast } = useToastStore();
+
+  // Drag-to-Navigate for Filters
+  const [hoveredFilter, setHoveredFilter] = useState(followUpFilter);
+  const [isFilterMouseDown, setIsFilterMouseDown] = useState(false);
+  const isFilterMouseDownRef = useRef(false);
+
+  useEffect(() => {
+    setHoveredFilter(followUpFilter);
+  }, [followUpFilter]);
+
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      isFilterMouseDownRef.current = false;
+      setIsFilterMouseDown(false);
+    };
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+    return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
+  }, []);
   
   // Sync with URL params if they change
   useEffect(() => {
@@ -252,19 +270,66 @@ function ClientsContent() {
         <span className="text-[10px] font-bold uppercase tracking-widest opacity-40 px-2 py-2">Filters:</span>
         
         {['all', 'overdue', 'today', 'upcoming'].map((f) => (
-          <button
+          <div 
             key={f}
-            onClick={() => setFollowUpFilter(f)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all ${
-              followUpFilter === f 
-                ? f === 'overdue' ? 'bg-red-600 text-white shadow-md' 
-                : f === 'today' ? 'bg-amber-500 text-black shadow-md'
-                : 'bg-indigo-600 text-white shadow-md'
-                : 'hover:bg-black/5 dark:hover:bg-white/10 opacity-60'
-            }`}
+            className="relative"
+            onMouseDown={() => {
+              isFilterMouseDownRef.current = true;
+              setIsFilterMouseDown(true);
+              setHoveredFilter(f);
+            }}
+            onMouseEnter={() => {
+              if (isFilterMouseDownRef.current) {
+                setHoveredFilter(f);
+              }
+            }}
+            onMouseUp={() => {
+              if (isFilterMouseDownRef.current) {
+                isFilterMouseDownRef.current = false;
+                setIsFilterMouseDown(false);
+                if (followUpFilter !== f) {
+                  setFollowUpFilter(f);
+                }
+              }
+            }}
           >
-            {f}
-          </button>
+            <button
+              onClick={() => {
+                if (!isFilterMouseDownRef.current) {
+                  setFollowUpFilter(f);
+                }
+              }}
+              draggable="false"
+              onDragStart={(e) => e.preventDefault()}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all relative z-10 select-none ${
+                hoveredFilter === f 
+                  ? 'text-white' 
+                  : (followUpFilter === f && !isFilterMouseDown) 
+                    ? f === 'overdue' ? 'text-white' 
+                    : f === 'today' ? 'text-black' 
+                    : 'text-white'
+                    : 'text-foreground/60 hover:text-foreground'
+              }`}
+            >
+              {f}
+            </button>
+            
+            {hoveredFilter === f && (
+              <motion.div
+                layoutId="filter-hover"
+                className={`absolute inset-0 rounded-lg shadow-md -z-0 ${
+                  f === 'overdue' ? 'bg-red-600' : 
+                  f === 'today' ? 'bg-amber-500' : 
+                  'bg-indigo-600'
+                }`}
+                transition={{
+                  type: "spring",
+                  stiffness: 400,
+                  damping: 30
+                }}
+              />
+            )}
+          </div>
         ))}
 
         {isFiltered && (
