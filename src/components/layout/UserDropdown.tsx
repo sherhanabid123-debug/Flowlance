@@ -88,27 +88,34 @@ export function UserDropdown() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute right-0 mt-2 w-64 glass bg-card rounded-2xl shadow-2xl border border-[var(--border)] overflow-hidden z-50 origin-top-right"
+            className="absolute right-0 mt-2 w-72 bg-white dark:bg-zinc-900 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-[var(--border)] overflow-hidden z-50 origin-top-right"
           >
             {/* Header */}
-            <div className="p-4 bg-black/5 dark:bg-white/5 border-b border-[var(--border)]">
-              <p className="text-sm font-bold truncate">{user?.name || 'Your Account'}</p>
-              <p className="text-xs opacity-60 truncate">{user?.email}</p>
+            <div className="p-5 bg-black/[0.02] dark:bg-white/[0.02] border-b border-[var(--border)]">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center font-bold text-primary text-sm">
+                  {nameInitial}
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <p className="text-sm font-bold truncate">{user?.name || 'Your Account'}</p>
+                  <p className="text-[10px] opacity-40 truncate font-medium uppercase tracking-wider">{user?.email}</p>
+                </div>
+              </div>
             </div>
 
             {/* Menu Items */}
-            <div className="p-1.5">
+            <div className="p-2.5 space-y-1">
               <button
                 onClick={() => {
                   setIsOpen(false);
                   setShowEditProfile(true);
                 }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/5 transition-all group relative active:scale-95"
               >
-                <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-500 group-hover:scale-110 transition-transform">
+                <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all shadow-sm">
                   <UserIcon size={16} />
                 </div>
-                <span className="font-medium">Edit Profile</span>
+                <span>Edit Profile</span>
               </button>
 
               <button
@@ -116,25 +123,31 @@ export function UserDropdown() {
                   setIsOpen(false);
                   setShowChangePassword(true);
                 }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/5 transition-all group relative active:scale-95"
               >
-                <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-500 group-hover:scale-110 transition-transform">
+                <div className="p-2 rounded-lg bg-amber-500/10 text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-all shadow-sm">
                   <Lock size={16} />
                 </div>
-                <span className="font-medium">Change Password</span>
+                <span>Change Password</span>
               </button>
 
-              <div className="my-1.5 border-t border-[var(--border)] mx-2" />
+              <div className="py-2 px-3">
+                <div className="border-t border-[var(--border)] w-full" />
+              </div>
 
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-destructive hover:bg-destructive/10 transition-colors group"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-destructive hover:bg-destructive/10 transition-all group relative active:scale-95"
               >
-                <div className="p-1.5 rounded-lg bg-destructive/10 group-hover:scale-110 transition-transform">
+                <div className="p-2 rounded-lg bg-destructive/10 text-destructive group-hover:bg-destructive group-hover:text-white transition-all shadow-sm">
                   <LogOut size={16} />
                 </div>
-                <span className="font-bold">Logout</span>
+                <span>Logout</span>
               </button>
+            </div>
+            
+            <div className="p-3 bg-black/[0.02] dark:bg-white/[0.02] border-t border-[var(--border)]">
+              <p className="text-[10px] text-center opacity-30 font-bold uppercase tracking-widest">Flowlance v1.0</p>
             </div>
           </motion.div>
         )}

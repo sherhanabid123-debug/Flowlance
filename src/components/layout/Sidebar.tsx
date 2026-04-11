@@ -149,10 +149,12 @@ function SidebarContent({ closeSidebar, pathname, user, isAuthenticated, openLog
       {isAuthenticated ? (
         <button 
           onClick={handleLogout}
-          className="flex items-center space-x-3 w-full p-3 rounded-lg text-destructive hover:bg-destructive/10 transition-colors mt-auto"
+          className="flex items-center space-x-3 w-full p-4 rounded-xl text-destructive bg-destructive/5 hover:bg-destructive/10 transition-all mt-auto border border-destructive/10 group active:scale-[0.98]"
         >
-          <LogOut size={20} />
-          <span className="font-medium">Logout</span>
+          <div className="p-1.5 rounded-lg bg-destructive/10 group-hover:bg-destructive group-hover:text-white transition-all shadow-sm">
+            <LogOut size={18} />
+          </div>
+          <span className="font-bold">Logout</span>
         </button>
       ) : (
         <button 
