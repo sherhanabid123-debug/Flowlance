@@ -22,6 +22,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
   const [email, setEmail] = useState('');
   const [userType, setUserType] = useState<'freelancer' | 'agency'>('freelancer');
   const [agencyName, setAgencyName] = useState('');
+  const [agencyWebsite, setAgencyWebsite] = useState('');
   const [emailReminders, setEmailReminders] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -37,6 +38,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
       setEmail(user.email || '');
       setUserType(user.userType || 'freelancer');
       setAgencyName(user.agencyName || '');
+      setAgencyWebsite(user.agencyWebsite || '');
       setEmailReminders(user.emailReminders !== false);
     }
   }, [user, isOpen]);
@@ -74,6 +76,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
     email, 
     userType, 
     agencyName: userType === 'agency' ? agencyName : '',
+    agencyWebsite: userType === 'agency' ? agencyWebsite : '',
     emailReminders
   };
 
@@ -108,7 +111,13 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
       const res = await fetch('/api/user/update', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, userType, agencyName: userType === 'agency' ? agencyName : '' }),
+        body: JSON.stringify({ 
+          name, 
+          email, 
+          userType, 
+          agencyName: userType === 'agency' ? agencyName : '',
+          agencyWebsite: userType === 'agency' ? agencyWebsite : ''
+        }),
       });
 
       const data = await res.json();
@@ -236,7 +245,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                 className="overflow-hidden"
               >
                 <label className="block text-sm font-semibold mb-2 opacity-70">Agency Name</label>
-                <div className="relative">
+                <div className="relative mb-4">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 opacity-40 font-bold text-xs">AG</span>
                   <input
                     type="text"
@@ -245,6 +254,18 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                     className="w-full pl-10 pr-4 py-3 rounded-xl bg-background border border-[var(--border)] outline-none focus:ring-2 focus:ring-primary transition-all text-sm"
                     placeholder="Enter agency name"
                     required={userType === 'agency'}
+                  />
+                </div>
+
+                <label className="block text-sm font-semibold mb-2 opacity-70">Agency Website</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 opacity-40 font-bold text-xs">WWW</span>
+                  <input
+                    type="url"
+                    value={agencyWebsite}
+                    onChange={(e) => setAgencyWebsite(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-background border border-[var(--border)] outline-none focus:ring-2 focus:ring-primary transition-all text-sm"
+                    placeholder="https://youragency.com"
                   />
                 </div>
               </motion.div>
