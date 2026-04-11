@@ -85,6 +85,19 @@ export function Sidebar() {
 }
 
 function SidebarContent({ closeSidebar, pathname, user, isAuthenticated, openLoginModal, handleLogout, router }: any) {
+  const [hoveredPath, setHoveredPath] = useState(pathname);
+  const [isMouseDown, setIsMouseDown] = useState(false);
+
+  useEffect(() => {
+    setHoveredPath(pathname);
+  }, [pathname]);
+
+  useEffect(() => {
+    const handleGlobalMouseUp = () => setIsMouseDown(false);
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+    return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
+  }, []);
+
   const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Client management', href: '/dashboard/clients', icon: Briefcase },
@@ -119,29 +132,74 @@ function SidebarContent({ closeSidebar, pathname, user, isAuthenticated, openLog
         </button>
       </div>
       
-      <nav className="w-full flex-1 space-y-2">
+      <nav 
+        className="w-full flex-1 space-y-2 relative"
+        onMouseLeave={() => !isMouseDown && setHoveredPath(pathname)}
+      >
         {navItems.map((item) => {
           const isActive = pathname === item.href;
+          const isHovered = hoveredPath === item.href;
           const isDesktop = typeof window !== 'undefined' ? window.innerWidth >= 1024 : true;
           
           return (
-            <Link 
-              key={item.href} 
-              href={item.href}
-              onClick={() => !isDesktop && closeSidebar()}
-              className={`flex items-center justify-between w-full p-3 rounded-lg transition-all
-                ${isActive ? 'bg-primary text-primary-foreground shadow-md' : 'hover:bg-black/5 dark:hover:bg-white/5'}`}
+            <motion.div
+              key={item.href}
+              className="relative"
+              onMouseDown={() => {
+                setIsMouseDown(true);
+                setHoveredPath(item.href);
+              }}
+              onMouseEnter={() => {
+                if (isMouseDown || !isDesktop) {
+                  setHoveredPath(item.href);
+                }
+              }}
+              onMouseUp={() => {
+                if (isMouseDown) {
+                  setIsMouseDown(false);
+                  if (item.href !== pathname && !item.locked) {
+                    router.push(item.href);
+                    if (!isDesktop) closeSidebar();
+                  }
+                }
+              }}
             >
-              <div className="flex items-center space-x-3">
-                <item.icon size={20} />
-                <span className="font-medium text-left">{item.name}</span>
-              </div>
-              {item.locked && (
-                <div className="bg-white/10 p-1 rounded-md">
-                   <Lock size={12} className="opacity-40" />
+              <Link 
+                href={item.href}
+                onClick={(e) => {
+                  // Prevent default link behavior to handle it via our custom drag/up logic
+                  // but allow if it's a simple click (not a drag)
+                  if (hoveredPath !== item.href && isMouseDown) {
+                    e.preventDefault();
+                  }
+                  if (!isDesktop) closeSidebar();
+                }}
+                className={`flex items-center justify-between w-full p-3 rounded-lg transition-all relative z-10
+                  ${isActive ? 'text-primary-foreground' : 'hover:bg-black/5 dark:hover:bg-white/5'}`}
+              >
+                <div className="flex items-center space-x-3">
+                  <item.icon size={20} />
+                  <span className="font-medium text-left">{item.name}</span>
                 </div>
+                {item.locked && (
+                  <div className="bg-white/10 p-1 rounded-md">
+                     <Lock size={12} className="opacity-40" />
+                  </div>
+                )}
+              </Link>
+              
+              {isHovered && (
+                <motion.div
+                  layoutId="sidebar-hover"
+                  className="absolute inset-0 bg-primary rounded-lg shadow-md -z-0"
+                  transition={{
+                    type: "spring",
+                    stiffness: 400,
+                    damping: 30
+                  }}
+                />
               )}
-            </Link>
+            </motion.div>
           )
         })}
       </nav>
