@@ -219,7 +219,7 @@ function ClientsContent() {
         <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <button
             onClick={() => runProtected(() => setIsQuickAddOpen(true))}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 border border-primary text-primary px-3 sm:px-4 py-2 rounded-xl font-medium hover:bg-primary/5 transition-all whitespace-nowrap text-xs sm:text-sm"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 border border-primary text-primary px-3 sm:px-4 py-2 rounded-xl font-medium hover:bg-primary/5 transition-all whitespace-nowrap text-xs sm:text-sm nm-btn"
           >
             <Zap size={14} /> Quick Add
           </button>
@@ -231,7 +231,7 @@ function ClientsContent() {
             <Download size={16} /> Export
           </button>
  
-          <button onClick={handleAddNew} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-bold hover:opacity-90 transition-opacity whitespace-nowrap text-sm sm:text-base shadow-lg shadow-primary/20">
+          <button onClick={handleAddNew} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-bold hover:opacity-90 transition-opacity whitespace-nowrap text-sm sm:text-base shadow-lg shadow-primary/20 nm-btn">
             <Plus size={18} /> New Client
           </button>
         </div>
@@ -245,8 +245,8 @@ function ClientsContent() {
               onClick={() => setFilter(tab)}
               className={`px-4 py-2 rounded-xl font-bold capitalize whitespace-nowrap transition-all text-sm ${
                 filter === tab 
-                  ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' 
-                  : 'hover:bg-black/5 dark:hover:bg-white/5 opacity-60'
+                  ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 nm-btn' 
+                  : 'hover:bg-black/5 dark:hover:bg-white/5 opacity-60 nm-flat'
               }`}
             >
               {tab}
@@ -261,7 +261,7 @@ function ClientsContent() {
             placeholder="Search clients..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-background/50 border border-[var(--border)] outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-background/50 border border-[var(--border)] outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm nm-inset"
           />
         </div>
       </div>
@@ -379,7 +379,7 @@ function ClientsContent() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ delay: i * 0.05 }}
                 key={client._id}
-                className={`glass p-5 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-all border-2 ${
+                className={`glass nm-card p-5 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-all border-2 ${
                   client.status !== 'completed' && isOverdue ? 'border-red-500/40 shadow-[0_0_20px_rgba(239,68,68,0.15)] ring-1 ring-red-500/20' : 
                   client.status !== 'completed' && isDueToday ? 'border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/20' : 
                   isCold ? 'border-red-500/20 bg-red-500/[0.02] shadow-lg shadow-red-500/5' :
@@ -454,7 +454,7 @@ function ClientsContent() {
                     {client.status === 'potential' && isOwner && (
                       <button 
                         onClick={() => handleUpgradeStatus(client, 'confirmed')}
-                        className="flex-1 sm:flex-none text-[10px] sm:text-xs font-bold px-3 py-2 bg-amber-500 text-black rounded-xl hover:scale-105 active:scale-95 transition-all shadow-md shadow-amber-500/10 whitespace-nowrap"
+                        className="flex-1 sm:flex-none text-[10px] sm:text-xs font-bold px-3 py-2 bg-amber-500 text-black rounded-xl hover:scale-105 active:scale-95 transition-all shadow-md shadow-amber-500/10 whitespace-nowrap nm-btn"
                       >
                         Confirm Project
                       </button>
@@ -462,7 +462,7 @@ function ClientsContent() {
                     {client.status === 'confirmed' && isOwner && (
                       <button 
                         onClick={() => handleUpgradeStatus(client, 'completed')}
-                        className="flex-1 sm:flex-none text-[10px] sm:text-xs font-bold px-3 py-2 bg-green-600 text-white rounded-xl hover:scale-105 active:scale-95 transition-all shadow-md shadow-green-600/10 whitespace-nowrap"
+                        className="flex-1 sm:flex-none text-[10px] sm:text-xs font-bold px-3 py-2 bg-green-600 text-white rounded-xl hover:scale-105 active:scale-95 transition-all shadow-md shadow-green-600/10 whitespace-nowrap nm-btn"
                       >
                         Mark Completed
                       </button>
@@ -471,7 +471,7 @@ function ClientsContent() {
                     {client.status !== 'completed' && (
                       <button 
                         onClick={() => handleMarkFollowUpDone(client)}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 group text-[10px] sm:text-xs font-bold px-3 py-2 bg-indigo-600 text-white rounded-xl hover:scale-105 active:scale-95 transition-all shadow-md shadow-indigo-600/10 whitespace-nowrap"
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 group text-[10px] sm:text-xs font-bold px-3 py-2 bg-indigo-600 text-white rounded-xl hover:scale-105 active:scale-95 transition-all shadow-md shadow-indigo-600/10 whitespace-nowrap nm-btn"
                         title="Mark latest follow-up as completed"
                       >
                         <CheckCheck size={14} className="group-hover:scale-110 transition-transform" />

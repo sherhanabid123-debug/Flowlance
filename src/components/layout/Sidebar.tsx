@@ -50,7 +50,7 @@ export function Sidebar() {
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="w-[280px] h-screen fixed left-0 top-0 glass border-r z-50 flex flex-col items-start p-6 lg:hidden"
+              className="w-[280px] h-screen fixed left-0 top-0 glass nm-card z-50 flex flex-col items-start p-6 lg:hidden"
             >
               <SidebarContent 
                 closeSidebar={closeSidebar} 
@@ -68,7 +68,7 @@ export function Sidebar() {
 
       {/* Desktop Sidebar (Static) */}
       {isDesktop && (
-        <div className="w-[280px] h-screen fixed left-0 top-0 glass border-r z-50 hidden lg:flex flex-col items-start p-6">
+        <div className="w-[280px] h-screen fixed left-0 top-0 glass nm-card z-50 hidden lg:flex flex-col items-start p-6">
           <SidebarContent 
             closeSidebar={closeSidebar} 
             pathname={pathname} 
@@ -187,7 +187,7 @@ function SidebarContent({ closeSidebar, pathname, user, isAuthenticated, openLog
                   if (!isDesktop) closeSidebar();
                 }}
                 className={`flex items-center justify-between w-full p-3 rounded-lg transition-all relative z-10 select-none
-                  ${isHovered ? 'text-primary-foreground' : 'text-foreground hover:bg-black/5 dark:hover:bg-white/5'}`}
+                  ${isHovered ? 'text-primary-foreground shadow-lg' : 'text-foreground hover:bg-black/5 dark:hover:bg-white/5'}`}
               >
                 <div className="flex items-center space-x-3">
                   <item.icon size={20} />
@@ -219,7 +219,7 @@ function SidebarContent({ closeSidebar, pathname, user, isAuthenticated, openLog
       {isAuthenticated ? (
         <button 
           onClick={handleLogout}
-          className="flex items-center space-x-3 w-full p-4 rounded-xl text-destructive bg-destructive/5 hover:bg-destructive/10 transition-all mt-auto border border-destructive/10 group active:scale-[0.98]"
+          className="flex items-center space-x-3 w-full p-4 rounded-xl text-destructive bg-destructive/5 hover:bg-destructive/10 transition-all mt-auto nm-btn group active:scale-[0.98]"
         >
           <div className="p-1.5 rounded-lg bg-destructive/10 group-hover:bg-destructive group-hover:text-white transition-all shadow-sm">
             <LogOut size={18} />

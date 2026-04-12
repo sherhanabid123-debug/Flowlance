@@ -298,7 +298,7 @@ export default function DashboardOverview() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => runProtected(() => setIsQuickAddOpen(true))}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 border border-primary text-primary px-4 py-2.5 rounded-xl font-medium hover:bg-primary/5 transition-all whitespace-nowrap text-sm"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 border border-primary text-primary px-4 py-2.5 rounded-xl font-medium hover:bg-primary/5 transition-all whitespace-nowrap text-sm nm-btn"
           >
             <Zap size={15} /> Quick Add Client
           </button>
@@ -312,7 +312,7 @@ export default function DashboardOverview() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: i * 0.1 }}
-            className="glass p-4 sm:p-6 rounded-2xl flex items-center justify-between group relative h-full"
+            className="glass nm-card p-4 sm:p-6 rounded-2xl flex items-center justify-between group relative h-full transition-all hover:scale-[1.02]"
             title={stat.tooltip}
           >
             <div>
@@ -326,7 +326,7 @@ export default function DashboardOverview() {
         ))}
       </div>
 
-      <div className="glass p-6 rounded-2xl mt-8">
+      <div className="glass nm-card p-6 rounded-2xl mt-8">
         <h3 className="text-xl font-semibold mb-6">Revenue Overview</h3>
         <div className="h-80 w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -346,7 +346,7 @@ export default function DashboardOverview() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Today's Follow-ups Widget */}
-        <div className="lg:col-span-2 glass p-6 rounded-2xl">
+        <div className="lg:col-span-2 glass nm-card p-6 rounded-2xl">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-semibold flex items-center gap-2">
               <Clock className="text-indigo-500" size={20} />
@@ -405,7 +405,7 @@ export default function DashboardOverview() {
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: 20, height: 0, marginBottom: 0 }}
                           transition={{ duration: 0.2 }}
-                          className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl border transition-all gap-4 ${
+                          className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl border transition-all gap-4 nm-card ${
                             isOverdue
                               ? 'bg-red-500/5 border-red-500/20 hover:border-red-500/40'
                               : 'bg-amber-500/5 border-amber-500/20 hover:border-amber-500/40'
@@ -430,7 +430,7 @@ export default function DashboardOverview() {
                           </div>
                           <button
                             onClick={() => handleMarkDone(client)}
-                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:scale-105 active:scale-95 transition-all shadow-md shadow-indigo-600/20 whitespace-nowrap shrink-0"
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:scale-105 active:scale-95 transition-all nm-btn shadow-md shadow-indigo-600/20 whitespace-nowrap shrink-0"
                           >
                             <CheckCheck size={14} />
                             Mark Done

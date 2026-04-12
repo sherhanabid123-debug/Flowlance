@@ -30,6 +30,11 @@
   --border: rgba(226, 232, 240, 0.6);
   --destructive: #ef4444;
   --destructive-foreground: #f8fafc;
+  
+  /* Neumorphic Shadows - Light Mode */
+  --nm-outset: 8px 8px 16px rgba(0, 0, 0, 0.05), -8px -8px 16px rgba(255, 255, 255, 0.8);
+  --nm-inset: inset 2px 2px 5px rgba(0, 0, 0, 0.05), inset -2px -2px 5px rgba(255, 255, 255, 0.8);
+  --nm-btn-outset: 4px 4px 8px rgba(0, 0, 0, 0.08), -4px -4px 8px rgba(255, 255, 255, 0.9);
 }
 
 .dark {
@@ -46,6 +51,11 @@
   --border: rgba(30, 41, 59, 0.8);
   --destructive: #7f1d1d;
   --destructive-foreground: #f8fafc;
+
+  /* Neumorphic Shadows - Dark Mode */
+  --nm-outset: 8px 8px 16px rgba(0, 0, 0, 0.4), -4px -4px 12px rgba(255, 255, 255, 0.03);
+  --nm-inset: inset 4px 4px 8px rgba(0, 0, 0, 0.5), inset -2px -2px 6px rgba(255, 255, 255, 0.02);
+  --nm-btn-outset: 4px 4px 8px rgba(0, 0, 0, 0.5), -2px -2px 6px rgba(255, 255, 255, 0.03);
 }
 
 body {
@@ -59,5 +69,30 @@ body {
   background: var(--card);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+}
+
+/* Neumorphism Utilities */
+.nm-card {
+  box-shadow: var(--nm-outset);
+  border: 1px solid var(--border);
+}
+
+.nm-btn {
+  box-shadow: var(--nm-btn-outset);
+  transition: all 0.2s ease;
+}
+
+.nm-btn:active {
+  box-shadow: var(--nm-inset) !important;
+  transform: scale(0.98);
+}
+
+.nm-inset {
+  box-shadow: var(--nm-inset);
+  border: 1px solid var(--border);
+}
+
+.nm-flat {
   border: 1px solid var(--border);
 }

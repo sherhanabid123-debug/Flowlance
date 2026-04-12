@@ -91,7 +91,7 @@ export function QuickAddModal({ isOpen, onClose, onAddDetails }: QuickAddModalPr
             onChange={e => setName(e.target.value)}
             placeholder="Client name *"
             required
-            className="w-full px-4 py-3 rounded-xl border border-[var(--border)] bg-transparent outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm font-medium placeholder:opacity-40"
+            className="w-full px-4 py-3 rounded-xl border border-[var(--border)] bg-transparent nm-inset outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm font-medium placeholder:opacity-40"
           />
         </div>
 
@@ -104,7 +104,7 @@ export function QuickAddModal({ isOpen, onClose, onAddDetails }: QuickAddModalPr
             placeholder="Project name *"
             required
             onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-            className="w-full px-4 py-3 rounded-xl border border-[var(--border)] bg-transparent outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm font-medium placeholder:opacity-40"
+            className="w-full px-4 py-3 rounded-xl border border-[var(--border)] bg-transparent nm-inset outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm font-medium placeholder:opacity-40"
           />
         </div>
 
@@ -112,7 +112,7 @@ export function QuickAddModal({ isOpen, onClose, onAddDetails }: QuickAddModalPr
         <button
           type="submit"
           disabled={isSubmitting || !name.trim() || !projectName.trim()}
-          className="w-full h-12 bg-primary text-white font-bold rounded-xl hover:opacity-90 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+          className="w-full h-12 bg-primary text-white font-bold rounded-xl hover:opacity-90 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-primary/20 nm-btn"
         >
           {isSubmitting ? (
             <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
