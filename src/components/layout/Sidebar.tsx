@@ -241,3 +241,4 @@ function SidebarContent({ closeSidebar, pathname, user, isAuthenticated, openLog
     </>
   );
 }
+// Trigger build
