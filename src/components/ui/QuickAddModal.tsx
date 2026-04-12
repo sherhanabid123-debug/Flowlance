@@ -70,15 +70,15 @@ export function QuickAddModal({ isOpen, onClose, onAddDetails }: QuickAddModalPr
 
   return (
     <CenteredModal isOpen={isOpen} onClose={onClose} title="" maxWidth="max-w-sm">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-1">
-          <div className="p-2 bg-primary/10 text-primary rounded-xl">
-            <Zap size={20} />
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-3 bg-primary/10 text-primary rounded-[1rem] shadow-sm shadow-primary/5">
+            <Zap size={22} />
           </div>
           <div>
-            <h2 className="font-bold text-lg leading-tight">Quick Add Client</h2>
-            <p className="text-xs opacity-50">Just the essentials — fill details later.</p>
+            <h2 className="font-bold text-xl leading-tight tracking-tight">Quick Add Client</h2>
+            <p className="text-[11px] opacity-50">Just the essentials — fill details later.</p>
           </div>
         </div>
 
@@ -91,7 +91,7 @@ export function QuickAddModal({ isOpen, onClose, onAddDetails }: QuickAddModalPr
             onChange={e => setName(e.target.value)}
             placeholder="Client name *"
             required
-            className="w-full px-4 py-3 rounded-xl border border-[var(--border)] bg-transparent nm-inset outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm font-medium placeholder:opacity-40"
+            className="w-full px-5 py-4 rounded-2xl input-clean outline-none text-sm font-medium placeholder:opacity-30"
           />
         </div>
 
@@ -104,7 +104,7 @@ export function QuickAddModal({ isOpen, onClose, onAddDetails }: QuickAddModalPr
             placeholder="Project name *"
             required
             onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-            className="w-full px-4 py-3 rounded-xl border border-[var(--border)] bg-transparent nm-inset outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm font-medium placeholder:opacity-40"
+            className="w-full px-5 py-4 rounded-2xl input-clean outline-none text-sm font-medium placeholder:opacity-30"
           />
         </div>
 
@@ -112,19 +112,19 @@ export function QuickAddModal({ isOpen, onClose, onAddDetails }: QuickAddModalPr
         <button
           type="submit"
           disabled={isSubmitting || !name.trim() || !projectName.trim()}
-          className="w-full h-12 bg-primary text-white font-bold rounded-xl hover:opacity-90 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-primary/20 nm-btn"
+          className="w-full h-14 bg-primary text-white font-bold rounded-2xl hover:opacity-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-primary/20 btn-lift"
         >
           {isSubmitting ? (
-            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
           ) : (
             <>
-              <Zap size={16} />
+              <Zap size={18} />
               Add Client
             </>
           )}
         </button>
 
-        <p className="text-center text-[10px] opacity-30 -mt-1">Press Enter to submit · Status defaults to Potential</p>
+        <p className="text-center text-[10px] opacity-30 -mt-1 uppercase font-bold tracking-[0.1em]">Press Enter to submit · Potential Status</p>
       </form>
     </CenteredModal>
   );

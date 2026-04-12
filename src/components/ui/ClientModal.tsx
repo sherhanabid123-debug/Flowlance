@@ -40,7 +40,7 @@ const InputField = forwardRef<HTMLInputElement, any>(({ label, value, onChange, 
         onChange={onChange}
         required={required}
         disabled={disabled}
-        className={`peer w-full bg-transparent p-3 pt-6 rounded-xl border border-[var(--border)] nm-inset outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm disabled:cursor-not-allowed disabled:bg-black/5 dark:disabled:bg-white/5 disabled:opacity-60`}
+        className={`peer w-full bg-transparent p-3 pt-6 rounded-xl border border-[var(--border)] outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm disabled:cursor-not-allowed disabled:bg-black/5 dark:disabled:bg-white/5 disabled:opacity-60`}
         placeholder=" "
       />
       <label className={`absolute left-3 top-4 text-xs font-medium opacity-60 transition-all pointer-events-none 
@@ -370,7 +370,7 @@ export function ClientModal({ isOpen, onClose, initialData, initialTab = 'detail
             <label className="text-sm font-medium opacity-70">Client Stage</label>
             {!isOwner && !!initialData && <span className="text-[10px] text-amber-500 font-bold uppercase tracking-tighter">Owner Only</span>}
           </div>
-          <div className={`flex bg-black/5 dark:bg-white/5 p-1 rounded-xl nm-inset ${!isOwner && !!initialData ? 'opacity-60 cursor-not-allowed' : ''}`}>
+          <div className={`flex bg-black/5 dark:bg-white/5 p-1 rounded-xl ${!isOwner && !!initialData ? 'opacity-60 cursor-not-allowed' : ''}`}>
             {['potential', 'confirmed', 'completed'].map((t) => (
               <button
                 key={t}
@@ -455,7 +455,7 @@ export function ClientModal({ isOpen, onClose, initialData, initialTab = 'detail
                   max="30"
                   value={followUpInterval}
                   onChange={(e) => setFollowUpInterval(e.target.value)}
-                  className="w-16 px-2 py-1.5 rounded-lg bg-background border border-indigo-500/30 text-center font-bold text-sm outline-none focus:border-indigo-500 transition-all font-mono nm-inset"
+                  className="w-16 px-2 py-1.5 rounded-lg bg-background border border-indigo-500/30 text-center font-bold text-sm outline-none focus:border-indigo-500 transition-all font-mono"
                 />
                 <span className="text-xs opacity-60 font-medium whitespace-nowrap">Days</span>
               </div>
@@ -505,7 +505,7 @@ export function ClientModal({ isOpen, onClose, initialData, initialTab = 'detail
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="peer w-full bg-transparent p-3 pt-6 rounded-xl border border-[var(--border)] nm-inset outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm min-h-[100px] resize-none"
+            className="peer w-full bg-transparent p-3 pt-6 rounded-xl border border-[var(--border)] outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm min-h-[100px] resize-none"
             placeholder=" "
           />
           <label className={`absolute left-3 top-4 text-xs font-medium opacity-60 transition-all pointer-events-none 
@@ -550,7 +550,7 @@ export function ClientModal({ isOpen, onClose, initialData, initialTab = 'detail
             <button
               type="button"
               onClick={handleClose}
-              className="px-5 py-2.5 rounded-xl font-medium border border-[var(--border)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors nm-btn"
+              className="px-5 py-2.5 rounded-xl font-medium border border-[var(--border)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
             >
               {initialData ? 'Close' : 'Cancel'}
             </button>
@@ -558,7 +558,7 @@ export function ClientModal({ isOpen, onClose, initialData, initialTab = 'detail
             <button
               type="submit"
               disabled={isSubmitting || !isValid}
-              className={`px-5 py-2.5 rounded-xl font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 nm-btn ${shake ? 'animate-shake' : ''}`}
+              className={`px-5 py-2.5 rounded-xl font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${shake ? 'animate-shake' : ''}`}
             >
               {isSubmitting ? (
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>

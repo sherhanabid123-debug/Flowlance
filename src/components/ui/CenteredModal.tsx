@@ -53,7 +53,7 @@ export function CenteredModal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/50 backdrop-blur-md transition-opacity"
+            className="absolute inset-0 bg-black/60 backdrop-blur-xl transition-opacity"
           />
 
           {/* Modal Container */}
@@ -62,7 +62,7 @@ export function CenteredModal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className={`relative w-full ${maxWidth} glass bg-card text-card-foreground rounded-2xl shadow-2xl overflow-hidden nm-card z-10 flex flex-col`}
+            className={`relative w-full ${maxWidth} glass bg-card/10 text-card-foreground rounded-[2rem] shadow-modern overflow-hidden border border-white/10 z-10 flex flex-col`}
           >
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
