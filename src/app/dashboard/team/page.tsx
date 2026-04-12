@@ -207,11 +207,11 @@ export default function TeamPage() {
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Team Management</h1>
           <p className="text-xs sm:text-sm text-[var(--text-muted)]">Manage your agency members, roles, and invitations.</p>
         </div>
-        {!isOwner && (
+        {workspace && isOwner && (
           <button
             onClick={handleLeaveWorkspace}
             disabled={isLeaving}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm text-red-500 border border-red-500/30 hover:bg-red-500/10 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm text-red-500 border border-red-500/30 hover:bg-red-500/10 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap btn-lift"
           >
             <LogOut size={16} />
             {isLeaving ? 'Leaving...' : 'Leave Team'}
@@ -221,12 +221,9 @@ export default function TeamPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {stats.map((stat, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className="glass border rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex items-center gap-4 relative overflow-hidden group hover:border-primary/30 transition-all"
+          <div 
+            key={i} 
+            className="glass rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex items-center gap-4 relative overflow-hidden group hover:border-primary/30 transition-all"
           >
             <div className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 ${stat.color}`}>
               <stat.icon size={20} className="sm:size-6" />
@@ -238,7 +235,7 @@ export default function TeamPage() {
             <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
               <stat.icon size={80} className="sm:size-[100px]" />
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
 
@@ -254,7 +251,7 @@ export default function TeamPage() {
             )}
           </div>
           
-          <div className="glass border rounded-2xl overflow-hidden">
+          <div className="glass rounded-2xl overflow-hidden">
             <div className="divide-y divide-[var(--border)]">
               {validMembers.map((member: any) => (
                 <div key={member.userId._id} className="p-4 flex items-center justify-between hover:bg-primary/5 transition-colors">
@@ -344,7 +341,7 @@ export default function TeamPage() {
               <button
                 onClick={handleGenerateInvite}
                 disabled={!isOwner || isGenerating}
-                className="w-full h-12 bg-primary text-white font-bold rounded-2xl hover:opacity-90 transition-all shadow-lg active:scale-95 disabled:opacity-50 disabled:grayscale disabled:scale-100"
+                className="w-full h-12 bg-primary text-white font-bold rounded-2xl hover:opacity-90 transition-all shadow-lg active:scale-95 disabled:opacity-50 disabled:grayscale disabled:scale-100 btn-lift"
               >
                 {isGenerating ? 'Generating...' : 'Generate Invite Link'}
               </button>
@@ -355,7 +352,7 @@ export default function TeamPage() {
                     type="text"
                     readOnly
                     value={inviteLink}
-                    className="w-full h-12 bg-[var(--background)]/50 border border-[var(--border)] rounded-2xl px-4 text-xs font-mono pr-12 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-primary"
+                    className="w-full h-12 bg-[var(--background)]/50 border border-[var(--border)] rounded-2xl px-4 text-xs font-mono pr-12 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-primary input-clean"
                   />
                   <button
                     onClick={copyToClipboard}
@@ -390,14 +387,14 @@ export default function TeamPage() {
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
                     placeholder="teammate@example.com"
-                    className="w-full h-12 bg-black/5 dark:bg-white/5 border border-[var(--border)] rounded-2xl pl-12 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                    className="w-full h-12 bg-black/5 dark:bg-white/5 border border-[var(--border)] rounded-2xl pl-12 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all input-clean"
                   />
                 </div>
 
                 <button
                   onClick={handleEmailInvite}
                   disabled={isInviting || !inviteEmail.trim() || !isOwner}
-                  className="w-full h-12 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 disabled:opacity-50 disabled:grayscale disabled:scale-100 flex items-center justify-center gap-2"
+                  className="w-full h-12 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 disabled:opacity-50 disabled:grayscale disabled:scale-100 flex items-center justify-center gap-2 btn-lift"
                 >
                   {isInviting ? (
                     <Loader2 size={18} className="animate-spin" />
