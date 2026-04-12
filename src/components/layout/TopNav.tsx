@@ -40,10 +40,14 @@ export function TopNav() {
             <motion.div
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-2 mb-0.5"
+              onClick={() => user.agencyWebsite && window.open(user.agencyWebsite.startsWith('http') ? user.agencyWebsite : `https://${user.agencyWebsite}`, '_blank')}
+              className={`flex items-center gap-2 mb-0.5 ${user.agencyWebsite ? 'cursor-pointer group' : ''}`}
             >
-              <span className="bg-primary/10 text-primary text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-md border border-primary/20 tracking-wider">Agency</span>
-              <span className="hidden sm:inline text-xs font-bold opacity-80 uppercase tracking-widest">{user.agencyName}</span>
+              <span className="bg-primary/10 text-primary text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-md border border-primary/20 tracking-wider group-hover:bg-primary group-hover:text-white transition-all">Agency</span>
+              <span className="hidden sm:inline text-xs font-bold opacity-80 uppercase tracking-widest group-hover:opacity-100 group-hover:text-primary transition-all">
+                {user.agencyName}
+                {user.agencyWebsite && <span className="ml-1 text-[8px] opacity-30 group-hover:opacity-100">↗</span>}
+              </span>
             </motion.div>
           )}
           <h2 className="text-lg sm:text-xl font-bold tracking-tight truncate max-w-[150px] sm:max-w-none">
