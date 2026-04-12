@@ -215,7 +215,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-background border border-[var(--border)] outline-none focus:ring-2 focus:ring-primary transition-all text-sm"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl input-clean outline-none text-sm"
                   placeholder="Your Name"
                   required
                 />
@@ -230,7 +230,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-background border border-[var(--border)] outline-none focus:ring-2 focus:ring-primary transition-all text-sm"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl input-clean outline-none text-sm"
                   placeholder="you@example.com"
                   required
                 />
@@ -251,7 +251,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                     type="text"
                     value={agencyName}
                     onChange={(e) => setAgencyName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-background border border-[var(--border)] outline-none focus:ring-2 focus:ring-primary transition-all text-sm"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl input-clean outline-none text-sm"
                     placeholder="Enter agency name"
                     required={userType === 'agency'}
                   />
@@ -264,7 +264,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                     type="url"
                     value={agencyWebsite}
                     onChange={(e) => setAgencyWebsite(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-background border border-[var(--border)] outline-none focus:ring-2 focus:ring-primary transition-all text-sm"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl input-clean outline-none text-sm"
                     placeholder="https://youragency.com"
                   />
                 </div>
@@ -366,7 +366,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
           <button
             type="button"
             onClick={handleClose}
-            className="px-6 py-2.5 rounded-xl font-medium border border-[var(--border)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+            className="px-6 py-2.5 rounded-xl font-medium border border-[var(--border)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors btn-lift"
           >
             Close
           </button>

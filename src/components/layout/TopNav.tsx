@@ -25,7 +25,7 @@ export function TopNav() {
     <motion.header 
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className="h-20 flex items-center justify-between px-4 lg:px-8 glass border-b sticky top-0 z-40 lg:ml-[280px]"
+      className="h-20 flex items-center justify-between px-4 lg:px-8 glass border-b border-white/10 sticky top-0 z-40 lg:ml-[280px]"
     >
       <div className="flex items-center gap-4">
         <button 
@@ -65,7 +65,7 @@ export function TopNav() {
         ) : (
           <button 
             onClick={() => openLoginModal()}
-            className="bg-primary text-primary-foreground px-3 sm:px-5 py-2 rounded-xl font-bold text-xs sm:text-sm hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-primary/20"
+            className="bg-primary text-white px-3 sm:px-5 py-2 rounded-xl font-bold text-xs sm:text-sm hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-primary/20 btn-lift"
           >
             Sign In
           </button>

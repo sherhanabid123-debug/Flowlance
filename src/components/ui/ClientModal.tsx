@@ -40,7 +40,7 @@ const InputField = forwardRef<HTMLInputElement, any>(({ label, value, onChange, 
         onChange={onChange}
         required={required}
         disabled={disabled}
-        className={`peer w-full bg-transparent p-3 pt-6 rounded-xl border border-[var(--border)] outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm disabled:cursor-not-allowed disabled:bg-black/5 dark:disabled:bg-white/5 disabled:opacity-60`}
+        className={`peer w-full p-3 pt-6 rounded-xl input-clean outline-none text-sm disabled:cursor-not-allowed disabled:bg-black/5 dark:disabled:bg-white/5 disabled:opacity-60`}
         placeholder=" "
       />
       <label className={`absolute left-3 top-4 text-xs font-medium opacity-60 transition-all pointer-events-none 
@@ -505,7 +505,7 @@ export function ClientModal({ isOpen, onClose, initialData, initialTab = 'detail
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="peer w-full bg-transparent p-3 pt-6 rounded-xl border border-[var(--border)] outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm min-h-[100px] resize-none"
+            className="peer w-full bg-transparent p-3 pt-6 rounded-xl input-clean outline-none text-sm min-h-[100px] resize-none"
             placeholder=" "
           />
           <label className={`absolute left-3 top-4 text-xs font-medium opacity-60 transition-all pointer-events-none 
@@ -550,7 +550,7 @@ export function ClientModal({ isOpen, onClose, initialData, initialTab = 'detail
             <button
               type="button"
               onClick={handleClose}
-              className="px-5 py-2.5 rounded-xl font-medium border border-[var(--border)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+              className="px-5 py-2.5 rounded-xl font-medium border border-[var(--border)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors btn-lift"
             >
               {initialData ? 'Close' : 'Cancel'}
             </button>
@@ -558,7 +558,7 @@ export function ClientModal({ isOpen, onClose, initialData, initialTab = 'detail
             <button
               type="submit"
               disabled={isSubmitting || !isValid}
-              className={`px-5 py-2.5 rounded-xl font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${shake ? 'animate-shake' : ''}`}
+              className={`px-5 py-2.5 rounded-xl font-semibold bg-primary text-white hover:opacity-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 btn-lift ${shake ? 'animate-shake' : ''}`}
             >
               {isSubmitting ? (
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
