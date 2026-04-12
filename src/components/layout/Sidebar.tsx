@@ -68,7 +68,7 @@ export function Sidebar() {
 
       {/* Desktop Sidebar (Static) */}
       {isDesktop && (
-        <div className="w-[280px] h-screen fixed left-0 top-0 glass border-r border-white/10 z-50 hidden lg:flex flex-col items-start p-8">
+        <div className="w-[280px] h-screen fixed left-0 top-0 glass border-r z-50 hidden lg:flex flex-col items-start p-6">
           <SidebarContent 
             closeSidebar={closeSidebar} 
             pathname={pathname} 

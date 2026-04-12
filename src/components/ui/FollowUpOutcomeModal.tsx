@@ -107,7 +107,7 @@ export function FollowUpOutcomeModal({ isOpen, onClose, onSubmit, clientName, hi
                     type="date"
                     value={customDate}
                     onChange={(e) => setCustomDate(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl input-clean outline-none transition-all font-bold text-sm"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-primary outline-none transition-all font-bold text-sm"
                   />
                 </div>
               </motion.div>
@@ -124,7 +124,7 @@ export function FollowUpOutcomeModal({ isOpen, onClose, onSubmit, clientName, hi
                   placeholder="e.g. He said he would check his budget and get back..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full p-4 rounded-2xl input-clean outline-none transition-all text-sm resize-none h-24"
+                  className="w-full p-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-primary outline-none transition-all text-sm resize-none h-24"
                 />
               </motion.div>
             )}
@@ -134,14 +134,14 @@ export function FollowUpOutcomeModal({ isOpen, onClose, onSubmit, clientName, hi
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3.5 rounded-2xl font-bold text-sm border border-[var(--border)] hover:bg-black/5 dark:hover:bg-white/5 transition-all btn-lift"
+              className="flex-1 py-3.5 rounded-2xl font-bold text-sm border border-[var(--border)] hover:bg-black/5 dark:hover:bg-white/5 transition-all"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={!selectedOutcome || isSubmitting}
-              className="flex-[2] py-3.5 rounded-2xl font-bold text-sm bg-primary text-white hover:opacity-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20 flex items-center justify-center gap-2 btn-lift"
+              className="flex-[2] py-3.5 rounded-2xl font-bold text-sm bg-primary text-primary-foreground hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <Loader2 size={18} className="animate-spin" />

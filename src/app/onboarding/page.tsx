@@ -155,7 +155,7 @@ export default function OnboardingPage() {
                 <button
                   onClick={handleNextStep}
                   disabled={!type || isSubmitting}
-                  className="px-12 h-14 bg-primary text-white font-bold rounded-2xl flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-primary/20 transition-all active:scale-95 disabled:opacity-50 btn-lift"
+                  className="px-12 h-14 bg-primary text-white font-bold rounded-2xl flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-primary/20 transition-all active:scale-95 disabled:opacity-50"
                 >
                   {isSubmitting ? <Loader2 className="animate-spin" /> : (type === 'agency' ? 'Next' : 'Create My Workspace')}
                   <ArrowRight size={20} />
@@ -191,7 +191,7 @@ export default function OnboardingPage() {
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleNextStep()}
-                      className="w-full px-6 py-4 rounded-2xl input-clean outline-none text-lg transition-all"
+                      className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-2xl px-6 py-4 text-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                     />
                   </div>
                   <div className="space-y-2">
@@ -202,15 +202,15 @@ export default function OnboardingPage() {
                       value={website}
                       onChange={(e) => setWebsite(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleNextStep()}
-                      className="w-full px-6 py-4 rounded-2xl input-clean outline-none text-lg transition-all"
+                      className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-2xl px-6 py-4 text-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:opacity-30"
                     />
                   </div>
                   <div className="flex gap-4">
-                    <button onClick={() => setStep('type')} className="h-16 px-6 glass border-white/10 font-bold rounded-2xl hover:bg-primary/5 transition-all">Back</button>
+                    <button onClick={() => setStep('type')} className="h-16 px-6 glass border-[var(--border)] font-bold rounded-2xl hover:bg-primary/5 transition-all">Back</button>
                     <button
                       onClick={handleNextStep}
                       disabled={isSubmitting || !companyName.trim()}
-                      className="flex-1 h-16 bg-primary text-white font-bold rounded-2xl flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-primary/20 transition-all active:scale-95 disabled:opacity-50 btn-lift"
+                      className="flex-1 h-16 bg-primary text-white font-bold rounded-2xl flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-primary/20 transition-all active:scale-95 disabled:opacity-50"
                     >
                       {isSubmitting ? <Loader2 className="animate-spin" /> : 'Finalize Setup'}
                       <ArrowRight size={20} />

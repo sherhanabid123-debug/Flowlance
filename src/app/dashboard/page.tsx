@@ -232,13 +232,14 @@ export default function DashboardOverview() {
 
   if (isLoading) {
     return (
-      <div className="space-y-8 animate-in fade-in duration-500">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map(i => (
-            <div key={i} className="glass p-6 rounded-2xl h-24 bg-black/5 dark:bg-white/5" />
+      <div className="space-y-6 pt-12 animate-pulse">
+        <div className="h-10 w-48 bg-black/10 dark:bg-white/10 rounded-xl mb-4" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="glass p-6 rounded-2xl h-24 bg-black/5 dark:bg-white/5 border-transparent" />
           ))}
         </div>
-        <div className="glass p-6 rounded-2xl h-80 bg-black/5 dark:bg-white/5" />
+        <div className="glass p-6 rounded-2xl h-80 bg-black/5 dark:bg-white/5 border-transparent" />
       </div>
     );
   }
@@ -297,7 +298,7 @@ export default function DashboardOverview() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => runProtected(() => setIsQuickAddOpen(true))}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 border border-primary text-primary px-4 py-2.5 rounded-xl font-medium hover:bg-primary/5 transition-all whitespace-nowrap text-sm btn-lift"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 border border-primary text-primary px-4 py-2.5 rounded-xl font-medium hover:bg-primary/5 transition-all whitespace-nowrap text-sm"
           >
             <Zap size={15} /> Quick Add Client
           </button>
