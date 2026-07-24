@@ -1,7 +1,13 @@
 {
-  "name": "tmp-crm",
-  "version": "0.1.0",
+  "name": "flowlance",
+  "description": "Client and workspace management dashboard for freelancers and small agencies.",
+  "version": "1.0.0",
   "private": true,
+  "author": "Sherhan Abid",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sherhanabid123-debug/Flowlance"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",

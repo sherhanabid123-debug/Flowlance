@@ -3,7 +3,10 @@ import dbConnect from './db';
 import { User } from '@/models/User';
 
 
-const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_jwt_key_here_for_development_purposes_only';
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is not set');
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export const signToken = (userId: string) => {
   return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '7d' });
