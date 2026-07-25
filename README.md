@@ -1,5 +1,7 @@
 # Flowlance
 
+**Live site:** [https://flowlance-one.vercel.app](https://flowlance-one.vercel.app)
+
 A client and workspace management dashboard for freelancers and small agencies — track clients, follow-ups, and team members in one place.
 
 ## Features
