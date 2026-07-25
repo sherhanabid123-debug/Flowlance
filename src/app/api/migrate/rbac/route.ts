@@ -3,11 +3,16 @@ import dbConnect from '@/lib/db';
 import { Workspace } from '@/models/Workspace';
 import mongoose from 'mongoose';
 
-export async function POST() {
+export async function POST(req: Request) {
+  // Security check: require an admin secret, same pattern as the cron route.
+  const authHeader = req.headers.get('authorization');
+  if (authHeader !== `Bearer ${process.env.MIGRATION_SECRET}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     await dbConnect();
     
-    // Safety check: but for this context we allow it once.
     const workspaces = await Workspace.find({});
     let migratedCount = 0;
     

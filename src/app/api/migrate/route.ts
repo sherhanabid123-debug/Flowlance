@@ -5,12 +5,15 @@ import { Workspace } from '@/models/Workspace';
 import { Client } from '@/models/Client';
 import mongoose from 'mongoose';
 
-export async function POST() {
+export async function POST(req: Request) {
+  // Security check: require an admin secret, same pattern as the cron route.
+  const authHeader = req.headers.get('authorization');
+  if (authHeader !== `Bearer ${process.env.MIGRATION_SECRET}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     await dbConnect();
-    
-    // Safety check: ensure only admins can run this, but for this context we allow it once.
-    // In a real prod environment, you'd secure this route heavily.
     
     const users = await User.find({});
     let migratedCount = 0;
