@@ -6,7 +6,7 @@ import { useClientStore } from '@/store/useClientStore';
 import { useWorkspaceStore } from '@/store/useWorkspaceStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Plus, Trash2, Edit, Link as LinkIcon, CheckCheck, MessageCircle, Zap, Download, History } from 'lucide-react';
+import { Search, Plus, Trash2, Edit, Link as LinkIcon, CheckCheck, MessageCircle, Zap, Download, History, Share2 } from 'lucide-react';
 import { ClientModal } from '@/components/ui/ClientModal';
 import { QuickAddModal } from '@/components/ui/QuickAddModal';
 import { FollowUpOutcomeModal } from '@/components/ui/FollowUpOutcomeModal';
@@ -20,7 +20,7 @@ import { isPast, isToday, format } from 'date-fns';
 import { useAuthBarrier } from '@/hooks/useAuthBarrier';
 
 function ClientsContent() {
-  const { clients, setClients, isLoading, setLoading, deleteClient, markFollowUpDone } = useClientStore();
+  const { clients, setClients, isLoading, setLoading, deleteClient, markFollowUpDone, updateClient } = useClientStore();
   const { workspace, getCurrentRole } = useWorkspaceStore();
   const { user } = useAuthStore();
   
@@ -159,6 +159,21 @@ function ClientsContent() {
     runProtected(() => {
       setEditingClient(null);
       setIsModalOpen(true);
+    });
+  };
+
+  const handleSharePortal = async (client: any) => {
+    runProtected(async () => {
+      try {
+        const res = await fetch(`/api/clients/${client._id}/portal`, { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to create portal link');
+        updateClient(data.client);
+        await navigator.clipboard.writeText(data.portalLink);
+        addToast('Portal link copied to clipboard!', 'success');
+      } catch (e: any) {
+        addToast(e.message || 'Error creating portal link', 'error');
+      }
     });
   };
 
@@ -497,6 +512,13 @@ function ClientsContent() {
                         </button>
                       );
                     })()}
+                    <button
+                      onClick={() => handleSharePortal(client)}
+                      title={client.portalEnabled ? 'Copy client portal link' : 'Share a read-only status link with the client'}
+                      className="p-2 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 text-purple-500 transition-colors"
+                    >
+                      <Share2 size={18} />
+                    </button>
                     <button 
                       onClick={() => handleEdit(client, 'history')}
                       title="View Follow-up History"

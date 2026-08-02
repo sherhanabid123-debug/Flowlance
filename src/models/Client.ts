@@ -39,7 +39,11 @@ export interface IClient extends Document {
     userId: string | mongoose.Types.ObjectId;
     percentage: number;
   }[];
-  
+
+  // Client-facing portal
+  portalEnabled?: boolean;
+  portalToken?: string;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -110,6 +114,10 @@ const ClientSchema: Schema<IClient> = new Schema(
         percentage: { type: Number, required: true, min: 0, max: 100 },
       },
     ],
+
+    // Client-facing portal
+    portalEnabled: { type: Boolean, default: false },
+    portalToken: { type: String, sparse: true, index: true },
   },
   {
     timestamps: true,
