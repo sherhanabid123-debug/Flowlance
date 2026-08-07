@@ -6,7 +6,7 @@ export function HowItWorks() {
   const steps = [
     { title: "Add Clients", desc: "Just their name and project scope. Simple as that.", icon: PlusCircle },
     { title: "Track Progress", desc: "Our visual pipeline shows you exactly what's next.", icon: Target },
-    { title: "Close Deals", desc: "Track payments and revenue, with Indian Rupee support built in.", icon: Trophy },
+    { title: "Close Deals", desc: "Send invoices and track revenue, with Indian Rupee support built in.", icon: Trophy },
   ];
 
   return (
