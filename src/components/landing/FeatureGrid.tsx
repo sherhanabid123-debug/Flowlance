@@ -1,40 +1,38 @@
 'use client';
 import { motion } from 'framer-motion';
-import { Users, LayoutDashboard, Wallet, Bell, Target, IndianRupee, PieChart, ShieldCheck } from 'lucide-react';
+import { Users, LayoutDashboard, Bell, IndianRupee, PieChart, ShieldCheck } from 'lucide-react';
 
 export function FeatureGrid() {
   const features = [
-    { title: "Client Tracking", desc: "Manage every lead from first contact to final invoice.", icon: LayoutDashboard, color: "text-blue-500", bg: "bg-blue-500/10 border-blue-500/20" },
-    { title: "Smart Reminders", desc: "Automatic follow up scheduling so you never miss a beat.", icon: Bell, color: "text-indigo-500", bg: "bg-indigo-500/10 border-indigo-500/20" },
-    { title: "Revenue Overview", desc: "See where your pipeline stands and what's been earned.", icon: PieChart, color: "text-emerald-500", bg: "bg-emerald-500/10 border-emerald-500/20" },
-    { title: "Team Collaboration", desc: "Invite members and manage permissions with role based access.", icon: Users, color: "text-purple-500", bg: "bg-purple-500/10 border-purple-500/20" },
-    { title: "Revenue Split", desc: "Perfect for agencies. Split earnings automatically per project.", icon: IndianRupee, color: "text-amber-500", bg: "bg-amber-500/10 border-amber-500/20" },
-    { title: "Private by Default", desc: "Your client data lives in its own workspace, visible only to your team.", icon: ShieldCheck, color: "text-sky-500", bg: "bg-sky-500/10 border-sky-500/20" },
+    { title: "Client tracking", desc: "Manage every lead from first contact to final invoice.", icon: LayoutDashboard },
+    { title: "Smart reminders", desc: "Automatic follow up scheduling so you never miss a beat.", icon: Bell },
+    { title: "Revenue overview", desc: "See where your pipeline stands and what's been earned.", icon: PieChart },
+    { title: "Team collaboration", desc: "Invite members and manage permissions with role based access.", icon: Users },
+    { title: "Revenue split", desc: "Perfect for agencies. Split earnings automatically per project.", icon: IndianRupee },
+    { title: "Private by default", desc: "Your client data lives in its own workspace, visible only to your team.", icon: ShieldCheck },
   ];
 
   return (
-    <section className="py-24">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16 space-y-4">
-           <h2 className="text-xs font-bold text-primary uppercase tracking-widest">Capabilities</h2>
-           <h3 className="text-4xl font-bold tracking-tight">Everything your agency needs.</h3>
+    <section className="py-20 sm:py-24 border-t border-[var(--rule)]">
+      <div className="max-w-4xl mx-auto px-6">
+        <div className="mb-12 space-y-3">
+           <h2 className="text-xs font-mono text-[var(--brass)] uppercase tracking-widest">Capabilities</h2>
+           <h3 className="font-display text-2xl sm:text-4xl font-medium tracking-tight">Everything your agency needs.</h3>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="border-t border-[var(--rule)]">
            {features.map((f, i) => (
              <motion.div
                key={i}
-               initial={{ opacity: 0, y: 20 }}
-               whileInView={{ opacity: 1, y: 0 }}
+               initial={{ opacity: 0 }}
+               whileInView={{ opacity: 1 }}
                viewport={{ once: true }}
-               transition={{ delay: i * 0.1 }}
-               className="p-8 rounded-[32px] glass border border-transparent hover:border-primary/20 transition-all group scale-100 hover:scale-[1.02]"
+               transition={{ delay: i * 0.05 }}
+               className="border-b border-[var(--rule)] py-5 flex items-start gap-4 sm:gap-8"
              >
-                <div className={`p-4 rounded-2xl w-fit mb-6 ${f.bg} ${f.color} transition-transform group-hover:scale-110`}>
-                   <f.icon size={26} />
-                </div>
-                <h4 className="text-xl font-bold mb-3">{f.title}</h4>
-                <p className="text-sm text-[var(--text-muted)] leading-relaxed">
+                <f.icon size={18} className="text-[var(--brass)] mt-0.5 shrink-0" />
+                <h4 className="font-medium text-sm sm:w-48 shrink-0">{f.title}</h4>
+                <p className="text-sm text-[var(--ink-text-muted)] leading-relaxed">
                    {f.desc}
                 </p>
              </motion.div>

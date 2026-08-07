@@ -11,7 +11,7 @@ import { FinalCTA } from '@/components/landing/FinalCTA';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#050505] text-white relative selection:bg-primary selection:text-white dark">
+    <div className="landing-theme min-h-screen relative selection:bg-[var(--brass)] selection:text-[var(--ink)]">
       <LandingNavbar />
       
       <main className="relative z-10 flex flex-col">
@@ -24,21 +24,16 @@ export default function Home() {
         <FinalCTA />
       </main>
 
-      {/* Modern Grid Background */}
-      <div className="fixed inset-0 pointer-events-none z-0 opacity-10" 
-           style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '40px 40px' }} 
-      />
-
-      <footer className="py-12 relative z-10 flex flex-col items-center gap-6 glass sm:flex-row sm:justify-between sm:px-20">
-         <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-xs cursor-pointer" onClick={() => window.location.href = '/'}>F</div>
+      <footer className="py-10 relative z-10 flex flex-col items-center gap-6 border-t border-[var(--rule)] sm:flex-row sm:justify-between sm:px-20 px-6">
+         <div className="flex items-center gap-2.5">
+            <div className="w-6 h-6 border border-[var(--brass)] rounded-sm flex items-center justify-center text-[var(--brass)] font-display font-semibold text-xs cursor-pointer" onClick={() => window.location.href = '/'}>F</div>
             <div className="flex flex-col leading-tight">
-               <span className="font-bold tracking-tight opacity-70 leading-none">Flowlance</span>
-               <span className="text-[8px] font-medium opacity-30 tracking-wider uppercase">by Scalera</span>
+               <span className="font-display tracking-tight opacity-70 leading-none text-sm">Flowlance</span>
+               <span className="text-[8px] font-mono opacity-40 tracking-wider uppercase">by Scalera</span>
             </div>
          </div>
-         <p className="text-xs opacity-40 font-medium">© {new Date().getFullYear()} Flowlance. A CRM for freelancers and small agencies.</p>
-         <div className="flex items-center gap-6 text-xs font-bold opacity-40">
+         <p className="text-xs opacity-40 font-mono">© {new Date().getFullYear()} Flowlance. A CRM for freelancers and small agencies.</p>
+         <div className="flex items-center gap-6 text-xs font-mono opacity-40">
             <Link href="/privacy" className="hover:opacity-100 transition-opacity">Privacy</Link>
             <Link href="/terms" className="hover:opacity-100 transition-opacity">Terms</Link>
          </div>

@@ -1,37 +1,35 @@
 'use client';
-import { motion } from 'framer-motion';
 import { PlusCircle, Target, Trophy } from 'lucide-react';
 
 export function HowItWorks() {
   const steps = [
-    { title: "Add Clients", desc: "Just their name and project scope. Simple as that.", icon: PlusCircle },
-    { title: "Track Progress", desc: "Our visual pipeline shows you exactly what's next.", icon: Target },
-    { title: "Close Deals", desc: "Send invoices and track revenue, with Indian Rupee support built in.", icon: Trophy },
+    { title: "Add clients", desc: "Just their name and project scope. Simple as that.", icon: PlusCircle },
+    { title: "Track progress", desc: "The visual pipeline shows you exactly what's next.", icon: Target },
+    { title: "Close deals", desc: "Send invoices and track revenue, with Indian Rupee support built in.", icon: Trophy },
   ];
 
   return (
-    <section className="py-24 bg-black/5 dark:bg-white/5 relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16 space-y-4">
-           <h2 className="text-xs font-bold text-primary uppercase tracking-widest">The Process</h2>
-           <h3 className="text-4xl font-bold tracking-tight">Three steps to clarity.</h3>
+    <section className="py-20 sm:py-24 border-t border-[var(--rule)]">
+      <div className="max-w-5xl mx-auto px-6">
+        <div className="mb-14 space-y-3">
+           <h2 className="text-xs font-mono text-[var(--brass)] uppercase tracking-widest">The process</h2>
+           <h3 className="font-display text-2xl sm:text-4xl font-medium tracking-tight">Three steps to clarity.</h3>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-10 relative">
            {steps.map((s, i) => (
-              <div
-                key={i}
-                className="p-8 rounded-[32px] bg-white dark:bg-black/40 border border-transparent hover:border-primary/20 transition-all group"
-              >
-                 <div className="w-14 h-14 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-primary mb-6 transition-transform group-hover:rotate-6">
-                    <s.icon size={26} />
+              <div key={i} className="relative">
+                 <div className="flex items-baseline gap-3 mb-4">
+                    <span className="font-display italic text-3xl text-[var(--brass)]">{i + 1}</span>
+                    <s.icon size={18} className="opacity-40" />
                  </div>
-                 <div className="space-y-3">
-                    <h4 className="text-xl font-bold tracking-tight">Step 0{i+1}: {s.title}</h4>
-                    <p className="text-sm text-[var(--text-muted)] leading-relaxed">
-                       {s.desc}
-                    </p>
-                 </div>
+                 <h4 className="font-display text-lg font-medium tracking-tight mb-2">{s.title}</h4>
+                 <p className="text-sm text-[var(--ink-text-muted)] leading-relaxed">
+                    {s.desc}
+                 </p>
+                 {i < steps.length - 1 && (
+                   <div className="hidden md:block absolute top-3 -right-4 w-8 h-px bg-[var(--rule)]" />
+                 )}
               </div>
             ))}
         </div>

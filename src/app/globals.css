@@ -61,3 +61,34 @@ body {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
 }
+
+/* Landing page: a self-contained "ledger" theme, scoped so it never
+   touches the dashboard's design tokens above. */
+.landing-theme {
+  --ink: #12182b;
+  --ink-soft: #1b2340;
+  --paper: #f4f0e4;
+  --paper-line: #e4dcc6;
+  --brass: #b8892b;
+  --stamp: #8a2f2f;
+  --rule: #2b3454;
+  --ink-text: #eae6d9;
+  --ink-text-muted: #9aa3c4;
+  background-color: var(--ink);
+  color: var(--ink-text);
+}
+
+.landing-theme .font-display {
+  font-family: var(--font-display), Georgia, serif;
+}
+
+.landing-theme .font-mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+.landing-theme .ledger-grid {
+  background-image:
+    linear-gradient(var(--rule) 1px, transparent 1px),
+    linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
