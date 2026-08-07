@@ -1,4 +1,6 @@
 'use client';
+import { motion } from 'framer-motion';
+import { CheckCircle2 } from 'lucide-react';
 
 export function SocialProof() {
   const points = [
@@ -8,18 +10,26 @@ export function SocialProof() {
   ];
 
   return (
-    <section className="py-20 sm:py-24 border-t border-[var(--rule)]">
-      <div className="max-w-4xl mx-auto px-6">
-        <div className="mb-12 space-y-3">
-           <h2 className="text-xs font-mono text-[var(--brass)] uppercase tracking-widest">Why Flowlance</h2>
-           <h3 className="font-display text-2xl sm:text-4xl font-medium tracking-tight">Built to solve a real problem.</h3>
+    <section className="py-20 sm:py-24 overflow-hidden relative">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="text-center mb-12 sm:mb-16 space-y-4 px-4 sm:px-0">
+           <h2 className="text-xs font-bold text-indigo-500 uppercase tracking-widest">Why Flowlance</h2>
+           <h3 className="text-3xl sm:text-4xl font-bold tracking-tight">Built to solve a real problem.</h3>
         </div>
  
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
            {points.map((p, i) => (
-             <div key={i}>
-                <p className="font-medium text-sm mb-2">{p.title}</p>
-                <p className="text-sm leading-relaxed text-[var(--ink-text-muted)]">{p.body}</p>
+             <div
+               key={i}
+               className="p-6 sm:p-8 rounded-3xl glass border border-transparent bg-indigo-600/5 hover:border-indigo-600/20 transition-all flex flex-col items-start gap-4"
+             >
+                <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-500">
+                   <CheckCircle2 size={20} />
+                </div>
+                <div>
+                   <p className="font-bold text-sm sm:text-base mb-1">{p.title}</p>
+                   <p className="text-sm sm:text-base leading-relaxed opacity-70">{p.body}</p>
+                </div>
              </div>
            ))}
         </div>

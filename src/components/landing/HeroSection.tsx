@@ -1,105 +1,110 @@
 'use client';
 import { motion } from 'framer-motion';
+import { LayoutDashboard, Users, TrendingUp, Zap, MousePointer2 } from 'lucide-react';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export function HeroSection() {
+  const { openLoginModal } = useAuthStore();
+
   return (
-    <div className="relative pt-16 pb-16 sm:pt-24 sm:pb-24 overflow-hidden">
-      <div className="absolute inset-0 ledger-grid opacity-[0.06] pointer-events-none" />
-
-      <div className="max-w-6xl mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-8 items-center">
-        <div className="space-y-6 sm:space-y-8">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-3 py-1 border border-[var(--brass)]/50 text-[var(--brass)] text-[10px] sm:text-xs font-mono uppercase tracking-widest -rotate-1"
-          >
-            For freelancers &amp; small agencies
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.08 }}
-            className="font-display text-4xl sm:text-6xl lg:text-[4.2rem] font-medium tracking-tight leading-[1.08]"
-          >
-            Never miss a client
-            <br />
-            <span className="text-[var(--brass)] italic">follow up</span> again
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.16 }}
-            className="text-base sm:text-lg text-[var(--ink-text-muted)] max-w-md leading-relaxed"
-          >
-            Track leads, manage projects, and keep an eye on revenue, all from one dashboard.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.24 }}
-            className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-2"
-          >
-            <button
-              onClick={() => window.location.href = 'https://flowlance-one.vercel.app/dashboard'}
-              className="w-full sm:w-auto h-12 px-8 bg-[var(--brass)] text-[var(--ink)] font-mono font-semibold text-sm uppercase tracking-wide hover:brightness-110 transition-all active:scale-[0.98]"
-            >
-              Get started
-            </button>
-            <button
-              onClick={() => window.location.href = 'https://flowlance-one.vercel.app/dashboard'}
-              className="w-full sm:w-auto h-12 px-8 border border-[var(--rule)] font-mono text-sm uppercase tracking-wide hover:border-[var(--brass)]/60 transition-all active:scale-[0.98]"
-            >
-              Try demo
-            </button>
-          </motion.div>
-        </div>
-
-        {/* Receipt-style visual: a torn/perforated ledger slip standing in for a "dashboard mock" */}
+    <div className="relative pt-24 pb-12 sm:pt-32 sm:pb-20 overflow-hidden">
+      {/* Background Orbs */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[300px] sm:h-[500px] bg-primary/20 blur-[120px] rounded-full pointer-events-none" />
+      
+      <div className="max-w-5xl mx-auto px-6 text-center space-y-6 sm:space-y-8 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 30, rotate: -6 }}
-          animate={{ opacity: 1, y: 0, rotate: -3 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-          className="relative mx-auto w-full max-w-sm"
+           initial={{ opacity: 0, y: 20 }}
+           animate={{ opacity: 1, y: 0 }}
+           className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-2 sm:mb-4"
         >
-          <div className="bg-[var(--paper)] text-[var(--ink)] p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.45)] relative">
-            {/* Perforated top edge */}
-            <div
-              className="absolute -top-2 left-0 right-0 h-4"
-              style={{
-                backgroundImage: 'radial-gradient(circle, var(--ink) 3px, transparent 3px)',
-                backgroundSize: '14px 14px',
-                backgroundPosition: 'top center',
-              }}
-            />
-
-            <p className="font-mono text-[10px] uppercase tracking-widest opacity-50 mb-4">Client Ledger</p>
-
-            <div className="space-y-3 font-mono text-xs sm:text-sm">
-              <div className="flex justify-between border-b border-[var(--paper-line)] pb-2">
-                <span className="opacity-60">Rohan Interiors</span>
-                <span className="text-emerald-700 font-semibold">Confirmed</span>
-              </div>
-              <div className="flex justify-between border-b border-[var(--paper-line)] pb-2">
-                <span className="opacity-60">Studio Verve</span>
-                <span className="text-amber-700 font-semibold">Potential</span>
-              </div>
-              <div className="flex justify-between border-b border-[var(--paper-line)] pb-2">
-                <span className="opacity-60">Kadam &amp; Co</span>
-                <span className="opacity-40 font-semibold">Completed</span>
-              </div>
-              <div className="flex justify-between pt-1">
-                <span className="opacity-60">Next follow up</span>
-                <span className="font-semibold">Tomorrow, 10:00</span>
-              </div>
-            </div>
-
-            {/* Stamp */}
-            <div className="absolute -bottom-5 -right-4 rotate-[-12deg] border-2 border-[var(--stamp)] text-[var(--stamp)] font-mono font-bold text-xs sm:text-sm px-3 py-1 uppercase tracking-widest opacity-80">
-              Tracked
-            </div>
+          <Zap size={14} className="fill-current" />
+          Built for freelancers and small agencies
+        </motion.div>
+        
+        <motion.h1 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-3xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.2] sm:leading-[1.1]"
+        >
+          Never miss a client <br className="hidden sm:block" />
+          <span className="text-primary italic">follow up</span> again
+        </motion.h1>
+        
+        <motion.p 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="text-sm sm:text-lg lg:text-xl text-[var(--text-muted)] max-w-2xl mx-auto leading-relaxed px-4 sm:px-0"
+        >
+          Track leads, manage projects, and keep an eye on revenue, all from one dashboard.
+        </motion.p>
+        
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-2 sm:pt-4"
+        >
+          <button 
+            onClick={() => window.location.href = 'https://flowlance-one.vercel.app/dashboard'}
+            className="w-full sm:w-auto h-12 sm:h-14 px-8 sm:px-10 bg-primary text-white font-bold rounded-xl sm:rounded-2xl hover:opacity-90 transition-all shadow-xl shadow-primary/30 active:scale-95 flex items-center justify-center gap-2"
+          >
+            Get Started
+            <Zap size={18} />
+          </button>
+          <button 
+             onClick={() => window.location.href = 'https://flowlance-one.vercel.app/dashboard'}
+            className="w-full sm:w-auto h-12 sm:h-14 px-8 sm:px-10 glass border font-bold rounded-xl sm:rounded-2xl hover:bg-black/5 dark:hover:bg-white/5 transition-all active:scale-95 flex items-center justify-center gap-2"
+          >
+            Try Demo
+            <MousePointer2 size={18} />
+          </button>
+        </motion.div>
+ 
+        {/* Floating Preview Card */}
+        <motion.div
+           initial={{ opacity: 0, y: 50, rotateX: 10 }}
+           animate={{ opacity: 1, y: 0, rotateX: 0 }}
+           transition={{ delay: 0.4, duration: 0.8 }}
+           style={{ perspective: 1000 }}
+           className="mt-12 sm:mt-20 relative px-2 sm:px-4"
+        >
+          <div className="glass border rounded-[2rem] p-4 sm:p-8 shadow-2xl relative bg-black/40 dark:bg-white/5 overflow-hidden">
+             {/* Mock Dashboard UI */}
+             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 opacity-30 pointer-events-none select-none">
+                <div className="h-24 sm:h-32 bg-primary/10 rounded-2xl border border-primary/20 flex flex-col p-4 sm:p-6 space-y-2">
+                   <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-primary/20" />
+                   <div className="h-3 w-16 sm:h-4 sm:w-20 bg-primary/40 rounded-full" />
+                   <div className="h-6 w-24 sm:h-8 sm:w-28 bg-white/20 rounded-lg" />
+                </div>
+                <div className="h-24 sm:h-32 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 flex flex-col p-4 sm:p-6 space-y-2">
+                   <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-indigo-500/20" />
+                   <div className="h-3 w-16 sm:h-4 sm:w-20 bg-indigo-500/40 rounded-full" />
+                   <div className="h-6 w-24 sm:h-8 sm:w-28 bg-white/20 rounded-lg" />
+                </div>
+                <div className="h-24 sm:h-32 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 flex flex-col p-4 sm:p-6 space-y-2">
+                   <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-emerald-500/20" />
+                   <div className="h-3 w-16 sm:h-4 sm:w-20 bg-emerald-500/40 rounded-full" />
+                   <div className="h-6 w-24 sm:h-8 sm:w-28 bg-white/20 rounded-lg" />
+                </div>
+             </div>
+             
+             {/* Real Feature Callout in Preview */}
+             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="bg-primary/95 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl shadow-xl font-bold text-xs sm:text-base flex items-center gap-2 sm:gap-3">
+                   <TrendingUp size={16} />
+                   Follow up reminders, built in
+                </div>
+             </div>
+          </div>
+          
+          {/* Decorative Elements */}
+          <div className="absolute -top-4 -left-4 p-3 glass rounded-xl border hidden sm:block">
+             <LayoutDashboard size={20} className="text-primary" />
+          </div>
+          <div className="absolute -bottom-4 -right-4 p-3 glass rounded-xl border hidden sm:block">
+             <Users size={20} className="text-indigo-500" />
           </div>
         </motion.div>
       </div>

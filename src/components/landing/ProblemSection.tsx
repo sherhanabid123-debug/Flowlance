@@ -1,37 +1,36 @@
 'use client';
 import { motion } from 'framer-motion';
+import { AlertCircle, Ghost, Inbox, XOctagon } from 'lucide-react';
 
 export function ProblemSection() {
   const problems = [
-    { title: "Ghosted leads", desc: "You forget to follow up, and the project goes to someone else. Forever." },
-    { title: "Messy pipelines", desc: "Sticky notes and spreadsheets are where client details go to die." },
-    { title: "Lost revenue", desc: "A missed follow up is a project handed to whoever remembered to check in." },
+    { title: "Ghosted Leads", desc: "You forget to follow up, and the project goes to someone else. Forever.", icon: Ghost, color: "text-rose-500" },
+    { title: "Messy Pipelines", desc: "Sticky notes and spreadsheets are where client details go to die.", icon: XOctagon, color: "text-amber-500" },
+    { title: "Lost Revenue", desc: "A missed follow up is a project handed to whoever remembered to check in.", icon: AlertCircle, color: "text-indigo-500" },
   ];
 
   return (
-    <section className="py-20 sm:py-24 border-t border-[var(--rule)]">
-      <div className="max-w-4xl mx-auto px-6">
-        <div className="mb-12 space-y-3">
-           <h2 className="text-xs font-mono text-[var(--stamp)] uppercase tracking-widest">The problem</h2>
-           <h3 className="font-display text-2xl sm:text-4xl font-medium tracking-tight max-w-lg">
-             Managing a business shouldn&apos;t feel this exhausting.
-           </h3>
+    <section className="py-24 bg-black/5 dark:bg-white/5 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="text-center mb-16 space-y-4">
+           <h2 className="text-xs font-bold text-rose-500 uppercase tracking-widest">The Problem</h2>
+           <h3 className="text-3xl sm:text-4xl font-bold tracking-tight">Managing a business shouldn't feel this <span className="underline decoration-rose-500 decoration-3 underline-offset-4">exhausting</span>.</h3>
         </div>
 
-        <div className="divide-y divide-[var(--rule)] border-y border-[var(--rule)]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
            {problems.map((p, i) => (
-             <motion.div
+             <div
                key={i}
-               initial={{ opacity: 0 }}
-               whileInView={{ opacity: 1 }}
-               viewport={{ once: true }}
-               transition={{ delay: i * 0.08 }}
-               className="py-6 flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-8"
+               className="p-8 rounded-3xl bg-white dark:bg-black/40 border border-transparent hover:border-rose-500/20 transition-all group"
              >
-                <span className="font-mono text-xs text-[var(--brass)] w-8 shrink-0">{String(i + 1).padStart(2, '0')}</span>
-                <h4 className="font-display text-lg sm:text-xl font-medium sm:w-56 shrink-0">{p.title}</h4>
-                <p className="text-sm text-[var(--ink-text-muted)] leading-relaxed">{p.desc}</p>
-             </motion.div>
+                <div className={`p-4 rounded-2xl bg-black/5 dark:bg-white/5 w-fit mb-6 ${p.color} transition-transform group-hover:rotate-12`}>
+                   <p.icon size={28} />
+                </div>
+                <h4 className="text-xl font-bold mb-3">{p.title}</h4>
+                <p className="text-sm text-[var(--text-muted)] leading-relaxed">
+                   {p.desc}
+                </p>
+             </div>
            ))}
         </div>
       </div>
