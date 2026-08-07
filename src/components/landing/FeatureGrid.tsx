@@ -5,11 +5,11 @@ import { Users, LayoutDashboard, Wallet, Bell, Target, IndianRupee, PieChart, Sh
 export function FeatureGrid() {
   const features = [
     { title: "Client Tracking", desc: "Manage every lead from first contact to final invoice.", icon: LayoutDashboard, color: "text-blue-500", bg: "bg-blue-500/10 border-blue-500/20" },
-    { title: "Smart Reminders", desc: "Automatic follow up logic so you never miss a beat.", icon: Bell, color: "text-indigo-500", bg: "bg-indigo-500/10 border-indigo-500/20" },
-    { title: "Revenue Analytics", desc: "See your growth trends and project your future earnings.", icon: PieChart, color: "text-emerald-500", bg: "bg-emerald-500/10 border-emerald-500/20" },
-    { title: "Team Collaboration", desc: "Invite members and manage permissions seamlessly.", icon: Users, color: "text-purple-500", bg: "bg-purple-500/10 border-purple-500/20" },
+    { title: "Smart Reminders", desc: "Automatic follow up scheduling so you never miss a beat.", icon: Bell, color: "text-indigo-500", bg: "bg-indigo-500/10 border-indigo-500/20" },
+    { title: "Revenue Overview", desc: "See where your pipeline stands and what's been earned.", icon: PieChart, color: "text-emerald-500", bg: "bg-emerald-500/10 border-emerald-500/20" },
+    { title: "Team Collaboration", desc: "Invite members and manage permissions with role based access.", icon: Users, color: "text-purple-500", bg: "bg-purple-500/10 border-purple-500/20" },
     { title: "Revenue Split", desc: "Perfect for agencies. Split earnings automatically per project.", icon: IndianRupee, color: "text-amber-500", bg: "bg-amber-500/10 border-amber-500/20" },
-    { title: "Secure Data", desc: "Encrypted, safe, and private database for your business.", icon: ShieldCheck, color: "text-sky-500", bg: "bg-sky-500/10 border-sky-500/20" },
+    { title: "Private by Default", desc: "Your client data lives in its own workspace, visible only to your team.", icon: ShieldCheck, color: "text-sky-500", bg: "bg-sky-500/10 border-sky-500/20" },
   ];
 
   return (

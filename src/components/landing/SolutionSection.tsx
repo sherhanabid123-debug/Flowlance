@@ -15,9 +15,9 @@ export function SolutionSection() {
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
            <div className="flex-1 space-y-6 sm:space-y-8">
               <h2 className="text-xs font-bold text-emerald-500 uppercase tracking-widest">The Solution</h2>
-              <h3 className="text-3xl sm:text-5xl font-bold tracking-tight">The antidote to chaos.</h3>
+              <h3 className="text-3xl sm:text-5xl font-bold tracking-tight">Less chaos, more clarity.</h3>
               <p className="text-base sm:text-lg text-[var(--text-muted)] leading-relaxed">
-                 Finally, a tool that works as hard as you do. Flowlance brings all your leads, projects, and revenue together for a unified, organized agency experience.
+                 Flowlance keeps your leads, projects, and revenue in one dashboard, so nothing falls through the cracks.
               </p>
               
               <div className="space-y-4 sm:space-y-6">

@@ -37,7 +37,7 @@ export default function Home() {
                <span className="text-[8px] font-medium opacity-30 tracking-wider uppercase">by Scalera</span>
             </div>
          </div>
-         <p className="text-xs opacity-40 font-medium">© {new Date().getFullYear()} Flowlance. Built for the future of work.</p>
+         <p className="text-xs opacity-40 font-medium">© {new Date().getFullYear()} Flowlance. A CRM for freelancers and small agencies.</p>
          <div className="flex items-center gap-6 text-xs font-bold opacity-40">
             <Link href="/privacy" className="hover:opacity-100 transition-opacity">Privacy</Link>
             <Link href="/terms" className="hover:opacity-100 transition-opacity">Terms</Link>

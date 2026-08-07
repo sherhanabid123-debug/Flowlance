@@ -18,7 +18,7 @@ export function HeroSection() {
            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-2 sm:mb-4"
         >
           <Zap size={14} className="fill-current" />
-          The New Standard for High Growth Teams
+          Built for freelancers and small agencies
         </motion.div>
         
         <motion.h1 
@@ -37,7 +37,7 @@ export function HeroSection() {
           transition={{ delay: 0.2 }}
           className="text-sm sm:text-lg lg:text-xl text-[var(--text-muted)] max-w-2xl mx-auto leading-relaxed px-4 sm:px-0"
         >
-          Track leads, manage projects, and grow your revenue — all in one place. Built for modern agencies, lean teams, and independent professionals.
+          Track leads, manage projects, and keep an eye on revenue, all from one dashboard.
         </motion.p>
         
         <motion.div 
@@ -92,9 +92,9 @@ export function HeroSection() {
              
              {/* Real Feature Callout in Preview */}
              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="bg-primary/95 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl shadow-xl font-bold text-xs sm:text-base flex items-center gap-2 sm:gap-3 animate-bounce">
+                <div className="bg-primary/95 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl shadow-xl font-bold text-xs sm:text-base flex items-center gap-2 sm:gap-3">
                    <TrendingUp size={16} />
-                   +140% Lead Retention
+                   Follow up reminders, built in
                 </div>
              </div>
           </div>
